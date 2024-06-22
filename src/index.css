@@ -1,5 +1,10 @@
+@font-face {
+  font-family: m6x11;
+  src: url(./assets/m6x11plus.ttf);
+}
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: m6x11;
   line-height: 1.5;
   font-weight: 400;
 

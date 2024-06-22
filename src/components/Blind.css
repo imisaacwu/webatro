@@ -1,0 +1,95 @@
+#blind {
+    display: flex;
+    flex: initial;
+    flex-direction: column;
+    background-color: var(--dark-grey);
+    border-radius: 8px;
+    margin-top: 32px;
+}
+
+#blind-name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    margin: 4px;
+    font-size: 48px;
+    line-height: 48px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    background-color: var(--small-blind-primary);
+    border-radius: 8px;
+}
+
+#blind-info {
+    text-align: center;
+    background-color: var(--small-blind-secondary);
+    border-radius: 8px;
+    margin: 0 4px 4px 4px;
+}
+
+#blind-display {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 14vh;
+}
+
+#blind-icon {
+    display: flex;
+    flex: initial;
+    width: 72px;
+    height: 72px;
+    margin: 0 0 0 8px;
+}
+
+#blind-status {
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    background-color: var(--dark-grey);
+    margin: 0 16px;
+    border-radius: 8px;
+}
+
+#blind-score-text {
+    font-size: 20px;
+    line-height: 20px;
+}
+
+#req-display {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#stake-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 8px;
+}
+
+#req-score {
+    font-size: 48px;
+    line-height: 32px;
+    font-weight: bold;
+    color: var(--red);
+}
+
+#reward-display {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+}
+
+#blind-reward {
+    color: var(--yellow);
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: bold;
+    margin: 0 0 0 4px;
+}
