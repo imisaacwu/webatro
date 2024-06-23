@@ -1,0 +1,62 @@
+#hand-info {
+    display: flex;
+    flex: initial;
+    flex-direction: column;
+  
+    background-color: var(--dark-grey);
+    border-radius: 8px;
+  }
+  
+  #hand-type {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #hand-name {
+    font-size: 40px;
+    line-height: 40px;
+    font-weight: bold;
+    margin: 16px 0;
+  }
+  
+  #hand-level {
+    font-size: 24px;
+    margin: 12px;
+  }
+  
+  #calculator {
+    display: flex;
+    flex-direction: row;
+    font-size: 56px;
+    line-height: 56px;
+    margin: 8px;
+  }
+  
+  #chips {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-end;
+  
+    background-color: var(--blue);
+    border-radius: 8px;
+    padding: 0 8px;
+  }
+  
+  #X {
+    flex: initial;
+    margin: 0 8px;
+    color: #eb5a4a;
+  }
+  
+  #mult {
+    display: flex;
+    flex: 1;
+    align-items: center;
+  
+    background-color: #eb5a4a;
+    border-radius: 8px;
+    padding: 0 8px;
+  }

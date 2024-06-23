@@ -1,0 +1,48 @@
+#round-score {
+    display: flex;
+    flex: initial;
+    flex-direction: row;
+    align-items: center;
+
+    height: 64px;
+    width: 100%;
+
+    text-align: center;
+    background-color: var(--dark-grey);
+    border-radius: 8px;
+    margin: 4px 0;
+}
+
+#round-score-text {
+    flex: initial;
+    font-size: 32px;
+    width: 47px;
+    padding-left: 4px;
+    margin: 0 16px;
+    font-weight: bold;
+    line-height: 24px;
+}
+
+#score-display {
+    display: flex;
+    flex: auto;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--light-grey);
+    border-radius: 8px;
+    margin: 0 8px;
+}
+
+#stake-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 8px;
+}
+
+#score {
+    font-size: 48px;
+    line-height: 48px;
+    font-weight: bold;
+}
