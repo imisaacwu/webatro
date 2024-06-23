@@ -26,8 +26,6 @@ export default function Deck({deck}: {deck: string}) {
     const cards: Card[] = makeDeck(deck);
     shuffle(cards);
 
-    const pop = (n: number) => cards.slice(-n);
-
     return (
         <div id="deck" className="card-container">
             <div id="deck-area" className="card-area"></div>
