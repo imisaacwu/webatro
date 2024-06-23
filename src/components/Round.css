@@ -18,7 +18,7 @@
     font-size: 32px;
     width: 47px;
     padding-left: 4px;
-    margin: 0 16px;
+    margin: 0 24px 0 16px;
     font-weight: bold;
     line-height: 24px;
 }
@@ -42,7 +42,7 @@
 }
 
 #score {
-    font-size: 48px;
+    font-size: 56px;
     line-height: 48px;
     font-weight: bold;
 }

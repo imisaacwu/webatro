@@ -1,4 +1,3 @@
-import React from 'react'
 import stake_icon from "../assets/white_stake.webp"
 import "./Round.css"
 

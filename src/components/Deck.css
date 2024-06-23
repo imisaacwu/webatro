@@ -1,0 +1,11 @@
+#deck {
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin: 0 2px;
+}
+
+#deck-label {
+    margin: 0 8px 0 0;
+}

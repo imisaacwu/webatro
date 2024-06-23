@@ -1,4 +1,3 @@
-import React from 'react'
 import small_blind from "../assets/small_blind.webp"
 import stake_icon from "../assets/white_stake.webp"
 import "./Blind.css"

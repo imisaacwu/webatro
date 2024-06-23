@@ -1,11 +1,10 @@
-import React from 'react'
 import "./InfoPanel.css"
 
 export const InfoPanel = () => {
   return (
     <div id="info">
         <div id="buttons">
-            <div id="run-info"><b>Run</b><br/>Info</div>
+            <div id="run-info"><b style={{fontSize: "36px"}}>Run</b><br/>Info</div>
             <div id="options">Options</div>
         </div>
         <div id="stats">
@@ -26,12 +25,12 @@ export const InfoPanel = () => {
                 <div id="ante-box" className="box">
                     Ante
                     <div id="ante-display">
-                        <div id="ante">2</div>/&nbsp;8
+                        <div id="ante">1</div>/&nbsp;8
                     </div>
                 </div>
                 <div id="round-box" className="box">
                     Round
-                    <div id="round">3</div>
+                    <div id="round">1</div>
                 </div>
             </div>
         </div>

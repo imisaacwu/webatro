@@ -12,6 +12,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    min-height: 72px;
   }
   
   #hand-name {
@@ -31,7 +32,7 @@
     flex-direction: row;
     font-size: 56px;
     line-height: 56px;
-    margin: 8px;
+    margin: 8px 8px 12px;
   }
   
   #chips {
@@ -47,7 +48,7 @@
   
   #X {
     flex: initial;
-    margin: 0 8px;
+    margin: 0 4px 0 7px;
     color: #eb5a4a;
   }
   
