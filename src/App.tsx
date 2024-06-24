@@ -1,12 +1,13 @@
 import "./App.css"
 import { Blind } from "./components/Blind"
 import { Calculator } from "./components/Calculator"
-import Deck from "./components/Deck"
+import Deck, { DeckType } from "./components/Deck"
 import Hand from "./components/Hand"
 import { InfoPanel } from "./components/InfoPanel"
 import { Round } from "./components/Round"
 
 export default function App() {
+    const cards = new Deck({deck: DeckType.Red});
     return (
         <div className="container">
             <div id="sidebar">
@@ -28,8 +29,8 @@ export default function App() {
                 </div>
                 <div id="mid"></div>
                 <div id="bot">
-                    <Hand />
-                    <Deck deck="red"/>
+                    <Hand deck={cards}/>
+                    {cards.render()}
                 </div>
             </div>
         </div>
