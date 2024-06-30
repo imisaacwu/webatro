@@ -1,19 +1,31 @@
-import Deck from './Deck'
+import { ReactElement } from 'react'
 import './Hand.css'
 
-export default function Hand({ deck }: { deck: Deck }) {
-    // const drawn: Card[] = deck.draw(8)
+type HandProps = {
+    hand: ReactElement[]
+    handSize: number
+    selected: boolean
+    submitted: boolean
+}
 
-    // const render = (c: Card) => {
-    //     return <div>{c.toString()}</div>
-    // }
-
+export default function Hand(props: HandProps) {
     return (
         <div id='hand' className='card-container'>
             <div id='hand-area' className='card-area'>
-                {deck.arr.slice(0, 8)}
+                {props.hand}
             </div>
-            <div id='hand-label' className='counter'>3/8</div>
+            <div id='hand-label' className='counter'>{props.hand.length}/{props.handSize}</div>
+            <div id='hand-buttons'>
+                <div id='ship' className={`button ${props.selected}`}>Ship It</div>
+                <div id='sort'>
+                    Sort Hand
+                    <div id='sort-buttons'>
+                        <div id='rank' className='sort-button'>Rank</div>
+                        <div id='suit' className='sort-button'>Suit</div>
+                    </div>
+                </div>
+                <div id='discard' className={`button ${props.selected}`}>Discard</div>
+            </div>
         </div>
     )
 }

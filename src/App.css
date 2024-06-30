@@ -1,88 +1,93 @@
+body {
+    margin: 0;
+}
+
 :root {
-  --blue: hsl(211, 100%, 59%);
-  --red: hsl(6, 87%, 62%);
-  --yellow: hsl(39, 71%, 60%);
-  --orange: hsl(33, 87%, 51%);
-  --dark-orange: hsl(33, 87%, 51%);
-  --dark-grey: #1C2729;
-  --light-grey: #384244;
-  --small-blind-primary: hsl(210, 70%, 42%);
-  --small-blind-secondary: #224B69;
+    --blue: hsl(211, 100%, 59%);
+    --red: hsl(6, 87%, 62%);
+    --yellow: hsl(39, 71%, 60%);
+    --orange: hsl(33, 87%, 51%);
+    --dark-orange: hsl(33, 87%, 51%);
+    --dark-grey: #1C2729;
+    --light-grey: #384244;
+    --small-blind-primary: hsl(210, 70%, 42%);
+    --small-blind-secondary: #224B69;
 }
 
 .container {
-  display: flex;
-  flex-direction: row;
-  margin: 0 50px;
+    display: flex;
+    flex-direction: row;
+    margin: 0 50px;
 }
 
 #sidebar {
-  display: flex;
-  flex-direction: column;
-  flex: initial;
-  width: 328px;
-  height: 100vh;
-  padding: 4px;
-  margin: 0 12px;
-  background-color: var(--light-grey);
-  border-left: 2px solid var(--small-blind-primary);
-  border-right: 2px solid var(--small-blind-primary);
+    display: flex;
+    flex-direction: column;
+    flex: initial;
+    width: 328px;
+    height: 100vh;
+    padding: 4px;
+    margin: 0 12px;
+    background-color: var(--light-grey);
+    border-left: 2px solid var(--small-blind-primary);
+    border-right: 2px solid var(--small-blind-primary);
 }
 
 #main {
-  display: flex;
-  flex-direction: column;
-  flex: auto;
-  margin: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+    margin: 24px 12px;
 }
 
 #top {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
 }
 
 #mid {
-  display: flex;
-  flex-direction: row;
-  flex: 2.5;
+    display: flex;
+    flex-direction: row;
+    flex: 2.5;
 }
 
 #bot {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    flex: 1;
 }
 
 .card-area {
-  height: 175px;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
+    height: 175px;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
 }
 
 .counter {
-  font-size: 20px;
-  line-height: 20px;
+    font-size: 20px;
+    line-height: 20px;
 }
 
 #jokers {
-  width: 645px;
-  margin: 0 6px 0 0;
+    width: 645px;
+    margin: 0 6px 0 0;
 }
 
 #joker-label {
-  margin: 0 0 0 8px;
+    margin: 0 0 0 8px;
 }
 
 #consumables {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  width: 305px;
-  margin: 0 0 0 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 305px;
+    margin: 0 0 0 6px;
 }
 
 #consumables-label {
-  margin: 0 8px 0 0;
+    margin: 0 8px 0 0;
 }

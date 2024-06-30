@@ -1,11 +1,24 @@
 .card {
-    width: 200px;
+    width: 75px;
+    height: 100px;
     border: 1px solid white;
+    border-radius: 8px;
+    background-color: aliceblue;
     font-size: 32px;
     text-align: center;
     transition: .25s;
+    user-select: none;
 }
 
 .card:hover {
-    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.card.Spades { color: black }
+.card.Hearts { color: var(--red) }
+.card.Clubs { color: var(--blue) }
+.card.Diamonds { color: var(--yellow) }
+
+.card.selected {
+    transform: translateY(-3vh);
 }

@@ -1,10 +1,5 @@
 import './Card.css'
-
-export enum Suit { Spades, Hearts, Clubs, Diamonds }
-export enum Rank { Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace }
-export enum Edition { Base, Foil, Holographic, Negative, Polychrome }
-export enum Enhancement { Bonus, Glass, Gold, Lucky, Mult, None, Steel, Stone, Wild }
-export enum Seal { Blue, Gold, None, Purple, Red }
+import { Edition, Enhancement, Rank, Seal, Suit } from './CardTypes'
 
 const chipMap = new Map([
     [Rank.Two, 2],
@@ -30,21 +25,21 @@ const suitMap = new Map([
 ])
 
 type CardProps = {
+    id: number
     suit: Suit
     rank: Rank
     edition?: Edition
     enhancement?: Enhancement
     seal?: Seal
+    handleClick: (e: React.MouseEvent, id: number) => void
 }
 
 export const Card = (props: CardProps) => {
     const { edition = Edition.Base, enhancement = Enhancement.None, seal = Seal.None } = props
 
     return (
-        <div className='card'>
+        <div id={`card ${props.id}`} className={`card ${Suit[props.suit]}`} onClick={(e) => props.handleClick(e, props.id)}>
             {edition !== Edition.Base ? `${Edition[edition]} ` : ``}{enhancement !== Enhancement.None ? `${Enhancement[enhancement]} ` : ``}{seal !== Seal.None ? `${Seal[seal]} seal `: ``}{((chipMap.get(props.rank) ?? -1) < 10 ? chipMap.get(props.rank) : Rank[props.rank].slice(0,1))}{suitMap.get(props.suit)}
         </div>
     )
 }
-
-//{`${Rank[props.rank]} of ${Suit[props.suit]}`}
