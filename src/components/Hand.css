@@ -47,6 +47,7 @@
     display: flex;
     flex-direction: row;
     font-size: 22px;
+    user-select: none;
 }
 
 .sort-button {
@@ -54,4 +55,8 @@
     padding: 12px 24px;
     background-color: var(--orange);
     border-radius: 8px;
+}
+
+.sort-button:hover {
+    cursor: pointer;
 }

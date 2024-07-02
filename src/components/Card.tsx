@@ -1,28 +1,5 @@
 import './Card.css'
-import { Edition, Enhancement, Rank, Seal, Suit } from './CardTypes'
-
-const chipMap = new Map([
-    [Rank.Two, 2],
-    [Rank.Three, 3],
-    [Rank.Four, 4],
-    [Rank.Five, 5],
-    [Rank.Six, 6],
-    [Rank.Seven, 7],
-    [Rank.Eight, 8],
-    [Rank.Nine, 9],
-    [Rank.Ten, 10],
-    [Rank.Jack, 10],
-    [Rank.Queen, 10],
-    [Rank.King, 10],
-    [Rank.Ace, 11]  
-])
-
-const suitMap = new Map([
-    [Suit.Spades, '♠'],
-    [Suit.Hearts, '♥'],
-    [Suit.Clubs, '♣'],
-    [Suit.Diamonds, '♦']
-])
+import { Edition, Enhancement, Rank, Seal, Suit, chipMap, suitMap } from './Constants'
 
 type CardProps = {
     id: number
