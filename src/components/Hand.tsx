@@ -27,7 +27,12 @@ export default function Hand(props: HandProps) {
                         <div id='suit' className='sort-button' onClick={() => cardState.dispatch({type: 'sortHand-suit'})}>Suit</div>
                     </div>
                 </div>
-                <div id='discard' className={`button ${props.selected}`}>Discard</div>
+                <div id='discard' className={`button ${props.selected}`} onClick={() => {
+                    const select = cardState.state.selected
+                    cardState.dispatch({type: 'discard'})
+                    cardState.dispatch({type: 'draw', payload: {draw: select.length}})
+                    cardState.dispatch({type: 'sortHand-rank'})
+                }}>Discard</div>
             </div>
         </div>
     )

@@ -17,7 +17,7 @@ type CardState = {
 }
 
 type CardAction = {
-    type: 'init' | 'select' | 'shuffle' | 'draw' | 'sortHand-rank' | 'sortHand-suit'
+    type: 'init' | 'select' | 'shuffle' | 'draw' | 'discard' | 'sortHand-rank' | 'sortHand-suit'
     payload?: {
         element?: ReactElement
         handleCardClick?: (e: React.MouseEvent, id: number) => void
@@ -70,6 +70,8 @@ const cardReducer = (state: CardState, action: CardAction): CardState => {
             let n = action.payload?.draw
             if(n == undefined) { throw new Error('draw amount not specified!') }
             return {...state, hand: [...state.hand, ...state.deck.slice(-n)], deck: state.deck.slice(0, -n)}
+        case 'discard':
+            return {...state, hand: state.hand.filter(c => !state.selected.includes(c)), hidden: state.selected, selected: []}
         case 'sortHand-rank':
             return {...state, hand: [...state.hand.sort((a, b) => 
                 a.props.rank !== b.props.rank ? b.props.rank - a.props.rank : a.props.suit - b.props.suit
