@@ -6,6 +6,7 @@ type HandProps = {
     hand: ReactElement[]
     selected: boolean
     submitted: boolean
+    setSort: React.Dispatch<React.SetStateAction<"rank" | "suit">>
 }
 
 export default function Hand(props: HandProps) {
@@ -23,15 +24,14 @@ export default function Hand(props: HandProps) {
                 <div id='sort'>
                     Sort Hand
                     <div id='sort-buttons'>
-                        <div id='rank' className='sort-button' onClick={() => cardState.dispatch({type: 'sortHand-rank'})}>Rank</div>
-                        <div id='suit' className='sort-button' onClick={() => cardState.dispatch({type: 'sortHand-suit'})}>Suit</div>
+                        <div id='rank' className='sort-button' onClick={() => props.setSort('rank')}>Rank</div>
+                        <div id='suit' className='sort-button' onClick={() => props.setSort('suit')}>Suit</div>
                     </div>
                 </div>
                 <div id='discard' className={`button ${props.selected}`} onClick={() => {
                     const select = cardState.state.selected
                     cardState.dispatch({type: 'discard'})
                     cardState.dispatch({type: 'draw', payload: {draw: select.length}})
-                    cardState.dispatch({type: 'sortHand-rank'})
                 }}>Discard</div>
             </div>
         </div>

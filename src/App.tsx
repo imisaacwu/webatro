@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useReducer, useRef } from 'react'
+import React, { ReactElement, useContext, useEffect, useReducer, useRef, useState } from 'react'
 import './App.css'
 import { Blind } from './components/Blind'
 import { Calculator } from './components/Calculator'
@@ -16,8 +16,9 @@ type CardState = {
     hidden: ReactElement[]      // Cards off-screen (e.g. discarded)
 }
 
+type ActionType = 'init' | 'select' | 'shuffle' | 'draw' | 'discard' | 'sortHand-rank' | 'sortHand-suit'
 type CardAction = {
-    type: 'init' | 'select' | 'shuffle' | 'draw' | 'discard' | 'sortHand-rank' | 'sortHand-suit'
+    type: ActionType
     payload?: {
         element?: ReactElement
         handleCardClick?: (e: React.MouseEvent, id: number) => void
@@ -99,13 +100,17 @@ export default function App() {
     const handSize = useContext(HandSizeContext)
     const cardsRef = useRef(cards)
     cardsRef.current = cards
+    const [sort, setSort] = useState<'rank' | 'suit'>('rank')
 
     useEffect(() => {
         dispatch({type: 'init', payload: {handleCardClick: handleCardClick}})
         dispatch({type: 'shuffle'})
         dispatch({type: 'draw', payload: {draw: handSize}})
-        dispatch({type: 'sortHand-rank'})
     }, [])
+
+    useEffect(() => {
+        dispatch({type: `sortHand-${sort}` as ActionType})
+    }, [sort, cardsRef.current.hand])
 
     const handleCardClick = (e: React.MouseEvent, id: number) => {
         const card = cardsRef.current.hand.find(card => card.props.id === id)
@@ -167,6 +172,7 @@ export default function App() {
                                 hand={cards.hand}
                                 selected={cards.selected.length > 0}
                                 submitted={false}
+                                setSort={setSort}
                             />
                             <Deck deck={cards.deck} />
                         </HandSizeContext.Provider>
