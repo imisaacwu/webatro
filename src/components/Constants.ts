@@ -1,3 +1,5 @@
+export type CardActionType = 'init' | 'select' | 'shuffle' | 'draw' | 'submit' | 'discard' | 'reset' | 'sort'
+
 export const DeckType = {
     Abandoned: 'Abandoned',
     Anaglyph: 'Anaglyph',
@@ -23,21 +25,21 @@ export enum Edition { Base, Foil, Holographic, Negative, Polychrome }
 export enum Enhancement { Bonus, Glass, Gold, Lucky, Mult, None, Steel, Stone, Wild }
 export enum Seal { Blue, Gold, None, Purple, Red }
 
-export const chipMap = new Map([
-    [Rank.Two, 2],
-    [Rank.Three, 3],
-    [Rank.Four, 4],
-    [Rank.Five, 5],
-    [Rank.Six, 6],
-    [Rank.Seven, 7],
-    [Rank.Eight, 8],
-    [Rank.Nine, 9],
-    [Rank.Ten, 10],
-    [Rank.Jack, 10],
-    [Rank.Queen, 10],
-    [Rank.King, 10],
-    [Rank.Ace, 11]  
-])
+export const rankChips: { [R in keyof typeof Rank]: number } = {
+    Two: 2,
+    Three: 3,
+    Four: 4,
+    Five: 5,
+    Six: 6,
+    Seven: 7,
+    Eight: 8,
+    Nine: 9,
+    Ten: 10,
+    Jack: 10,
+    Queen: 10,
+    King: 10,
+    Ace: 11
+} as const
 
 export const suitMap = new Map([
     [Suit.Spades, '♠'],
@@ -61,4 +63,10 @@ export const HandType = {
     PAIR: 'Pair',
     HIGH_CARD: 'High Card',
     NONE: ''
+} as const
+
+export const Blinds = {
+    SMALL_BLIND: 'Small Blind',
+    BIG_BLIND: 'Big Blind'
 }
+export type BlindNames = keyof typeof Blinds

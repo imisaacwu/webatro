@@ -22,3 +22,16 @@
 .card.selected {
     transform: translateY(-3vh);
 }
+
+.card.submitted {
+    margin: 0 16px;
+    cursor: initial;
+}
+
+.popup {
+    margin-top: -75px;
+    color: black;
+    background-color: var(--blue);
+    line-height: 24px;
+    border-radius: 8px;
+}

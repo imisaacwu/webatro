@@ -22,14 +22,19 @@
     padding: 8px 32px;
     border-radius: 8px;
     background-color: var(--light-grey);
+    user-select: none;
+}
+
+.button.true:hover {
+    cursor: pointer;
 }
 
 #ship.true {
-    background-color: var(--red);
+    background-color: var(--blue);
 }
 
 #discard.true {
-    background-color: var(--blue);
+    background-color: var(--red);
 }
 
 #sort {
