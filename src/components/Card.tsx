@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import './Card.css'
-import { Edition, Enhancement, Rank, Seal, Suit, rankChips, suitMap } from './Constants'
+import { Edition, Enhancement, Rank, Seal, Suit, rankChips } from './Constants'
+const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true });
 
 type CardProps = {
     id: number
@@ -12,12 +13,18 @@ type CardProps = {
     handleClick: (e: React.MouseEvent, id: number) => void
 }
 
-export const Card = (props: CardProps) => {
-    const { edition = Edition.Base, enhancement = Enhancement.None, seal = Seal.None } = props
+const getImagePath = (suit: Suit, rank: Rank) => {
+    const fileName = `${Suit[suit].charAt(0).toLowerCase()}${rankChips[Rank[rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[rank] as keyof typeof rankChips] : Rank[rank].charAt(0).toLowerCase()}.webp`;
+    const imagePath = `../assets/cards/${fileName}`;
+  
+    const module = images[imagePath]
+    return module ? module.default : null
+};
 
+export const Card = (props: CardProps) => {
     useEffect(() => {
         let card = document.getElementById(`card ${props.id}`) as HTMLElement
-        if(card.classList.contains('submitted')) {
+        if(card?.classList.contains('submitted')) {
             let popup = document.createElement('div')
             card.appendChild(popup)
             popup.classList.add('popup')
@@ -25,9 +32,12 @@ export const Card = (props: CardProps) => {
         }
     }, [document.getElementById(`card ${props.id}`)?.classList])
 
+    const image = getImagePath(props.suit, props.rank);
+    if(!image) { throw new Error(`no such image ${Suit[props.suit].charAt(0).toLowerCase()}${rankChips[Rank[props.rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[props.rank] as keyof typeof rankChips] : Rank[props.rank].charAt(0).toLowerCase()}.webp`) }
+
     return (
         <div id={`card ${props.id}`} className={`card ${Suit[props.suit]}`} onClick={(e) => props.handleClick(e, props.id)}>
-            {edition !== Edition.Base ? `${Edition[edition]} ` : ``}{enhancement !== Enhancement.None ? `${Enhancement[enhancement]} ` : ``}{seal !== Seal.None ? `${Seal[seal]} seal `: ``}{(rankChips[Rank[props.rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[props.rank] as keyof typeof rankChips] : Rank[props.rank].slice(0,1))}{suitMap.get(props.suit)}
+            <img src={image} alt={`${Rank[props.rank]} of ${Suit[props.suit]}`}/>
         </div>
     )
 }

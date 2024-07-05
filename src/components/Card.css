@@ -1,16 +1,27 @@
 .card {
+    position: absolute;
     width: 142px;
-    height: 175px;
-    border: 1px solid white;
+    height: 190px;
     border-radius: 8px;
     background-color: aliceblue;
     font-size: 32px;
     text-align: center;
     transition: .25s;
+    z-index: auto;
+}
+
+.card img {
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
 }
 
 .card:hover {
     cursor: pointer;
+}
+
+.card:active {
+    z-index: 1;
 }
 
 .card.Spades { color: black }
@@ -23,12 +34,15 @@
 }
 
 .card.submitted {
-    margin: 0 16px;
+    margin: 0 8px;
     cursor: initial;
+    position: relative;
 }
 
 .popup {
-    margin-top: -75px;
+    position: absolute;
+    top: -32px;
+    width: 100%;
     color: black;
     background-color: var(--blue);
     line-height: 24px;
