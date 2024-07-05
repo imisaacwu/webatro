@@ -13,6 +13,7 @@ export default function Hand(props: HandProps) {
     const { state, dispatch} = useCardState()
 
     useEffect(() => {
+        // https://www.desmos.com/calculator/vaaglwvmxl
         const hand = document.getElementById('hand-area')
         const cards = document.querySelectorAll('#hand-area .card') as NodeListOf<HTMLElement>
 
