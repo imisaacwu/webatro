@@ -101,17 +101,21 @@ export default function App() {
                         <div id='consumables-label' className='counter'>0/2</div>
                     </div>
                 </div>
-                <div id='mid'>
-                    {cards.submitted}
-                </div>
-                <div id='bot'>
-                    <HandSizeContext.Provider value={8}>
-                        <Hand
-                            sort={sort}
-                            setSort={setSort}
-                        />
-                        <Deck deck={cards.deck} />
-                    </HandSizeContext.Provider>
+                <div id='lower'>
+                    <div id='content'>
+                        <div id='mid'>
+                            {cards.submitted}
+                        </div>
+                        <div id='bot'>
+                            <HandSizeContext.Provider value={8}>
+                                <Hand
+                                    sort={sort}
+                                    setSort={setSort}
+                                />
+                            </HandSizeContext.Provider>
+                        </div>
+                    </div>
+                    <Deck deck={cards.deck} />
                 </div>
             </div>
         </div>

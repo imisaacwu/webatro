@@ -16,10 +16,6 @@ export const Round = () => {
         }
     }, [cards.submitted])
 
-    // useEffect(() => {
-    //     if(hand > )
-    // })
-
     return (
         <div id='round-score'>
             <div id='round-score-text'>Round<br/>score</div>

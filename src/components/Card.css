@@ -1,13 +1,12 @@
 .card {
-    width: 75px;
-    height: 100px;
+    width: 142px;
+    height: 175px;
     border: 1px solid white;
     border-radius: 8px;
     background-color: aliceblue;
     font-size: 32px;
     text-align: center;
     transition: .25s;
-    user-select: none;
 }
 
 .card:hover {

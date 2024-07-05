@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    user-select: none;
 }
 
 :root {
@@ -42,8 +43,20 @@ body {
 
 #top {
     display: flex;
+    flex-direction: row;    
+}
+
+#lower {
+    display: flex;
     flex-direction: row;
-    flex: 1;
+    align-items: flex-end;
+    flex: 3.5
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 #mid {
@@ -79,6 +92,10 @@ body {
     margin: 0 6px 0 0;
 }
 
+#joker-area {
+    height: 175px;
+}
+
 #joker-label {
     margin: 0 0 0 8px;
 }
@@ -89,6 +106,10 @@ body {
     align-items: flex-end;
     width: 305px;
     margin: 0 0 0 6px;
+}
+
+#consumables-area {
+    height: 175px;
 }
 
 #consumables-label {
