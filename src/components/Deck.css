@@ -18,6 +18,11 @@
     margin: 0 0 0 8px;
 }
 
+#face-down img {
+    width: 142px;
+    height: 175px;
+}
+
 #face-down:hover {
     cursor: pointer;
 }

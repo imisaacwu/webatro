@@ -28,23 +28,37 @@ const cardReducer = (state: CardState, action: CardAction): CardState => {
         case 'init':
             if(action.payload?.handleCardClick == undefined) { throw new Error('handleCardClick not defined!') }
             arr = [];
-            Object.keys(Suit)
-                .filter(key => isNaN(Number(key)))
-                .forEach(suit => {
-                    Object.keys(Rank)
-                        .filter(key => isNaN(Number(key)))
-                        .forEach(rank => {
-                            arr.push(
-                                <Card
-                                    key={arr.length}
-                                    id={arr.length}
-                                    suit={Suit[suit as keyof typeof Suit]}
-                                    rank={Rank[rank as keyof typeof Rank]}
-                                    handleClick={action.payload?.handleCardClick as () => void}
-                                />
-                            )
-                    })
-            })
+            // Object.keys(Suit)
+            //     .filter(key => isNaN(Number(key)))
+            //     .forEach(suit => {
+            //         Object.keys(Rank)
+            //             .filter(key => isNaN(Number(key)))
+            //             .forEach(rank => {
+            //                 arr.push(
+            //                     <Card
+            //                         key={arr.length}
+            //                         id={arr.length}
+            //                         suit={Suit[suit as keyof typeof Suit]}
+            //                         rank={Rank[rank as keyof typeof Rank]}
+            //                         handleClick={action.payload?.handleCardClick as () => void}
+            //                     />
+            //                 )
+            //         })
+            // })
+
+            let suits = Object.keys(Suit).filter(s => isNaN(Number(s)))
+            let ranks = Object.keys(Rank).filter(r => isNaN(Number(r)))
+            for(let i = 0; i < 52; i++) {
+                arr.push(
+                    <Card
+                        key={i}
+                        id={i}
+                        suit={Suit[suits[Math.floor(Math.random()*4)] as keyof typeof Suit]}
+                        rank={Rank[ranks[Math.floor(Math.random()*13)] as keyof typeof Rank]}
+                        handleClick={action.payload?.handleCardClick as () => void}
+                    />
+                )
+            }
             return {...initialCardState, deck: arr}
         case 'select':
             if(action.payload?.element == undefined) { throw new Error('nothing specified to select!') }

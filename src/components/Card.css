@@ -2,6 +2,7 @@
     position: absolute;
     width: 142px;
     height: 190px;
+    border: 1px solid var(--light-grey);
     border-radius: 8px;
     background-color: aliceblue;
     font-size: 32px;
@@ -18,6 +19,7 @@
 
 .card:hover {
     cursor: pointer;
+    scale: 1.1;
 }
 
 .card:active {
@@ -28,6 +30,25 @@
 .card.Hearts { color: var(--red) }
 .card.Clubs { color: var(--blue) }
 .card.Diamonds { color: var(--yellow) }
+
+.card.deck-view {
+    width: 85px;
+    height: 114px;
+}
+
+.card.deck-view:hover {
+    cursor: initial;
+}
+
+.card.deck-view img {
+    width: 85px;
+    height: 114px;
+}
+
+.card.deck-view.drawn {
+    opacity: .5;
+    z-index: auto;
+}
 
 .card.selected {
     transform: translateY(-3vh);

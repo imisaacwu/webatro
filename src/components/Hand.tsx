@@ -17,7 +17,7 @@ export default function Hand(props: HandProps) {
         const hand = document.getElementById('hand-area')
         const cards = document.querySelectorAll('#hand-area .card') as NodeListOf<HTMLElement>
 
-        const r = 10000
+        const r = 6000
         const h = hand!.clientWidth / 2
         const k = -Math.sqrt(r*r-h*h)
 
@@ -29,7 +29,7 @@ export default function Hand(props: HandProps) {
             c.style.left = `${left}px`
 
             const x = Math.abs(h - (left + 71))
-            const y = Math.sqrt(r * r - (h - i * lStep) ** 2) + k
+            const y = Math.sqrt(r * r - (h - (i * lStep + 71)) ** 2) + k
             c.style.bottom = `${y}px`
 
             let rot = Math.acos(x/r)
