@@ -1,26 +1,5 @@
 import { Dispatch, ReactElement, ReactNode, createContext, useContext, useReducer } from "react"
-import { HandType, Rank, rankChips } from "../Constants"
-
-type HandLevel = {
-    [K in keyof typeof HandType]: { level: number, chips: number, mult: number }
-}
-
-const handLevels: HandLevel = {
-    'FLUSH_FIVE': {level: 1, chips: 160, mult: 16},
-    'FLUSH_HOUSE': {level: 1, chips: 140, mult: 14},
-    'FIVE': {level: 1, chips: 120, mult: 12},
-    'ROYAL_FLUSH': {level: 1, chips: 100, mult: 8},
-    'STRAIGHT_FLUSH': {level: 1, chips: 100, mult: 8},
-    'FOUR': {level: 1, chips: 60, mult: 7},
-    'FULL_HOUSE': {level: 1, chips: 40, mult: 4},
-    'FLUSH': {level: 1, chips: 35, mult: 4},
-    'STRAIGHT': {level: 1, chips: 30, mult: 4},
-    'THREE': {level: 1, chips: 30, mult: 3},
-    'TWO_PAIR': {level: 1, chips: 20, mult: 2},
-    'PAIR': {level: 1, chips: 10, mult: 2},
-    'HIGH_CARD': {level: 1, chips: 5, mult: 1},
-    'NONE': {level: 0, chips: 0, mult: 0}
-}
+import { handLevels, HandType, Rank, rankChips } from "../Constants"
 
 const handUpgrade = {
     'FLUSH_FIVE': {chips: 50, mult: 3},

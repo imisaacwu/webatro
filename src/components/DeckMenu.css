@@ -12,7 +12,7 @@
     border-radius: 8px;
 }
 
-#deck-views {
+#menu-views {
     position: relative;
     display: flex;
     flex-direction: row;

@@ -64,7 +64,7 @@
 }
 
 #blind-bio.select {
-    width: 190px;
+    width: 160px;
     word-wrap: break-word;
     font-size: 20px;
     line-height: 20px;
@@ -139,7 +139,8 @@
 }
 
 #stake-icon {
-    scale: 1.25;
+    min-width: 36px;
+    min-height: 36px;
     margin: 0 16px;
     pointer-events: none;
 }

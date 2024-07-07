@@ -85,7 +85,7 @@ export default function DeckMenu(props: DeckMenuProps) {
     
     return (
         <div id='menu'>
-            <div id='deck-views'>
+            <div id='menu-views'>
                 {game.mode === 'scoring' &&
                     <div id='remaining' className='view-container'>
                         {view === 'remaining' && <div className='arrow' />}

@@ -3,6 +3,7 @@ import './Hand.css'
 import { useCardState } from './contexts/CardStateContext'
 import { useGameState } from './contexts/GameStateContext'
 import { useHandState } from './contexts/HandStateContext'
+import { handLevels } from './Constants'
 
 type HandProps = {
     sort: 'rank' | 'suit'
@@ -56,6 +57,7 @@ export default function Hand(props: HandProps) {
                         gameDispatch({type: 'hand'})
                         gameDispatch({type: 'score', payload: {score: hand.score}})
                         cardDispatch({type: 'submit', payload: {sort: props.sort}})
+                        handLevels[hand.hand.name].played++;
                         setTimeout(() => {
                             cardDispatch({type: 'scored'})
                             const req = (game.currBlind === 'small' ? game.reqBase : game.currBlind === 'big' ? 1.5 * game.reqBase : game.boss.mult * game.reqBase)

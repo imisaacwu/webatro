@@ -1,0 +1,105 @@
+#menu.base {
+    z-index: 1;
+    left: 380px;
+    right: 400px;
+    height: fit-content;
+}
+
+.view-button.base {
+    text-align: center;
+    width: 140px;
+    padding: 8px;
+}
+
+#hand-levels {
+    display: flex;
+    flex-direction: column;
+    margin: 64px 0;
+}
+
+#hand-display {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #a4abba;
+    border-radius: 8px;
+    margin: 2px 64px;
+}
+
+#level-outline {
+    display: flex;
+    background-color: white;
+    border-radius: 8px;
+    margin: 2px 0;
+}
+
+#level-display {
+    display: flex;
+    align-items: center;
+    background-color: #eef0f2;
+    border-radius: 8px;
+    margin: 2px;
+    padding: 2px 16px;
+    color: var(--dark-grey);
+    font-size: 24px;
+    line-height: 16px;
+}
+
+#hand-name.base {
+    font-size: 32px;
+    line-height: 24px;
+    margin: 0;
+}
+
+#base-calc {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--dark-grey);
+    border-radius: 8px;
+    margin: 2px 0;
+}
+
+#chips.base,
+#mult.base {
+    font-size: 24px;
+    line-height: 12px;
+    margin: 3px;
+    padding: 4px;
+    width: 50px;
+}
+
+#X.base {
+    margin: 0 0 0 3px;
+    font-size: 24px;
+    line-height: 16px;
+}
+
+#hand-freq {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 24px;
+    line-height: 16px;
+    margin-left: 24px;
+}
+
+#hand-freq div[id^='freq-display-'] {
+    background-color: var(--grey);
+    border-radius: 8px;
+    color: var(--orange);
+    width: 15px;
+    text-align: center;
+    padding: 4px 16px 4px 19px;
+    margin: 4px;
+}
+
+#hand-freq div[id^='freq-display-'].double {
+    padding: 4px 16px;  
+}
+
+#back.base {
+    margin: 16px auto 8px;
+}

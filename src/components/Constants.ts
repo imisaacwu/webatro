@@ -65,6 +65,27 @@ export const HandType = {
     NONE: ''
 } as const
 
+type HandLevel = {
+    [K in keyof typeof HandType]: { level: number, chips: number, mult: number, played: number }
+}
+
+export const handLevels: HandLevel = {
+    'FLUSH_FIVE': {level: 1, chips: 160, mult: 16, played: 0},
+    'FLUSH_HOUSE': {level: 1, chips: 140, mult: 14, played: 0},
+    'FIVE': {level: 1, chips: 120, mult: 12, played: 0},
+    'ROYAL_FLUSH': {level: 1, chips: 100, mult: 8, played: 0},
+    'STRAIGHT_FLUSH': {level: 1, chips: 100, mult: 8, played: 0},
+    'FOUR': {level: 1, chips: 60, mult: 7, played: 0},
+    'FULL_HOUSE': {level: 1, chips: 40, mult: 4, played: 0},
+    'FLUSH': {level: 1, chips: 35, mult: 4, played: 0},
+    'STRAIGHT': {level: 1, chips: 30, mult: 4, played: 0},
+    'THREE': {level: 1, chips: 30, mult: 3, played: 0},
+    'TWO_PAIR': {level: 1, chips: 20, mult: 2, played: 0},
+    'PAIR': {level: 1, chips: 10, mult: 2, played: 0},
+    'HIGH_CARD': {level: 1, chips: 5, mult: 1, played: 0},
+    'NONE': {level: 0, chips: 0, mult: 0, played: 0}
+}
+
 export type BlindType = {
     img: string
     name: string
