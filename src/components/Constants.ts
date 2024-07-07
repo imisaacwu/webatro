@@ -121,9 +121,191 @@ export const Blinds: BlindType[] = [
         img: '../assets/blinds/ox.webp',
         name: 'The Ox',
         descrip: 'Playing a _ sets money to $0',
+        ante: 6,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/house.webp',
+        name: 'The House',
+        descrip: 'First hand is drawn face down',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/wall.webp',
+        name: 'The Wall',
+        descrip: 'Extra large blind',
+        ante: 2,
+        mult: 4,
+        reward: 5
+    }, {
+        img: '../assets/blinds/wheel.webp',
+        name: 'The Wheel',
+        descrip: '1 in 7 cards drawn face down',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/arm.webp',
+        name: 'The Arm',
+        descrip: 'Decrease level of played poker hand',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/club.webp',
+        name: 'The Club',
+        descrip: 'All Club cards are debuffed',
+        ante: 1,
+        mult: 2,
+        reward: 5,
+    }, {
+        img: '../assets/blinds/fish.webp',
+        name: 'The Fish',
+        descrip: 'Cards drawn face down after each hand played',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/psychic.webp',
+        name: 'The Psychic',
+        descrip: 'Must play 5 cards',
         ante: 1,
         mult: 2,
         reward: 5
+    }, {
+        img: '../assets/blinds/goad.webp',
+        name: 'The Goad',
+        descrip: 'All Spade cards are debuffed',
+        ante: 1,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/water.webp',
+        name: 'The Water',
+        descrip: 'Start with 0 discards',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/window.webp',
+        name: 'The Window',
+        descrip:  'All Diamond cards are debuffed',
+        ante: 1,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/manacle.webp',
+        name: 'The Manacle',
+        descrip: '-1 Hand Size',
+        ante: 1,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/eye.webp',
+        name: 'The Eye',
+        descrip: 'No repeat hand types this round',
+        ante: 3,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/mouth.webp',
+        name: 'The Mouth',
+        descrip: 'Play only 1 hand type this round',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/plant.webp',
+        name: 'The Plant',
+        descrip: 'All face cards are debuffed',
+        ante: 4,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/serpent.webp',
+        name: 'The Serpent',
+        descrip: 'After Play or Discard, always draw 3 cards',
+        ante: 5,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/pillar.webp',
+        name: 'The Pillar',
+        descrip: 'Cards played previously this Ante are debuffed',
+        ante: 1,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/needle.webp',
+        name: 'The Needle',
+        descrip: 'Play only 1 hand',
+        ante: 2,
+        mult: 1,
+        reward: 5
+    }, {
+        img: '../assets/blinds/head.webp',
+        name: 'The Head',
+        descrip: 'All Heart cards are debuffed',
+        ante: 1,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/tooth.webp',
+        name: 'The Tooth',
+        descrip: 'Lose $1 per card played',
+        ante: 3,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/flint.webp',
+        name: 'The Flint',
+        descrip: 'Base Chips and Mult are halved',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/mark.webp',
+        name: 'The Mark',
+        descrip: 'All face cards are drawn face down',
+        ante: 2,
+        mult: 2,
+        reward: 5
+    }, {
+        img: '../assets/blinds/amber_acorn.webp',
+        name: 'Amber Acorn',
+        descrip: 'Flips and shuffles all Joker cards',
+        ante: 8,
+        mult: 2,
+        reward: 8
+    }, {
+        img: '../assets/blinds/verdant_leaf.webp',
+        name: 'Verdant Leaf',
+        descrip: 'All cards debuffed until 1 Joker sold',
+        ante: 8,
+        mult: 2,
+        reward: 8
+    }, {
+        img: '../assets/blinds/violet_vessel.webp',
+        name: 'Violet Vessel',
+        descrip: 'Very large blind',
+        ante: 8,
+        mult: 6,
+        reward: 8
+    }, {
+        img: '../assets/blinds/crimson_heart.webp',
+        name: 'Crimson Heart',
+        descrip: 'One random Joker disabled every hand',
+        ante: 8,
+        mult: 2,
+        reward: 8
+    }, {
+        img: '../assets/blinds/cerulean_bell.webp',
+        name: 'Cerulean Bell',
+        descrip: 'Forces 1 card to always be selected',
+        ante: 8,
+        mult: 2,
+        reward: 8
     }
 ]
 
