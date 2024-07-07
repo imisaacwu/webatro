@@ -4,12 +4,14 @@ import { Card } from './Card'
 import { ReactElement, useEffect, useState } from 'react'
 import { Rank, Suit, rankChips } from './Constants'
 import { aceIcon, faceIcon, numIcon, spades, hearts, clubs, diamonds } from '../assets/ui';
+import { useGameState } from './contexts/GameStateContext'
 
 type DeckMenuProps = {
     setMenu: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function DeckMenu(props: DeckMenuProps) {
+    const { state: game } = useGameState()
     const { state } = useCardState()
     const [ view, setView ] = useState<'remaining' | 'full'>('remaining')
 
@@ -28,12 +30,12 @@ export default function DeckMenu(props: DeckMenuProps) {
     }, [cards])
 
     useEffect(() => {
-        if(view === 'remaining') {
+        if(game.mode === 'scoring' && view === 'remaining') {
             [...state.hand, ...state.hidden, ...state.submitted].forEach(c => document.getElementById(`card ${-1-c.props.id}`)?.classList.add('drawn'))
         } else {
             [...state.hand, ...state.hidden, ...state.submitted].forEach(c => document.getElementById(`card ${-1-c.props.id}`)?.classList.remove('drawn'))
         }
-    }, [view])
+    }, [game.mode, view])
 
     const deck: ReactElement[][] = [];
     Object.values(Suit).filter(s => !isNaN(Number(s))).forEach(suit => {
@@ -73,7 +75,7 @@ export default function DeckMenu(props: DeckMenuProps) {
     })
 
     const rankCount: number[] = new Array(13).fill(0), suitCount: number[] = new Array(4).fill(0)
-    if(view === 'remaining') {
+    if(game.mode === 'scoring' && view === 'remaining') {
         [...state.deck].forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
     } else {
         cards.forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
@@ -84,12 +86,14 @@ export default function DeckMenu(props: DeckMenuProps) {
     return (
         <div id='menu'>
             <div id='deck-views'>
-                <div id='remaining' className='view-container'>
-                    {view === 'remaining' && <div className='arrow' />}
-                    <div className='view-button' onClick={() => setView('remaining')}>Remaining</div>
-                </div>
+                {game.mode === 'scoring' &&
+                    <div id='remaining' className='view-container'>
+                        {view === 'remaining' && <div className='arrow' />}
+                        <div className='view-button' onClick={() => setView('remaining')}>Remaining</div>
+                    </div>
+                }
                 <div id='full' className='view-container'>
-                   {view === 'full' && <div className='arrow' />}
+                   {(game.mode !== 'scoring' || view === 'full') && <div className='arrow' />}
                     <div className='view-button' onClick={() => setView('full')}>Full Deck</div>
                 </div>
             </div>

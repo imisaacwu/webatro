@@ -14,7 +14,7 @@ import { Blinds } from './components/Constants'
 export default function App() {
     const { state: cards, dispatch: cardDispatch } = useCardState()
     const { dispatch: handDispatch } = useHandState()
-    const { state: game } = useGameState()
+    const { state: game, dispatch: gameDispatch } = useGameState()
     const cardsRef = useRef(cards)
     cardsRef.current = cards
     
@@ -79,15 +79,17 @@ export default function App() {
         })
     }, [cardsRef.current.submitted])
 
+    const currBlindType = game.currBlind === 'small' ? Blinds[0] : game.currBlind === 'big' ? Blinds[1] : game.boss;
+
     return (
         <div className='container'>
             <div id='sidebar'>
-                {game.mode === 'blind-select' &&
-                    <div id='blind-select-label'>Choose your<br />next Blind</div>
-                }
-                {game.mode === 'scoring' &&
-                    <Blind type='sidebar' blind={game.currBlind === 'small' ? Blinds[0] : game.currBlind === 'big' ? Blinds[1] : game.boss} />
-                }
+                <div id='top-sidebar'>
+                    {game.mode === 'blind-select' && <div>Choose your<br />next Blind</div>}
+                    {game.mode === 'scoring' &&
+                        <Blind type='sidebar' blind={currBlindType} />
+                    }
+                </div>
                 <Round />
                 <Calculator />
                 <InfoPanel />
@@ -124,7 +126,42 @@ export default function App() {
                             </div>
                         </>}
                         {game.mode === 'post-scoring' && <>
-                            
+                            <div id='post-outer'>
+                                <div id='post-container'>
+                                    <div id='post-inner'>
+                                        <div id='cash-out' onClick={() => {
+                                            gameDispatch({type: 'exit', payload: {reward:
+                                                currBlindType.reward +
+                                                game.hands +
+                                                Math.min(Math.floor(game.money / 5), 5)
+                                            }})
+                                            gameDispatch({type: 'next'})
+                                            cardDispatch({type: 'shuffle'})
+                                            cardDispatch({type: 'draw', payload: {draw: game.handSize}})
+                                        }}>{`Cash Out: $${
+                                            currBlindType.reward +
+                                            game.hands +
+                                            Math.min(Math.floor(game.money / 5), 5)
+                                        }`}</div>
+                                        <Blind type='post' blind={currBlindType} />
+                                        <div id='post-dots'>{'. '.repeat(49)}</div>
+                                        {game.hands > 0 &&
+                                            <div id='remaining-hands' className='extra-reward'>
+                                                <div className='num-extra'>{game.hands}</div>
+                                                <div className='extra-reward-text'>{'Remaining Hands \[$1 each\]'}</div>
+                                                <div className='reward'>{'$'.repeat(game.hands)}</div>
+                                            </div>
+                                        }
+                                        {game.money > 4 &&
+                                            <div id='interest' className='extra-reward'>
+                                                <div className='num-extra'>{Math.min(Math.floor(game.money / 5), 5)}</div>
+                                                <div className='extra-reward-text'>{'1 interest per $5 \[5 max\]'}</div>
+                                                <div className='reward'>{'$'.repeat(Math.min(Math.floor(game.money / 5), 5))}</div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
                         </>}
                     </div>
                     <Deck />

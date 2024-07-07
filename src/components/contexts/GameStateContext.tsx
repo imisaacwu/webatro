@@ -21,6 +21,7 @@ type GameAction = {
     type: 'init-blinds' | 'hand' | 'score' | 'discard' | 'select' | 'defeat' | 'exit' | 'next'
     payload?: {
         score?: number
+        reward?: number
     }
 }
 
@@ -71,11 +72,12 @@ const gameReducer = (state: GameState, action: GameAction) => {
         case 'defeat': // After scoring, Into post-scoring
             return {...state, mode: 'post-scoring' as GameStates}
         case 'exit': // After post-scoring, Into shop
-            let next = {...state, mode: 'shop' as GameStates, hands: initialGameState['hands'], discards: initialGameState['discards'], score: 0, currBlind: nextBlind(state.currBlind)}
+            if(action.payload?.reward == undefined) { throw new Error('no reward specified!') }
+            let next = {...state, mode: 'shop' as GameStates, hands: initialGameState['hands'], discards: initialGameState['discards'], money: state.money + action.payload.reward, score: 0, currBlind: nextBlind(state.currBlind)}
             if(nextBlind(state.currBlind) === 'small') {
                 next = {...next, ante: state.ante + 1, boss: rollBoss(state.ante + 1), reqBase: ante_base(state.ante + 1)}
             }
-            return next
+            return next;
         case 'next': // After shop, Into blind select
             return {...state, mode: 'blind-select' as GameStates}
         default:

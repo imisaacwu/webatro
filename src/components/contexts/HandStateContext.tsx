@@ -89,6 +89,7 @@ const bestHand = (cards: ReactElement[]): keyof typeof HandType => {
         if(ranks[0] === 5) return 'FLUSH_FIVE'
         if(hand === 0x1F00) return 'ROYAL_FLUSH'
         if(straights.includes(hand)) return 'STRAIGHT_FLUSH'
+        if(ranks[0] === 3 && ranks[1] === 2) return 'FLUSH_HOUSE'
         return 'FLUSH'
     }
 

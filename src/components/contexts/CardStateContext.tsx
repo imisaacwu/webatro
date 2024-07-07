@@ -97,7 +97,7 @@ const cardReducer = (state: CardState, action: CardAction): CardState => {
         case 'scored': // After score
             return {...state, hidden: [...state.hidden, ...state.submitted], submitted: []}
         case 'reset': // After defeat
-            return {...state, deck: [...state.deck, ...state.hand, ...state.submitted, ...state.hidden], selected: []}
+            return {...state, deck: [...state.deck, ...state.hand, ...state.submitted, ...state.hidden], hand: [], submitted: [], selected: [], hidden: []}
         case 'sort':
             if(action.payload?.sort == undefined) { throw new Error('sort type not specified!') }
             if(action.payload.sort === 'rank') {

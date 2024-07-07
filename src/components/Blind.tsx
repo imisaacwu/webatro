@@ -5,7 +5,7 @@ import { useGameState } from './contexts/GameStateContext';
 const icons: Record<string, { default: string }> = import.meta.glob('../assets/blinds/*.webp', { eager: true });
 
 type BlindProps = {
-    type: 'sidebar' | 'select'
+    type: 'sidebar' | 'select' | 'post'
     blind: BlindType
 }
 
@@ -16,6 +16,7 @@ export const Blind = ({ type, blind }: BlindProps) => {
     const blindMult = blind.mult;
     const req_score = (blindMult * anteChips).toLocaleString().length < 11 ? (blindMult * anteChips).toLocaleString() : (blindMult * anteChips).toExponential()
     const select = (game.currBlind === 'small' && Blinds.indexOf(blind) === 0) || (game.currBlind === 'big' && Blinds.indexOf(blind) === 1) || (game.currBlind === 'boss' && Blinds.indexOf(blind) > 1)
+    const icon = !icons[blind.img] ? '' : icons[blind.img].default
 
     return (
         <>
@@ -25,7 +26,7 @@ export const Blind = ({ type, blind }: BlindProps) => {
                     <div id='blind-info' className='sidebar'>
                         <div id='blind-bio'>{blind.descrip}</div>
                         <div id='blind-display'>
-                            <img id='blind-icon' src={!icons[blind.img] ? '' : icons[blind.img].default} />
+                            <img id='blind-icon' src={icon} />
                             <div id='blind-status'>
                                 <div id='blind-score-text'>Score at least</div>
                                 <div id='req-display'>
@@ -42,11 +43,11 @@ export const Blind = ({ type, blind }: BlindProps) => {
                 </div>
             </>}
             {type === 'select' && <>
-                <div id='outer' className={`${select}`}>
-                    <div id='container'>
-                        <div id='outline'>
+                <div id='blind-outer' className={`${select}`}>
+                    <div id='blind-container'>
+                        <div id='blind-outline'>
                             <div id='blind-info' className='select'>
-                                <div id={'select'} className={`${select}`} onClick={() => {if(select){gameDispatch({type: 'select'})}}}>{
+                                <div id='blind-select' className={`${select}`} onClick={() => {if(select){gameDispatch({type: 'select'})}}}>{
                                     select ? 'Select' : ((game.currBlind === 'boss' && Blinds.indexOf(blind) < 2) || (game.currBlind === 'big' && Blinds.indexOf(blind) < 1)) ? 'Defeated' : 'Upcoming'
                                 }</div>
                                 <div id='blind-name' className='select'>
@@ -54,7 +55,7 @@ export const Blind = ({ type, blind }: BlindProps) => {
                                         {blind.name}
                                     </div>
                                 </div>
-                                <img id='blind-icon' className='select' src={!icons[blind.img] ? '' : icons[blind.img].default} />
+                                <img id='blind-icon' className='select' src={icon} />
                                 <div id='blind-bio' className='select'>{blind.descrip}</div>
                                 <div id='blind-status' className='select'>
                                     <div id='blind-score-text'>Score at least</div>
@@ -69,6 +70,21 @@ export const Blind = ({ type, blind }: BlindProps) => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </>}
+            {type === 'post' && <>
+                <div id='post-blind-info'>
+                    <img id='blind-icon' className='post' src={icon} />
+                    <div id='post-score'>
+                        <div id='blind-score-text' className='post'>Score at least</div>
+                        <div id='req-display'>
+                            <img id='stake-icon' src={stake_icon} />
+                            <div id='req-score' className='post'>{req_score}</div>
+                        </div>
+                    </div>
+                    <div id='blind-reward' className='post'>
+                        {'$'.repeat(blind.reward)}
                     </div>
                 </div>
             </>}

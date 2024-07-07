@@ -34,6 +34,10 @@
     border-radius: 8px;
 }
 
+.view-button:hover {
+    cursor: pointer;
+}
+
 .arrow {
     position: absolute;
     top: -16px;

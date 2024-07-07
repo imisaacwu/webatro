@@ -4,7 +4,7 @@
     flex-direction: column;
     background-color: var(--dark-grey);
     border-radius: 8px;
-    margin-top: 48px;
+    width: 100%;
 }
 
 #blind-name {
@@ -37,6 +37,9 @@
 }
 
 #blind-info.sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
     background-color: var(--small-blind-secondary);
     border-radius: 8px;
@@ -53,6 +56,13 @@
     margin: 2px;
 }
 
+#blind-bio {
+    font-size: 24px;
+    line-height: 24px;
+    width: 200px;
+    margin: 8px 0 0;
+}
+
 #blind-bio.select {
     width: 190px;
     word-wrap: break-word;
@@ -66,21 +76,27 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    height: 175px;
+    margin: 16px 0;
+    width: 100%;
 }
 
 #blind-icon {
     display: flex;
     flex: initial;
-    width: 92px;
-    height: 92px;
+    width: 88px;
+    height: 88px;
     margin: 0 0 0 8px;
+    pointer-events: none;
 }
 
 #blind-icon.select {
     width: 72px;
     height: 72px;
     margin: 24px 16px 8px;
+}
+
+#blind-icon.post {
+    margin: 0 16px;
 }
 
 #blind-status {
@@ -105,17 +121,27 @@
     padding: 0 0 0 3px;
 }
 
+#blind-score-text.post {
+    font-size: 24px;
+    line-height: 24px;
+}
+
 #req-display {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    margin: 8px 0
+}
+
+#req-display.select {
+    margin: 0
 }
 
 #stake-icon {
-    width: 24px;
-    height: 24px;
-    margin: 0 8px;
+    scale: 1.25;
+    margin: 0 16px;
+    pointer-events: none;
 }
 
 #req-score {
@@ -125,24 +151,39 @@
     color: var(--red);
 }
 
+#req-score.post {
+    font-size: 64px;
+    line-height: 48px;
+}
+
 #reward-display {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin: 4px 0 0;
+    margin: 4px 0;
     font-size: 20px;
+    line-height: 16px;
 }
 
 #blind-reward {
     color: var(--yellow);
-    font-size: 24px;
+    font-size: 28px;
     line-height: 24px;
     font-weight: bold;
     margin: 0 0 0 4px;
 }
 
-#outer {
+#blind-reward.post {
+    display: flex;
+    flex: auto;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 48px;
+    margin: 0 16px 0 0;
+}
+
+#blind-outer {
     display: flex;
     margin-right: 32px;
     padding: 0;
@@ -151,29 +192,29 @@
     height: 800px;
 }
 
-#outer.true {
+#blind-outer.true {
     margin-top: 16px;
 }
 
-#outer.false {
+#blind-outer.false {
     margin-top: 64px;
 }
 
-#container {
+#blind-container {
     display: flex;
     background-color: var(--grey);
     border-radius: 8px;
     margin: 8px;
 }
 
-#outline {
+#blind-outline {
     background-color: gray;
     border-radius: 8px;
     margin: 8px;
     height: fit-content;
 }
 
-#select {
+#blind-select {
     border-radius: 8px;
     margin: 8px 16px 8px;
     padding: 4px 0;
@@ -183,10 +224,20 @@
     text-align: center;
 }
 
-#select.true {
+#blind-select.true {
     background-color: var(--orange);
 }
 
-#select.false {
+#blind-select.true:hover {
+    cursor: pointer;
+}
+
+#blind-select.false {
     background-color: gray;
+}
+
+#post-blind-info {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
 }

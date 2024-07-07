@@ -96,6 +96,13 @@ export const Blinds: BlindType[] = [
         ante: 1,
         mult: 2,
         reward: 5
+    }, {
+        img: '../assets/blinds/ox.webp',
+        name: 'The Ox',
+        descrip: 'Playing a _ sets money to $0',
+        ante: 1,
+        mult: 2,
+        reward: 5
     }
 ]
 
