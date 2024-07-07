@@ -1,4 +1,4 @@
-import { useCardState } from './CardStateContext'
+import { useCardState } from './contexts/CardStateContext'
 import './DeckMenu.css'
 import { Card } from './Card'
 import { ReactElement, useEffect, useState } from 'react'
@@ -73,7 +73,11 @@ export default function DeckMenu(props: DeckMenuProps) {
     })
 
     const rankCount: number[] = new Array(13).fill(0), suitCount: number[] = new Array(4).fill(0)
-    cards.forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
+    if(view === 'remaining') {
+        [...state.deck].forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
+    } else {
+        cards.forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
+    }
 
     const ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).sort((a, b) => Rank[b as keyof typeof Rank] - Rank[a as keyof typeof Rank]).map(r => <div key={Rank[r as keyof typeof Rank]}>{rankChips[r as keyof typeof rankChips] < 10 ? rankChips[r as keyof typeof rankChips] : r.charAt(0)}</div>)
     

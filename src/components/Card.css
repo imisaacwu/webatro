@@ -2,7 +2,7 @@
     position: absolute;
     width: 142px;
     height: 190px;
-    border: 1px solid var(--light-grey);
+    border: 1px solid var(--grey);
     border-radius: 8px;
     background-color: aliceblue;
     font-size: 32px;
@@ -46,7 +46,7 @@
 }
 
 .card.deck-view.drawn {
-    opacity: .5;
+    opacity: .3;
     z-index: auto;
 }
 

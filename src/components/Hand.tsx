@@ -1,7 +1,8 @@
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import './Hand.css'
-import { HandSizeContext } from '../App'
-import { useCardState } from './CardStateContext'
+import { useCardState } from './contexts/CardStateContext'
+import { useGameState } from './contexts/GameStateContext'
+import { useHandState } from './contexts/HandStateContext'
 
 type HandProps = {
     sort: 'rank' | 'suit'
@@ -9,8 +10,9 @@ type HandProps = {
 }
 
 export default function Hand(props: HandProps) {
-    const handSize = useContext(HandSizeContext)
-    const { state, dispatch} = useCardState()
+    const { state: game, dispatch: gameDispatch } = useGameState()
+    const { state: hand } = useHandState()
+    const { state, dispatch: cardDispatch } = useCardState()
 
     useEffect(() => {
         // https://www.desmos.com/calculator/vaaglwvmxl
@@ -45,17 +47,25 @@ export default function Hand(props: HandProps) {
             <div id='hand-area' className='card-area'>
                 {state.hand}
             </div>
-            <div id='hand-label' className='counter'>{state.hand.length}/{handSize}</div>
+            <div id='hand-label' className='counter'>{state.hand.length}/{game.handSize}</div>
             {state.submitted.length === 0 &&
             <div id='hand-buttons'>
                 <div id='ship' className={`button ${state.selected.length > 0}`} onClick={() => {
                     if(state.selected.length > 0) {
                         const draw = state.selected.length
-                        dispatch({type: 'submit', payload: {sort: props.sort}})
+                        gameDispatch({type: 'hand'})
+                        gameDispatch({type: 'score', payload: {score: hand.score}})
+                        cardDispatch({type: 'submit', payload: {sort: props.sort}})
                         setTimeout(() => {
-                            dispatch({type: 'reset'})
-                            dispatch({type: 'draw', payload: {draw: draw}})
-                        }, 3000)
+                            cardDispatch({type: 'scored'})
+                            const req = (game.currBlind === 'small' ? game.reqBase : game.currBlind === 'big' ? 1.5 * game.reqBase : game.boss.mult * game.reqBase)
+                            if(game.score + hand.score >= req) {
+                                cardDispatch({type: 'reset'})
+                                gameDispatch({type: 'defeat'})
+                            } else {
+                                cardDispatch({type: 'draw', payload: {draw: draw}})
+                            }
+                        }, 1500)
                     }
                 }}>Ship It</div>
                 <div id='sort'>
@@ -66,10 +76,11 @@ export default function Hand(props: HandProps) {
                     </div>
                 </div>
                 <div id='discard' className={`button ${state.selected.length > 0}`} onClick={() => {
-                    if(state.selected.length > 0) {
+                    if(state.selected.length > 0 && game.discards > 0) {
                         const select = state.selected
-                        dispatch({type: 'discard'})
-                        dispatch({type: 'draw', payload: {draw: select.length}})
+                        gameDispatch({type: 'discard'})
+                        cardDispatch({type: 'discard'})
+                        cardDispatch({type: 'draw', payload: {draw: select.length}})
                     }
                 }}>Discard</div>
             </div>}

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { Blind } from './components/Blind'
 import { Calculator } from './components/Calculator'
@@ -6,24 +6,24 @@ import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
 import Hand from './components/Hand'
 import { Deck } from './components/Deck'
-import { useCardState } from './components/CardStateContext'
-import { useHandState } from './components/HandStateContext'
-
-export const HandSizeContext = createContext(8)
+import { useCardState } from './components/contexts/CardStateContext'
+import { useHandState } from './components/contexts/HandStateContext'
+import { useGameState } from './components/contexts/GameStateContext'
+import { Blinds } from './components/Constants'
 
 export default function App() {
     const { state: cards, dispatch: cardDispatch } = useCardState()
     const { dispatch: handDispatch } = useHandState()
+    const { state: game } = useGameState()
     const cardsRef = useRef(cards)
     cardsRef.current = cards
     
-    const handSize = useContext(HandSizeContext)
     const [ sort, setSort ] = useState<'rank' | 'suit'>('rank')
 
     useEffect(() => {
         cardDispatch({type: 'init', payload: {handleCardClick: handleCardClick}})
         cardDispatch({type: 'shuffle'})
-        cardDispatch({type: 'draw', payload: {draw: handSize}})
+        cardDispatch({type: 'draw', payload: {draw: game.handSize}})
     }, [])
 
     const handleCardClick = (e: React.MouseEvent, id: number) => {
@@ -71,7 +71,8 @@ export default function App() {
     useEffect(() => {
         cardsRef.current.submitted.forEach(c => {
             let card = document.getElementById(`card ${c.props.id}`)
-            card!.classList.add('submitted')
+            if(card == undefined) { throw new Error(`card ${c.props.id} not found!`)}
+            card?.classList.add('submitted')
             setTimeout(() => {
                 card!.classList.remove('submitted')
             }, 3000)
@@ -81,11 +82,12 @@ export default function App() {
     return (
         <div className='container'>
             <div id='sidebar'>
-                <Blind
-                    name='SMALL_BLIND'
-                    score={300}
-                    reward={3}
-                />
+                {game.mode === 'blind-select' &&
+                    <div id='blind-select-label'>Choose your<br />next Blind</div>
+                }
+                {game.mode === 'scoring' &&
+                    <Blind type='sidebar' blind={game.currBlind === 'small' ? Blinds[0] : game.currBlind === 'big' ? Blinds[1] : game.boss} />
+                }
                 <Round />
                 <Calculator />
                 <InfoPanel />
@@ -103,19 +105,29 @@ export default function App() {
                 </div>
                 <div id='lower'>
                     <div id='content'>
-                        <div id='mid'>
-                            {cards.submitted}
-                        </div>
-                        <div id='bot'>
-                            <HandSizeContext.Provider value={8}>
+                        {game.mode === 'blind-select' && <>
+                            <div id='blinds-container'>
+                                <Blind type='select' blind={Blinds[0]} />
+                                <Blind type='select' blind={Blinds[1]} />
+                                <Blind type='select' blind={game.boss} />
+                            </div>
+                        </>}
+                        {game.mode === 'scoring' && <>
+                            <div id='mid'>
+                                {cards.submitted}
+                            </div>
+                            <div id='bot'>
                                 <Hand
                                     sort={sort}
                                     setSort={setSort}
                                 />
-                            </HandSizeContext.Provider>
-                        </div>
+                            </div>
+                        </>}
+                        {game.mode === 'post-scoring' && <>
+                            
+                        </>}
                     </div>
-                    <Deck deck={cards.deck} />
+                    <Deck />
                 </div>
             </div>
         </div>

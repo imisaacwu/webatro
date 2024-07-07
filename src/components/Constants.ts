@@ -1,4 +1,4 @@
-export type CardActionType = 'init' | 'select' | 'shuffle' | 'draw' | 'submit' | 'discard' | 'reset' | 'sort'
+export type CardActionType = 'init' | 'select' | 'shuffle' | 'draw' | 'submit' | 'discard' | 'scored' | 'reset' | 'sort'
 
 export const DeckType = {
     Abandoned: 'Abandoned',
@@ -65,8 +65,48 @@ export const HandType = {
     NONE: ''
 } as const
 
-export const Blinds = {
-    SMALL_BLIND: 'Small Blind',
-    BIG_BLIND: 'Big Blind'
+export type BlindType = {
+    img: string
+    name: string
+    descrip: string
+    ante: number
+    mult: number
+    reward: number
 }
-export type BlindNames = keyof typeof Blinds
+
+export const Blinds: BlindType[] = [
+    {
+        img: '../assets/blinds/small_blind.webp',
+        name: 'Small Blind',
+        descrip: '',
+        ante: 1,
+        mult: 1,
+        reward: 3
+    }, {
+        img: '../assets/blinds/big_blind.webp',
+        name: 'Big Blind',
+        descrip: '',
+        ante: 1,
+        mult: 1.5,
+        reward: 4
+    }, {
+        img: '../assets/blinds/hook.webp',
+        name: 'The Hook',
+        descrip: 'Discards 2 random cards per hand played',
+        ante: 1,
+        mult: 2,
+        reward: 5
+    }
+]
+
+export const AnteChips = {
+    0: 100,
+    1: 300,
+    2: 800,
+    3: 2000,
+    4: 5000,
+    5: 11000,
+    6: 20000,
+    7: 35000,
+    8: 50000
+}

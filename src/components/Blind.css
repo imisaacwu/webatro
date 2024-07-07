@@ -21,11 +21,44 @@
     border-radius: 8px;
 }
 
-#blind-info {
+#blind-name.select {
+    display: flex;
+    font-size: 32px;
+    line-height: 32px;
+    width: 180px;
+}
+
+#blind-name-bkg {
+    background-color: var(--small-blind-secondary);
+    border-radius: 8px;
+    margin: 4px;
+    text-align: center;
+    width: inherit;
+}
+
+#blind-info.sidebar {
     text-align: center;
     background-color: var(--small-blind-secondary);
     border-radius: 8px;
     margin: 0 4px 4px 4px;
+}
+
+#blind-info.select {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 2px;
+}
+
+#blind-bio.select {
+    width: 190px;
+    word-wrap: break-word;
+    font-size: 20px;
+    line-height: 20px;
+    text-align: center;
 }
 
 #blind-display {
@@ -44,6 +77,12 @@
     margin: 0 0 0 8px;
 }
 
+#blind-icon.select {
+    width: 72px;
+    height: 72px;
+    margin: 24px 16px 8px;
+}
+
 #blind-status {
     display: flex;
     flex: auto;
@@ -53,9 +92,17 @@
     border-radius: 8px;
 }
 
+#blind-status.select {
+    width: 190px;
+    justify-content: center;
+    align-items: center;
+    margin: 4px;
+}
+
 #blind-score-text {
     font-size: 20px;
     line-height: 20px;
+    padding: 0 0 0 3px;
 }
 
 #req-display {
@@ -93,4 +140,53 @@
     line-height: 24px;
     font-weight: bold;
     margin: 0 0 0 4px;
+}
+
+#outer {
+    display: flex;
+    margin-right: 32px;
+    padding: 0;
+    background-color: var(--small-blind-primary);
+    border-radius: 8px;
+    height: 800px;
+}
+
+#outer.true {
+    margin-top: 16px;
+}
+
+#outer.false {
+    margin-top: 64px;
+}
+
+#container {
+    display: flex;
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 8px;
+}
+
+#outline {
+    background-color: gray;
+    border-radius: 8px;
+    margin: 8px;
+    height: fit-content;
+}
+
+#select {
+    border-radius: 8px;
+    margin: 8px 16px 8px;
+    padding: 4px 0;
+    width: 150px;
+    font-size: 28px;
+    line-height: 24px;
+    text-align: center;
+}
+
+#select.true {
+    background-color: var(--orange);
+}
+
+#select.false {
+    background-color: gray;
 }

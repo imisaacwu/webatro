@@ -11,6 +11,9 @@ type CardProps = {
     enhancement?: Enhancement
     seal?: Seal
     handleClick: (e: React.MouseEvent, id: number) => void
+    selected?: boolean
+    submitted?: boolean
+    deckView?: boolean
 }
 
 const getImagePath = (suit: Suit, rank: Rank) => {
@@ -36,7 +39,7 @@ export const Card = (props: CardProps) => {
     if(!image) { throw new Error(`no such image ${Suit[props.suit].charAt(0).toLowerCase()}${rankChips[Rank[props.rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[props.rank] as keyof typeof rankChips] : Rank[props.rank].charAt(0).toLowerCase()}.webp`) }
 
     return (
-        <div id={`card ${props.id}`} className={`card ${Suit[props.suit]}`} onClick={(e) => props.handleClick(e, props.id)}>
+        <div id={`card ${props.id}`} className={`card ${Suit[props.suit]} ${props.deckView ? 'deck-view' : ''}`} onClick={(e) => props.handleClick(e, props.id)}>
             <img src={image} alt={`${Rank[props.rank]} of ${Suit[props.suit]}`}/>
         </div>
     )

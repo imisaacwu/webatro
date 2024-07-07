@@ -1,7 +1,7 @@
 import './Calculator.css'
-import { useHandState } from './HandStateContext'
+import { useHandState } from './contexts/HandStateContext'
 import { HandType, Rank, rankChips } from './Constants'
-import { useCardState } from './CardStateContext'
+import { useCardState } from './contexts/CardStateContext'
 
 export const Calculator = () => {
     const { state: cards } = useCardState()

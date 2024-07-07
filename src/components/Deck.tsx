@@ -1,13 +1,11 @@
-import { ReactElement, useState } from 'react'
+import { useState } from 'react'
 import './Deck.css'
 import DeckMenu from './DeckMenu'
 import { redDeck } from '../assets/decks'
+import { useCardState } from './contexts/CardStateContext'
 
-type DeckProps = {
-    deck: ReactElement[]
-}
-
-export const Deck = (props: DeckProps) => {
+export const Deck = () => {
+    const { state } = useCardState()
     const [ menuActive, setMenuActive ] = useState(false)
 
     return (
@@ -22,7 +20,7 @@ export const Deck = (props: DeckProps) => {
                     <img src={redDeck} />
                 </div>
             </div>
-            <div id='deck-label' className='counter'>{props.deck.length}/52</div>
+            <div id='deck-label' className='counter'>{state.deck.length}/{state.deck.length + state.hand.length + state.submitted.length + state.hidden.length}</div>
         </div>
     )
 }

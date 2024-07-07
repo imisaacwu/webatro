@@ -1,6 +1,7 @@
 body {
     margin: 0;
     user-select: none;
+    overflow: hidden;
 }
 
 :root {
@@ -10,7 +11,8 @@ body {
     --orange: hsl(33, 87%, 51%);
     --dark-orange: hsl(33, 87%, 51%);
     --dark-grey: #1C2729;
-    --light-grey: #384244;
+    --grey: #384244;
+    --light-grey: #b7c2cc;
     --small-blind-primary: hsl(210, 70%, 42%);
     --small-blind-secondary: #224B69;
 }
@@ -29,9 +31,21 @@ body {
     height: 100vh;
     padding: 4px;
     margin: 0 12px;
-    background-color: var(--light-grey);
+    background-color: var(--grey);
     border-left: 2px solid var(--small-blind-primary);
     border-right: 2px solid var(--small-blind-primary);
+}
+
+#blind-select-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 48px 0 0 0;
+    height: 229px;
+    font-size: 48px;
+    line-height: 48px;;
+    
 }
 
 #main {
@@ -57,6 +71,13 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+}
+
+#blinds-container {
+    display: flex;
+    flex-direction: row;
+    width: 790px;
+    height: 588px;
 }
 
 #mid {

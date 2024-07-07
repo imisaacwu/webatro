@@ -1,5 +1,5 @@
 import { Dispatch, ReactElement, ReactNode, createContext, useContext, useReducer } from "react"
-import { HandType, Rank, rankChips } from "./Constants"
+import { HandType, Rank, rankChips } from "../Constants"
 
 type HandLevel = {
     [K in keyof typeof HandType]: { level: number, chips: number, mult: number }

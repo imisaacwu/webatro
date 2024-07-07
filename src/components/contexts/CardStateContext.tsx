@@ -1,6 +1,6 @@
 import { Dispatch, ReactElement, ReactNode, createContext, useContext, useReducer } from "react"
-import { Card } from "./Card"
-import { Suit, Rank, CardActionType } from "./Constants"
+import { Card } from "../Card"
+import { Suit, Rank, CardActionType } from "../Constants"
 
 type CardState = {
     deck: ReactElement[]        // Contains cards not drawn yet
@@ -94,8 +94,10 @@ const cardReducer = (state: CardState, action: CardAction): CardState => {
                 hand: state.hand.filter(c => !state.selected.includes(c)),
                 hidden: [...state.hidden, ...state.selected],
                 selected: []}
-        case 'reset': // After score
+        case 'scored': // After score
             return {...state, hidden: [...state.hidden, ...state.submitted], submitted: []}
+        case 'reset': // After defeat
+            return {...state, deck: [...state.deck, ...state.hand, ...state.submitted, ...state.hidden], selected: []}
         case 'sort':
             if(action.payload?.sort == undefined) { throw new Error('sort type not specified!') }
             if(action.payload.sort === 'rank') {
