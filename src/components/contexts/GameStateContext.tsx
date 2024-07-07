@@ -30,7 +30,7 @@ const nextBlind = (currBlind: 'small' | 'big' | 'boss'): 'small' | 'big' | 'boss
 )
 
 const rollBoss = (ante: number) => {
-    let arr = Blinds.filter((b, i) => i > 1 && b.ante <= ante)
+    let arr = Blinds.filter((b, i) => i > 1 && (ante % 8 === 0 ? b.ante % 8 === 0 : (b.ante <= ante && b.ante % 8 !== 0)))
     return arr[Math.floor(Math.random() * arr.length)]
 }
 

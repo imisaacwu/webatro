@@ -1,4 +1,6 @@
-import { handLevels, HandType } from './Constants'
+import { Blind } from './Blind'
+import { Blinds, handLevels, HandType } from './Constants'
+import { useGameState } from './contexts/GameStateContext'
 import './RunInfo.css'
 import { useEffect, useState } from 'react'
 
@@ -8,6 +10,8 @@ type RunInfoProps = {
 
 export default function RunInfo(props: RunInfoProps) {
     const [ window, setWindow ] = useState<'poker-hands' | 'blinds' | 'vouchers'>('poker-hands')
+    const { state: game } = useGameState()
+
     const hands = Object.keys(handLevels).filter(k => (
         isNaN(Number(k)) && !k.match('NONE|ROYAL_FLUSH') && (!k.match('FLUSH_FIVE|FLUSH_HOUSE|FIVE') || handLevels[k as keyof typeof handLevels].played > 0)
     ))
@@ -55,8 +59,19 @@ export default function RunInfo(props: RunInfoProps) {
                     <div className='view-button base' onClick={() => setWindow('vouchers')}>Vouchers</div>
                 </div>
             </div>
-            <div id='hand-levels'>
-                {levelDisplay}
+            <div id='menu-area'>
+                {window === 'poker-hands' &&
+                    <div id='hand-levels'>
+                        {levelDisplay}
+                    </div>
+                }
+                {window === 'blinds' &&
+                    <div id='blind-view'>
+                        <Blind type='run-info' blind={Blinds[0]}/>
+                        <Blind type='run-info' blind={Blinds[1]}/>
+                        <Blind type='run-info' blind={game.boss}/>
+                    </div>
+                }
             </div>
             <div id='back' className='base' onClick={() => props.setMenu(false)}>Back</div>
         </div>

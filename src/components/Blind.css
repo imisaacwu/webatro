@@ -56,6 +56,11 @@
     margin: 2px;
 }
 
+#blind-info.run-info {
+    margin: 0;
+    background-color: #2b3c3f;
+}
+
 #blind-bio {
     font-size: 24px;
     line-height: 24px;
@@ -193,11 +198,17 @@
     height: 800px;
 }
 
-#blind-outer.true {
+#blind-outer.run-info {
+    background-color: var(--dark-grey);
+    margin: 0 4px;
+    height: 450px;
+}
+
+#blind-outer.select.true {
     margin-top: 16px;
 }
 
-#blind-outer.false {
+#blind-outer.select.false {
     margin-top: 64px;
 }
 
@@ -235,6 +246,18 @@
 
 #blind-select.false {
     background-color: gray;
+}
+
+#blind-select.run-info.true {
+    background-color: var(--red);
+}
+
+#blind-select.run-info.true:hover {
+    cursor: initial;
+}
+
+#blind-select.run-info.false {
+    background-color: var(--orange);
 }
 
 #post-blind-info {

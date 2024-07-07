@@ -5,7 +5,7 @@ import { useGameState } from './contexts/GameStateContext';
 const icons: Record<string, { default: string }> = import.meta.glob('../assets/blinds/*.webp', { eager: true });
 
 type BlindProps = {
-    type: 'sidebar' | 'select' | 'post'
+    type: 'sidebar' | 'select' | 'post' | 'run-info'
     blind: BlindType
 }
 
@@ -42,13 +42,13 @@ export const Blind = ({ type, blind }: BlindProps) => {
                     </div>
                 </div>
             </>}
-            {type === 'select' && <>
-                <div id='blind-outer' className={`${select}`}>
+            {(type === 'select' || type === 'run-info') && <>
+                <div id='blind-outer' className={`${select} ${type}`}>
                     <div id='blind-container'>
                         <div id='blind-outline'>
-                            <div id='blind-info' className='select'>
-                                <div id='blind-select' className={`${select}`} onClick={() => {if(select){gameDispatch({type: 'select'})}}}>{
-                                    select ? 'Select' : ((game.currBlind === 'boss' && Blinds.indexOf(blind) < 2) || (game.currBlind === 'big' && Blinds.indexOf(blind) < 1)) ? 'Defeated' : 'Upcoming'
+                            <div id='blind-info' className={`select ${type}`}>
+                                <div id='blind-select' className={`${select} ${type}`} onClick={() => {if(select && type === 'select'){gameDispatch({type: 'select'})}}}>{
+                                    select ? (type === 'select' ? 'Select' : 'Current') : ((game.currBlind === 'boss' && Blinds.indexOf(blind) < 2) || (game.currBlind === 'big' && Blinds.indexOf(blind) < 1)) ? 'Defeated' : 'Upcoming'
                                 }</div>
                                 <div id='blind-name' className='select'>
                                     <div id='blind-name-bkg'>

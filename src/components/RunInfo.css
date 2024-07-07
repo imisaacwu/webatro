@@ -1,7 +1,7 @@
 #menu.base {
     z-index: 1;
-    left: 380px;
-    right: 400px;
+    left: 350px;
+    right: 370px;
     height: fit-content;
 }
 
@@ -11,10 +11,16 @@
     padding: 8px;
 }
 
+#menu-area {
+    height: 500px;
+    overflow: hidden;
+}
+
 #hand-levels {
     display: flex;
     flex-direction: column;
-    margin: 64px 0;
+    justify-content: center;
+    height: 100%;
 }
 
 #hand-display {
@@ -40,10 +46,10 @@
     background-color: #eef0f2;
     border-radius: 8px;
     margin: 2px;
-    padding: 2px 16px;
+    padding: 2px 20px;
     color: var(--dark-grey);
-    font-size: 24px;
-    line-height: 16px;
+    font-size: 32px;
+    line-height: 20px;
 }
 
 #hand-name.base {
@@ -63,10 +69,10 @@
 
 #chips.base,
 #mult.base {
-    font-size: 24px;
-    line-height: 12px;
+    font-size: 28px;
+    line-height: 16px;
     margin: 3px;
-    padding: 4px;
+    padding: 4px 6px;
     width: 50px;
 }
 
@@ -98,6 +104,11 @@
 
 #hand-freq div[id^='freq-display-'].double {
     padding: 4px 16px;  
+}
+
+#blind-view {
+    display: flex;
+    justify-content: center;
 }
 
 #back.base {
