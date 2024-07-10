@@ -1,6 +1,6 @@
 import stake_icon from '../assets/white_stake.webp'
 import './Blind.css'
-import { Blinds, BlindType } from '../Constants'
+import { Blinds, BlindType, handLevels, HandType } from '../Constants'
 import { useContext } from 'react';
 import { GameStateContext } from '../GameState';
 const icons: Record<string, { default: string }> = import.meta.glob('../assets/blinds/*.webp', { eager: true });
@@ -18,6 +18,9 @@ export const Blind = ({ type, blind }: BlindProps) => {
     const req_score = (blindMult * anteChips).toLocaleString().length < 11 ? (blindMult * anteChips).toLocaleString() : (blindMult * anteChips).toExponential()
     const select = (game.blind.curr === 'small' && Blinds.indexOf(blind) === 0) || (game.blind.curr === 'big' && Blinds.indexOf(blind) === 1) || (game.blind.curr === 'boss' && Blinds.indexOf(blind) > 1)
     const icon = !icons[blind.img] ? '' : icons[blind.img].default
+    if(blind.name === 'The Ox') {
+        blind.descrip = blind.descrip.replace('_', HandType[Object.entries(handLevels).find(h => h[1] === Object.entries(handLevels).reduce((most, h) => most = (most.played < h[1].played || (most.chips * most.mult < h[1].chips * h[1].mult) ? h[1] : most), handLevels.NONE))![0] as keyof typeof HandType])
+    }
 
     return (
         <>

@@ -14,8 +14,10 @@ export default function App() {
     const gameRef = useRef(game)
     gameRef.current = game
     
+    
+    
     useEffect(() => dispatch({type: 'init'}), [])
-
+    
     useEffect(() => {
         document.addEventListener('keydown', handleKeys)
 
@@ -84,6 +86,7 @@ export default function App() {
                                                 state: 'shop',
                                                 amount: reward,
                                             }})
+                                            dispatch({type: 'state', payload: {state: 'blind-select'}})
                                         }}>{`Cash Out: $${reward}`}</div>
                                         <Blind type='post' blind={currBlindType} />
                                         <div id='post-dots'>{'. '.repeat(49)}</div>

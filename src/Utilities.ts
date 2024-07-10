@@ -52,9 +52,30 @@ export const bestHand = (cards: ReactElement[]): keyof typeof HandType => {
 
 export const shuffle = (cards: ReactElement[]): ReactElement[] => {
     let arr = [...cards], i = cards.length
-    while(i < 0) {
+    while(i > 0) {
         let rand = Math.floor(Math.random() * i--);
         [arr[i], arr[rand]] = [arr[rand], arr[i]]
     }
     return arr;
+}
+
+// https://www.desmos.com/calculator/vaaglwvmxl
+export const cardSnap = (cards: ReactElement[]) => {
+    if(cards.length === 0) { throw new Error('no cards') }
+    
+    const c = cards.map(c => document.getElementById(`card ${c.props.id}`)), r = 6000
+    const container = c[0]!.parentElement!, w = container.clientWidth, l = container.childElementCount
+    const lStep = w / l, extra = (lStep - c[0]!.clientWidth) / (l - 1)
+    const h = w / 2, k = -Math.sqrt(r*r-h*h)
+    
+    c.forEach((c, i) => {
+        const left = i * (lStep + extra)
+        const x = Math.abs(h - (left + 71))
+        const y = Math.sqrt(r * r - (h - (i * lStep + 71)) ** 2) + k
+        const rot = (i < cards.length / 2 ? 1 : -1) * (Math.acos(x / r) - Math.PI / 2)
+
+        c!.style.left = `${left}px`
+        c!.style.bottom = `${y}px`
+        c!.style.rotate = `${rot}rad`
+    })
 }

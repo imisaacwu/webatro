@@ -1,7 +1,7 @@
 import { createContext, Dispatch, ReactElement, ReactNode, useReducer } from "react"
 import { Card } from './components/Card'
 import { Blinds, BlindType, DeckType, handLevels, HandType, Rank, rankChips, Suit } from "./Constants"
-import { ante_base, AnteBlinds, bestHand, boss_roll, getNextBlind, shuffle } from "./Utilities"
+import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, shuffle } from "./Utilities"
 
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
@@ -42,7 +42,7 @@ type GameState = {
 }
 
 type GameAction = {
-    type: 'init' | 'state' | 'stat' | 'select' | 'submit' | 'discard' | 'draw' | 'setSort'
+    type: 'init' | 'state' | 'stat' | 'select' | 'submit' | 'discard' | 'draw' | 'setSort' | 'updateHand'
     payload?: {
         deck?: keyof typeof DeckType,
 
@@ -52,6 +52,7 @@ type GameAction = {
         amount?: number
 
         card?: ReactElement
+        hand?: ReactElement[]
 
         sort?: 'rank' | 'suit'
     }
@@ -71,7 +72,7 @@ const initialGameState: GameState = {
     },
 
     blind: {
-        curr: 'small',
+        curr: 'boss',
         boss: Blinds[0],
         base: 0
     },
@@ -218,7 +219,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             }}
             break 
         case 'submit':
-            let temp = [...state.cards.selected].sort(sort)
+            let temp = [...state.cards.selected].reverse()
             handLevels[state.active.name === 'ROYAL_FLUSH' ? 'STRAIGHT_FLUSH' : state.active.name].played++;
             next = {...next,
                 stats: {...state.stats,
@@ -237,7 +238,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             setTimeout(() => {
                 temp.forEach(c => {
                     let div = document.getElementById(`card ${c.props.id}`)!
-                    console.log(div);
                     div.classList.remove('selected')
                     div.classList.add('submitted')
                     let popup = document.createElement('div')
@@ -245,10 +245,15 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                     popup.textContent = `+${rankChips[Rank[c.props.rank] as keyof typeof rankChips]}`
                     div.appendChild(popup)
                 })
-            }, 1)
+            })
             break 
         case 'discard':
-            if(state.cards.submitted.length > 0) {
+            if(action.payload?.hand) {
+                next = {...next, cards: {...state.cards,
+                    hand: state.cards.hand.filter(c => action.payload?.hand!.includes(c)),
+                    hidden: [...state.cards.hidden, ...action.payload.hand!]
+                }}
+            } else if(state.cards.submitted.length > 0) {
                 state.cards.submitted.forEach(c => {
                     document.getElementById(`card ${c.props.id}`)?.classList.remove('submitted')
                 })
@@ -271,6 +276,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                     }
                 }
             }
+            next = {...next, active: initialGameState['active']}
             break
         case 'draw':
             next = {...next, cards: {...state.cards,
@@ -282,6 +288,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             next = {...next, cards: {...state.cards,
                 hand: state.cards.hand.sort(sort),
                 sort: action.payload?.sort!
+            }}
+            setTimeout(() => cardSnap(state.cards.hand))
+            break;
+        case 'updateHand':
+            next = {...next, cards: {...state.cards,
+                hand: action.payload?.hand!
             }}
             break;
         default:
@@ -305,5 +317,3 @@ export const GameStateProvider = ({ children }: { children: ReactNode }) => {
         </GameStateContext.Provider>
     )
 }
-
-// const { state: game, dispatch } = useContext(GameStateContext) 
