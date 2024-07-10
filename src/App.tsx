@@ -1,46 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import './App.css'
 import { Blind } from './components/Blind'
 import { Calculator } from './components/Calculator'
+import { Blinds } from './Constants'
+import { Deck } from './components/Deck'
+import Hand from './components/Hand'
 import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
-import Hand from './components/Hand'
-import { Deck } from './components/Deck'
-import { useCardState } from './components/contexts/CardStateContext'
-import { useHandState } from './components/contexts/HandStateContext'
-import { useGameState } from './components/contexts/GameStateContext'
-import { Blinds } from './components/Constants'
+import { GameStateContext } from './GameState'
 
 export default function App() {
-    const { state: cards, dispatch: cardDispatch } = useCardState()
-    const { dispatch: handDispatch } = useHandState()
-    const { state: game, dispatch: gameDispatch } = useGameState()
-    const cardsRef = useRef(cards)
-    cardsRef.current = cards
+    const { state: game, dispatch } = useContext(GameStateContext)
+    const gameRef = useRef(game)
+    gameRef.current = game
     
-    const [ sort, setSort ] = useState<'rank' | 'suit'>('rank')
-
-    useEffect(() => {
-        cardDispatch({type: 'init', payload: {handleCardClick: handleCardClick}})
-        cardDispatch({type: 'shuffle'})
-        cardDispatch({type: 'draw', payload: {draw: game.handSize}})
-    }, [])
-
-    const handleCardClick = (e: React.MouseEvent, id: number) => {
-        const card = cardsRef.current.hand.find(card => card.props.id === id)
-        const className = e.currentTarget.getAttribute('class') as string // className is never null
-        if(card) {
-            if(!className.includes('selected') && !className.includes('submitted')) {
-                if(cardsRef.current.selected.length < 5) {
-                    e.currentTarget.classList.add('selected')
-                    cardDispatch({type: 'select', payload: {element: card}})
-                }
-            } else {
-                e.currentTarget.classList.remove('selected')
-                cardDispatch({type: 'select', payload: {element: card}})
-            }
-        } else { throw Error('couldn\'t find card clicked on')}
-    }
+    useEffect(() => dispatch({type: 'init'}), [])
 
     useEffect(() => {
         document.addEventListener('keydown', handleKeys)
@@ -50,43 +24,22 @@ export default function App() {
 
     const handleKeys = (e: KeyboardEvent) => {
         if(e.key === 'Escape') {
-            cardsRef.current.selected.forEach(card => {
-                let c = document.getElementById(`card ${card.props.id}`)
-                c!.setAttribute('class', c!.getAttribute('class')!.replace(' selected', ''))
-                cardDispatch({type: 'select', payload: {element: card}})
+            gameRef.current.cards.selected.forEach(c => {
+                dispatch({type: 'select', payload: {card: c}})
             })
         }
     }
 
-    useEffect(() => {
-        cardDispatch({type: 'sort', payload: {sort: sort}})
-    }, [sort, cardsRef.current.deck])
+    const currBlindType = game.blind.curr === 'small' ? Blinds[0] : game.blind.curr === 'big' ? Blinds[1] : game.blind.boss
 
-    useEffect(() => {
-        if(cardsRef.current.submitted.length === 0) {
-            handDispatch({type: 'score', payload: {cards: cardsRef.current.selected}})
-        }
-    }, [cardsRef.current.selected, cardsRef.current.submitted])
-
-    useEffect(() => {
-        cardsRef.current.submitted.forEach(c => {
-            let card = document.getElementById(`card ${c.props.id}`)
-            if(card == undefined) { throw new Error(`card ${c.props.id} not found!`)}
-            card?.classList.add('submitted')
-            setTimeout(() => {
-                card!.classList.remove('submitted')
-            }, 3000)
-        })
-    }, [cardsRef.current.submitted])
-
-    const currBlindType = game.currBlind === 'small' ? Blinds[0] : game.currBlind === 'big' ? Blinds[1] : game.boss;
+    const reward = currBlindType.reward + game.stats.hands + Math.min(Math.floor(game.stats.money / 5), 5)
 
     return (
         <div className='container'>
             <div id='sidebar'>
                 <div id='top-sidebar'>
-                    {game.mode === 'blind-select' && <div>Choose your<br />next Blind</div>}
-                    {game.mode === 'scoring' &&
+                    {game.state === 'blind-select' && <div>Choose your<br />next Blind</div>}
+                    {game.state === 'scoring' &&
                         <Blind type='sidebar' blind={currBlindType} />
                     }
                 </div>
@@ -107,56 +60,45 @@ export default function App() {
                 </div>
                 <div id='lower'>
                     <div id='content'>
-                        {game.mode === 'blind-select' && <>
+                        {game.state === 'blind-select' && <>
                             <div id='blinds-container'>
                                 <Blind type='select' blind={Blinds[0]} />
                                 <Blind type='select' blind={Blinds[1]} />
-                                <Blind type='select' blind={game.boss} />
+                                <Blind type='select' blind={game.blind.boss} />
                             </div>
                         </>}
-                        {game.mode === 'scoring' && <>
+                        {game.state === 'scoring' && <>
                             <div id='mid'>
-                                {cards.submitted}
+                                {gameRef.current.cards.submitted}
                             </div>
                             <div id='bot'>
-                                <Hand
-                                    sort={sort}
-                                    setSort={setSort}
-                                />
+                                <Hand />
                             </div>
                         </>}
-                        {game.mode === 'post-scoring' && <>
+                        {game.state === 'post-scoring' && <>
                             <div id='post-outer'>
                                 <div id='post-container'>
                                     <div id='post-inner'>
                                         <div id='cash-out' onClick={() => {
-                                            gameDispatch({type: 'exit', payload: {reward:
-                                                currBlindType.reward +
-                                                game.hands +
-                                                Math.min(Math.floor(game.money / 5), 5)
+                                            dispatch({type: 'state', payload: {
+                                                state: 'shop',
+                                                amount: reward,
                                             }})
-                                            gameDispatch({type: 'next'})
-                                            cardDispatch({type: 'shuffle'})
-                                            cardDispatch({type: 'draw', payload: {draw: game.handSize}})
-                                        }}>{`Cash Out: $${
-                                            currBlindType.reward +
-                                            game.hands +
-                                            Math.min(Math.floor(game.money / 5), 5)
-                                        }`}</div>
+                                        }}>{`Cash Out: $${reward}`}</div>
                                         <Blind type='post' blind={currBlindType} />
                                         <div id='post-dots'>{'. '.repeat(49)}</div>
-                                        {game.hands > 0 &&
+                                        {game.stats.hands > 0 &&
                                             <div id='remaining-hands' className='extra-reward'>
-                                                <div className='num-extra'>{game.hands}</div>
+                                                <div className='num-extra'>{game.stats.hands}</div>
                                                 <div className='extra-reward-text'>{'Remaining Hands \[$1 each\]'}</div>
-                                                <div className='reward'>{'$'.repeat(game.hands)}</div>
+                                                <div className='reward'>{'$'.repeat(game.stats.hands)}</div>
                                             </div>
                                         }
-                                        {game.money > 4 &&
+                                        {game.stats.money > 4 &&
                                             <div id='interest' className='extra-reward'>
-                                                <div className='num-extra'>{Math.min(Math.floor(game.money / 5), 5)}</div>
+                                                <div className='num-extra'>{Math.min(Math.floor(game.stats.money / 5), 5)}</div>
                                                 <div className='extra-reward-text'>{'1 interest per $5 \[5 max\]'}</div>
-                                                <div className='reward'>{'$'.repeat(Math.min(Math.floor(game.money / 5), 5))}</div>
+                                                <div className='reward'>{'$'.repeat(Math.min(Math.floor(game.stats.money / 5), 5))}</div>
                                             </div>
                                         }
                                     </div>

@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
 import './Card.css'
-import { Edition, Enhancement, Rank, Seal, Suit, rankChips } from './Constants'
+import { Edition, Enhancement, Rank, Seal, Suit, rankChips } from '../Constants'
+import { useContext, useRef } from 'react';
+import { GameStateContext } from '../GameState';
 const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true });
 
 type CardProps = {
@@ -10,9 +11,6 @@ type CardProps = {
     edition?: Edition
     enhancement?: Enhancement
     seal?: Seal
-    handleClick: (e: React.MouseEvent, id: number) => void
-    selected?: boolean
-    submitted?: boolean
     deckView?: boolean
 }
 
@@ -25,22 +23,20 @@ const getImagePath = (suit: Suit, rank: Rank) => {
 };
 
 export const Card = (props: CardProps) => {
-    useEffect(() => {
-        let card = document.getElementById(`card ${props.id}`) as HTMLElement
-        if(card?.classList.contains('submitted')) {
-            let popup = document.createElement('div')
-            card.appendChild(popup)
-            popup.classList.add('popup')
-            popup.textContent = `+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`
-        }
-    }, [document.getElementById(`card ${props.id}`)?.classList])
+    const { deckView = false } = props;
+    const { state: game, dispatch } = useContext(GameStateContext)
+    const gameRef = useRef(game);
+    gameRef.current = game;
 
     const image = getImagePath(props.suit, props.rank);
     if(!image) { throw new Error(`no such image ${Suit[props.suit].charAt(0).toLowerCase()}${rankChips[Rank[props.rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[props.rank] as keyof typeof rankChips] : Rank[props.rank].charAt(0).toLowerCase()}.webp`) }
 
     return (
-        <div id={`card ${props.id}`} className={`card ${Suit[props.suit]} ${props.deckView ? 'deck-view' : ''}`} onClick={(e) => props.handleClick(e, props.id)}>
+        <div id={`card ${props.id}`} className={`card ${Suit[props.suit]} ${deckView ? 'deck-view' : ''}`} onClick={() => {
+            dispatch({type: 'select', payload: {card: gameRef.current.cards.hand.find(c => c.props.id === props.id)}})
+        }}>
             <img src={image} alt={`${Rank[props.rank]} of ${Suit[props.suit]}`}/>
+            {/* {document.getElementById(`card ${props.id}`)?.classList.contains('submitted') && <div className='popup'></div>} */}
         </div>
     )
 }

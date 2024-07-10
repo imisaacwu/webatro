@@ -1,5 +1,3 @@
-export type CardActionType = 'init' | 'select' | 'shuffle' | 'draw' | 'submit' | 'discard' | 'scored' | 'reset' | 'sort'
-
 export const DeckType = {
     Abandoned: 'Abandoned',
     Anaglyph: 'Anaglyph',
@@ -41,13 +39,6 @@ export const rankChips: { [R in keyof typeof Rank]: number } = {
     Ace: 11
 } as const
 
-export const suitMap = new Map([
-    [Suit.Spades, '♠'],
-    [Suit.Hearts, '♥'],
-    [Suit.Clubs, '♣'],
-    [Suit.Diamonds, '♦']
-])
-
 export const HandType = {
     FLUSH_FIVE: 'Flush Five',
     FLUSH_HOUSE: 'Flush House',
@@ -85,6 +76,23 @@ export const handLevels: HandLevel = {
     'HIGH_CARD': {level: 1, chips: 5, mult: 1, played: 0},
     'NONE': {level: 0, chips: 0, mult: 0, played: 0}
 }
+
+export const handUpgrade = {
+    'FLUSH_FIVE': {chips: 50, mult: 3},
+    'FLUSH_HOUSE': {chips: 40, mult: 4},
+    'FIVE': {chips: 35, mult: 3},
+    'ROYAL_FLUSH': {chips: 40, mult: 4},
+    'STRAIGHT_FLUSH': {chips: 40, mult: 4},
+    'FOUR': {chips: 30, mult: 3},
+    'FULL_HOUSE': {chips: 25, mult: 2},
+    'FLUSH': {chips: 15, mult: 2},
+    'STRAIGHT': {chips: 30, mult: 3},
+    'THREE': {chips: 20, mult: 2},
+    'TWO_PAIR': {chips: 20, mult: 1},
+    'PAIR': {chips: 15, mult: 1},
+    'HIGH_CARD': {chips: 10, mult: 1},
+    'NONE': {chips: 0, mult: 0}
+} as const
 
 export type BlindType = {
     img: string

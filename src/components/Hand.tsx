@@ -1,19 +1,11 @@
-import { useEffect } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import './Hand.css'
-import { useCardState } from './contexts/CardStateContext'
-import { useGameState } from './contexts/GameStateContext'
-import { useHandState } from './contexts/HandStateContext'
-import { handLevels } from './Constants'
+import { GameStateContext } from '../GameState'
 
-type HandProps = {
-    sort: 'rank' | 'suit'
-    setSort: React.Dispatch<React.SetStateAction<'rank' | 'suit'>>
-}
-
-export default function Hand(props: HandProps) {
-    const { state: game, dispatch: gameDispatch } = useGameState()
-    const { state: hand } = useHandState()
-    const { state, dispatch: cardDispatch } = useCardState()
+export default function Hand() {
+    const { state: game, dispatch } = useContext(GameStateContext)
+    const gameRef = useRef(game);
+    gameRef.current = game;
 
     useEffect(() => {
         // https://www.desmos.com/calculator/vaaglwvmxl
@@ -41,48 +33,45 @@ export default function Hand(props: HandProps) {
 
             c.style.rotate = `${rot}rad`
         })
-    }, [state.hand])
+    }, [game.cards.hand])
 
     return (
         <div id='hand' className='card-container'>
             <div id='hand-area' className='card-area'>
-                {state.hand}
+                {game.cards.hand}
             </div>
-            <div id='hand-label' className='counter'>{state.hand.length}/{game.handSize}</div>
-            {state.submitted.length === 0 &&
+            <div id='hand-label' className='counter'>{game.cards.hand.length}/{game.stats.handSize}</div>
+            {game.cards.submitted.length === 0 &&
             <div id='hand-buttons'>
-                <div id='ship' className={`button ${state.selected.length > 0}`} onClick={() => {
-                    if(state.selected.length > 0) {
-                        const draw = state.selected.length
-                        gameDispatch({type: 'hand'})
-                        gameDispatch({type: 'score', payload: {score: hand.score}})
-                        cardDispatch({type: 'submit', payload: {sort: props.sort}})
-                        handLevels[hand.hand.name].played++;
+                <div id='ship' className={`button ${game.cards.selected.length > 0}`} onClick={() => {
+                    if(game.cards.selected.length > 0) {
+                        dispatch({type: 'submit'})
                         setTimeout(() => {
-                            cardDispatch({type: 'scored'})
-                            const req = (game.currBlind === 'small' ? game.reqBase : game.currBlind === 'big' ? 1.5 * game.reqBase : game.boss.mult * game.reqBase)
-                            if(game.score + hand.score >= req) {
-                                cardDispatch({type: 'reset'})
-                                gameDispatch({type: 'defeat'})
+                            console.log(gameRef.current.cards.submitted)
+                            gameRef.current.cards.submitted.forEach(c => console.log(document.getElementById(`card ${c.props.id}`)));
+                            dispatch({type: 'discard'})
+                            if(game.stats.score >= (game.blind.base * (game.blind.curr === 'small' ? 1 : game.blind.curr === 'big' ? 1.5 : game.blind.boss.mult))) {
+                                dispatch({type: 'state', payload: {state: 'post-scoring'}})
                             } else {
-                                cardDispatch({type: 'draw', payload: {draw: draw}})
+                                dispatch({type: 'draw', payload: {amount: (game.stats.handSize - game.cards.hand.length)}})
                             }
                         }, 1500)
                     }
-                }}>Ship It</div>
+                }}>Play Hand</div>
                 <div id='sort'>
                     Sort Hand
                     <div id='sort-buttons'>
-                        <div id='rank' className='sort-button' onClick={() => props.setSort('rank')}>Rank</div>
-                        <div id='suit' className='sort-button' onClick={() => props.setSort('suit')}>Suit</div>
+                        <div id='rank' className='sort-button' onClick={() => dispatch({type: 'setSort', payload: {sort: 'rank'}})}>Rank</div>
+                        <div id='suit' className='sort-button' onClick={() => dispatch({type: 'setSort', payload: {sort: 'suit'}})}>Suit</div>
                     </div>
                 </div>
-                <div id='discard' className={`button ${state.selected.length > 0}`} onClick={() => {
-                    if(state.selected.length > 0 && game.discards > 0) {
-                        const select = state.selected
-                        gameDispatch({type: 'discard'})
-                        cardDispatch({type: 'discard'})
-                        cardDispatch({type: 'draw', payload: {draw: select.length}})
+                <div id='discard' className={`button ${game.cards.selected.length > 0}`} onClick={() => {
+                    if(game.cards.selected.length > 0 && game.stats.discards > 0) {
+                        let amount = game.cards.selected.length
+                        dispatch({type: 'discard'})
+                        setTimeout(() => {
+                            dispatch({type: 'draw', payload: {amount: amount}})
+                        }, 500)
                     }
                 }}>Discard</div>
             </div>}

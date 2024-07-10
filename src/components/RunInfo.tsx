@@ -1,8 +1,8 @@
 import { Blind } from './Blind'
-import { Blinds, handLevels, HandType } from './Constants'
-import { useGameState } from './contexts/GameStateContext'
+import { Blinds, handLevels, HandType } from '../Constants'
 import './RunInfo.css'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { GameStateContext } from '../GameState'
 
 type RunInfoProps = {
     setMenu: React.Dispatch<React.SetStateAction<boolean>>
@@ -10,7 +10,7 @@ type RunInfoProps = {
 
 export default function RunInfo(props: RunInfoProps) {
     const [ window, setWindow ] = useState<'poker-hands' | 'blinds' | 'vouchers'>('poker-hands')
-    const { state: game } = useGameState()
+    const { state: game } = useContext(GameStateContext)
 
     const hands = Object.keys(handLevels).filter(k => (
         isNaN(Number(k)) && !k.match('NONE|ROYAL_FLUSH') && (!k.match('FLUSH_FIVE|FLUSH_HOUSE|FIVE') || handLevels[k as keyof typeof handLevels].played > 0)
@@ -69,7 +69,7 @@ export default function RunInfo(props: RunInfoProps) {
                     <div id='blind-view'>
                         <Blind type='run-info' blind={Blinds[0]}/>
                         <Blind type='run-info' blind={Blinds[1]}/>
-                        <Blind type='run-info' blind={game.boss}/>
+                        <Blind type='run-info' blind={game.blind.boss}/>
                     </div>
                 }
             </div>

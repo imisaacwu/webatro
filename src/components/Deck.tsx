@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import './Deck.css'
 import DeckMenu from './DeckMenu'
 import { redDeck } from '../assets/decks'
-import { useCardState } from './contexts/CardStateContext'
+import { GameStateContext } from '../GameState'
 
 export const Deck = () => {
-    const { state } = useCardState()
+    const { state: game } = useContext(GameStateContext)
     const [ menuActive, setMenuActive ] = useState(false)
 
     return (
@@ -20,7 +20,7 @@ export const Deck = () => {
                     <img src={redDeck} />
                 </div>
             </div>
-            <div id='deck-label' className='counter'>{state.deck.length}/{state.deck.length + state.hand.length + state.submitted.length + state.hidden.length}</div>
+            <div id='deck-label' className='counter'>{game.cards.deck.length}/{game.cards.deck.length + game.cards.hand.length + game.cards.submitted.length + game.cards.hidden.length}</div>
         </div>
     )
 }

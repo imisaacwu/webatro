@@ -1,41 +1,36 @@
-import { useCardState } from './contexts/CardStateContext'
 import './DeckMenu.css'
 import { Card } from './Card'
-import { ReactElement, useEffect, useState } from 'react'
-import { Rank, Suit, rankChips } from './Constants'
+import { ReactElement, useContext, useEffect, useState } from 'react'
+import { Rank, Suit, rankChips } from '../Constants'
 import { aceIcon, faceIcon, numIcon, spades, hearts, clubs, diamonds } from '../assets/ui';
-import { useGameState } from './contexts/GameStateContext'
+import { GameStateContext } from '../GameState';
 
 type DeckMenuProps = {
     setMenu: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function DeckMenu(props: DeckMenuProps) {
-    const { state: game } = useGameState()
-    const { state } = useCardState()
+    const { state: game } = useContext(GameStateContext)
     const [ view, setView ] = useState<'remaining' | 'full'>('remaining')
 
-    const cards = [...state.deck, ...state.hand, ...state.hidden, ...state.submitted].map(c => (
+    const cards = [...game.cards.deck, ...game.cards.hand, ...game.cards.hidden, ...game.cards.submitted].map(c => (
         <Card
             id={-1-c.props.id}
             key={-1-c.props.id}
             suit={c.props.suit}
             rank={c.props.rank}
-            handleClick={() => {}}
+            deckView={true}
         />
     ))
     
     useEffect(() => {
-        cards.forEach(c => document.getElementById(`card ${c.props.id}`)?.classList.add('deck-view'));
-    }, [cards])
-
-    useEffect(() => {
-        if(game.mode === 'scoring' && view === 'remaining') {
-            [...state.hand, ...state.hidden, ...state.submitted].forEach(c => document.getElementById(`card ${-1-c.props.id}`)?.classList.add('drawn'))
+        const drawn = [...game.cards.hand, ...game.cards.hidden, ...game.cards.submitted]
+        if(game.state === 'scoring' && view === 'remaining') {
+            drawn.forEach(c => document.getElementById(`card ${-1-c.props.id}`)?.classList.add('drawn'))
         } else {
-            [...state.hand, ...state.hidden, ...state.submitted].forEach(c => document.getElementById(`card ${-1-c.props.id}`)?.classList.remove('drawn'))
+            drawn.forEach(c => document.getElementById(`card ${-1-c.props.id}`)?.classList.remove('drawn'))
         }
-    }, [game.mode, view])
+    }, [game.state, view])
 
     const deck: ReactElement[][] = [];
     Object.values(Suit).filter(s => !isNaN(Number(s))).forEach(suit => {
@@ -75,8 +70,8 @@ export default function DeckMenu(props: DeckMenuProps) {
     })
 
     const rankCount: number[] = new Array(13).fill(0), suitCount: number[] = new Array(4).fill(0)
-    if(game.mode === 'scoring' && view === 'remaining') {
-        [...state.deck].forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
+    if(game.state === 'scoring' && view === 'remaining') {
+        [...game.cards.deck].forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
     } else {
         cards.forEach(c => {rankCount[12-c.props.rank]++; suitCount[c.props.suit]++})
     }
@@ -86,14 +81,14 @@ export default function DeckMenu(props: DeckMenuProps) {
     return (
         <div id='menu'>
             <div id='menu-views'>
-                {game.mode === 'scoring' &&
+                {game.state === 'scoring' &&
                     <div id='remaining' className='view-container'>
                         {view === 'remaining' && <div className='arrow' />}
                         <div className='view-button' onClick={() => setView('remaining')}>Remaining</div>
                     </div>
                 }
                 <div id='full' className='view-container'>
-                   {(game.mode !== 'scoring' || view === 'full') && <div className='arrow' />}
+                   {(game.state !== 'scoring' || view === 'full') && <div className='arrow' />}
                     <div className='view-button' onClick={() => setView('full')}>Full Deck</div>
                 </div>
             </div>

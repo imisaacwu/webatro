@@ -1,7 +1,8 @@
 import stake_icon from '../assets/white_stake.webp'
 import './Blind.css'
-import { Blinds, BlindType } from './Constants'
-import { useGameState } from './contexts/GameStateContext';
+import { Blinds, BlindType } from '../Constants'
+import { useContext } from 'react';
+import { GameStateContext } from '../GameState';
 const icons: Record<string, { default: string }> = import.meta.glob('../assets/blinds/*.webp', { eager: true });
 
 type BlindProps = {
@@ -10,12 +11,12 @@ type BlindProps = {
 }
 
 export const Blind = ({ type, blind }: BlindProps) => {
-    const { state: game, dispatch: gameDispatch } = useGameState()
+    const { state: game, dispatch } = useContext(GameStateContext)
 
-    const anteChips = game.reqBase;
+    const anteChips = game.blind.base;
     const blindMult = blind.mult;
     const req_score = (blindMult * anteChips).toLocaleString().length < 11 ? (blindMult * anteChips).toLocaleString() : (blindMult * anteChips).toExponential()
-    const select = (game.currBlind === 'small' && Blinds.indexOf(blind) === 0) || (game.currBlind === 'big' && Blinds.indexOf(blind) === 1) || (game.currBlind === 'boss' && Blinds.indexOf(blind) > 1)
+    const select = (game.blind.curr === 'small' && Blinds.indexOf(blind) === 0) || (game.blind.curr === 'big' && Blinds.indexOf(blind) === 1) || (game.blind.curr === 'boss' && Blinds.indexOf(blind) > 1)
     const icon = !icons[blind.img] ? '' : icons[blind.img].default
 
     return (
@@ -47,8 +48,13 @@ export const Blind = ({ type, blind }: BlindProps) => {
                     <div id='blind-container'>
                         <div id='blind-outline'>
                             <div id='blind-info' className={`select ${type}`}>
-                                <div id='blind-select' className={`${select} ${type}`} onClick={() => {if(select && type === 'select'){gameDispatch({type: 'select'})}}}>{
-                                    select ? (type === 'select' ? 'Select' : 'Current') : ((game.currBlind === 'boss' && Blinds.indexOf(blind) < 2) || (game.currBlind === 'big' && Blinds.indexOf(blind) < 1)) ? 'Defeated' : 'Upcoming'
+                                <div id='blind-select' className={`${select} ${type}`} onClick={() => {
+                                    if(select && type === 'select'){
+                                        dispatch({type: 'state', payload: {state: 'scoring'}})
+                                        dispatch({type: 'draw', payload: {amount: game.stats.handSize}})
+                                    }
+                                }}>{
+                                    select ? (type === 'select' ? 'Select' : 'Current') : ((game.blind.curr === 'boss' && Blinds.indexOf(blind) < 2) || (game.blind.curr === 'big' && Blinds.indexOf(blind) < 1)) ? 'Defeated' : 'Upcoming'
                                 }</div>
                                 <div id='blind-name' className='select'>
                                     <div id='blind-name-bkg'>
