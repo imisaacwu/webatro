@@ -10,11 +10,10 @@ export const Deck = () => {
 
     return (
         <div id='deck' className='card-container'>
-            {menuActive &&
-                <DeckMenu
-                    setMenu={setMenuActive}
-                />
-            }
+            <DeckMenu
+                menu={menuActive}
+                setMenu={setMenuActive}
+            />
             <div id='deck-area' className='card-area'>
                 <div id='face-down' onClick={() => setMenuActive(true)}>
                     <img src={redDeck} />

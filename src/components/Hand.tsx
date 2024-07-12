@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from 'react'
 import './Hand.css'
 import { GameStateContext } from '../GameState'
 import { cardSnap, shuffle } from '../Utilities'
+import { Card } from './Card'
 
 export default function Hand() {
     const { state: game, dispatch } = useContext(GameStateContext)
@@ -9,19 +10,19 @@ export default function Hand() {
     gameRef.current = game
 
     useEffect(() => {
-        cardSnap(gameRef.current.cards.hand)
+        cardSnap(gameRef.current.cards.hand, 6000)
     }, [gameRef.current.cards.hand])
 
     return (
         <div id='hand' className='card-container'>
             <div id='hand-area' className='card-area'>
-                {game.cards.hand}
+                {game.cards.hand.map(c => <Card key={c.id} {...c} />)}
             </div>
             <div id='hand-label' className='counter'>{game.cards.hand.length}/{game.stats.handSize}</div>
             {game.cards.submitted.length === 0 &&
             <div id='hand-buttons'>
                 <div id='ship' className={`button ${game.cards.selected.length > 0}`} onClick={() => {
-                    if(game.cards.selected.length > 0) {
+                    if(gameRef.current.cards.selected.length > 0) {
                         let len = game.cards.selected.length
                         dispatch({type: 'submit'})
                         if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Hook') {
@@ -32,7 +33,7 @@ export default function Hand() {
                         setTimeout(() => {
                             dispatch({type: 'discard'})
                             let req = (game.blind.base * (game.blind.curr === 'small' ? 1 : game.blind.curr === 'big' ? 1.5 : game.blind.boss.mult))
-                            if(game.stats.score + game.active.score >= req) {
+                            if(gameRef.current.stats.score >= req) {
                                 dispatch({type: 'state', payload: {state: 'post-scoring'}})
                             } else {
                                 dispatch({type: 'draw', payload: {amount: len}})

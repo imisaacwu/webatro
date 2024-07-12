@@ -1,5 +1,5 @@
 #menu {
-    display: flex;
+    display: none;
     flex-direction: column;
 
     position: absolute;
@@ -10,6 +10,10 @@
     background-color: var(--grey);
     border: 4px solid var(--light-grey);
     border-radius: 8px;
+}
+
+#menu.true {
+    display: flex;
 }
 
 #menu-views {
@@ -65,6 +69,7 @@
 #deck-info-left {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
 }
 
 #deck-name {
@@ -180,6 +185,7 @@ tr {
     position: relative;
     width: 900px;
     height: 114px;
+    margin-bottom: -10px;
 }
 
 #back {

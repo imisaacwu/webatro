@@ -1,7 +1,6 @@
-import { createContext, Dispatch, ReactElement, ReactNode, useReducer } from "react"
-import { Card } from './components/Card'
-import { Blinds, BlindType, DeckType, handLevels, HandType, Rank, rankChips, Suit } from "./Constants"
-import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, shuffle } from "./Utilities"
+import { createContext, Dispatch, ReactNode, useReducer } from "react"
+import { BlindType, CardInfo, DeckType, handLevels, HandType, Rank, Suit } from "./Constants"
+import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
 
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
@@ -25,19 +24,21 @@ type GameState = {
     }
 
     cards: {
-        deck: ReactElement[]
-        hand: ReactElement[]
-        selected: ReactElement[]    // Still in hand, selected
-        submitted: ReactElement[]   // To be scored
-        hidden: ReactElement[]      // Off-screen
+        deck: CardInfo[]
+        hand: CardInfo[]
+        selected: CardInfo[]    // Still in hand, selected
+        submitted: CardInfo[]   // To be scored
+        hidden: CardInfo[]      // Off-screen
         sort: 'rank' | 'suit'
     }
 
     // In hand or submitted, handled automatically
     active: {
         name: keyof typeof HandType
-        chips: number
-        score: number
+        score: {
+            chips: number
+            mult: number
+        }
     }
 }
 
@@ -51,8 +52,8 @@ type GameAction = {
         stat?: 'handSize' | 'hands' | 'discards' | 'money' | 'ante' | 'score'
         amount?: number
 
-        card?: ReactElement
-        hand?: ReactElement[]
+        card?: CardInfo
+        hand?: CardInfo[]
 
         sort?: 'rank' | 'suit'
     }
@@ -73,8 +74,8 @@ const initialGameState: GameState = {
 
     blind: {
         curr: 'small',
-        boss: Blinds[0],
-        base: 0
+        boss: boss_roll(1),
+        base: ante_base(1)
     },
 
     cards: {
@@ -88,45 +89,46 @@ const initialGameState: GameState = {
 
     active: {
         name: 'NONE',
-        chips: 0,
-        score: 0
+        score: {
+            chips: 0,
+            mult: 0
+        }
     }
 }
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
-    const sort = (a: ReactElement, b: ReactElement) => (
+    const sort = (a: CardInfo, b: CardInfo) => (
         ((!!action.payload?.sort) ? action.payload.sort : state.cards.sort) === 'rank' ?
-        (a.props.rank !== b.props.rank? b.props.rank - a.props.rank : a.props.suit - b.props.suit) :
-        (a.props.suit !== b.props.suit ? a.props.suit - b.props.suit : b.props.rank - a.props.rank)
+        (a.rank !== b.rank? b.rank - a.rank : a.suit - b.suit) :
+        (a.suit !== b.suit ? a.suit - b.suit : b.rank - a.rank)
     )
     let next = state
     switch(action.type) {
         case 'init':
-            let arr: ReactElement[] = []
+            console.log('game init')
+            let arr: CardInfo[] = []
             let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
             let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
             switch(action.payload?.deck) {
                 case 'Erratic':
                     for(let i = 0; i < 52; i++) {
                         arr.push(
-                            <Card
-                                key={i}
-                                id={i}
-                                suit={Suit[suits[Math.floor(Math.random()*suits.length)]]}
-                                rank={Rank[ranks[Math.floor(Math.random()*ranks.length)]]}
-                            />
+                            {
+                                id: i,
+                                suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
+                                rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]]
+                            }
                         )
                     }
                     break 
                 default:
                     suits.forEach(s => { ranks.forEach(r => {
                         arr.push(
-                            <Card
-                                key={arr.length}
-                                id={arr.length}
-                                suit={Suit[s]}
-                                rank={Rank[r]}
-                            />
+                            {
+                                id: arr.length + 1,
+                                suit: Suit[s],
+                                rank: Rank[r],
+                            }
                         )
                     })})
             }
@@ -156,9 +158,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                     }
                     break
                 case 'post-scoring':
-                    state.cards.selected.forEach(c => {
-                        document.getElementById(`card ${c.props.id}`)?.classList.remove('selected')
-                    })
+                    state.cards.selected.forEach(c => c.selected = false)
                     next = {...next,
                         ...(getNextBlind(state.blind.curr) === 'small' && {...state.stats,
                             ante: state.stats.ante + 1
@@ -198,54 +198,51 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             }}
             break 
         case 'select':
-            let card = action.payload?.card!, div = document.getElementById(`card ${card.props.id}`)!, updated
-            if(!state.cards.selected.includes(card)) {
-                updated = [...state.cards.selected, card]
-                div.classList.add('selected')
+            const card = action.payload?.card!
+            const i = state.cards.hand.findIndex(c => c.id === card.id)
+            let updated = state.cards.selected
+            if(state.cards.selected.includes(card)) {
+                updated = updated.filter(c => c.id !== card.id)
             } else {
-                updated = state.cards.selected.filter(c => c.props.id !== card.props.id)
-                div.classList.remove('selected')
+                updated.push(card)
             }
-            next = {...next, cards: {...state.cards,
-                selected: updated
-            }}
-            let hand = bestHand(updated)
-            next = {...next, active: {
-                name: hand,
-                chips: handLevels[hand].chips,
-                score: (handLevels[hand].chips +
-                        [...state.cards.selected, card].reduce((t, c) => t += rankChips[Rank[c.props.rank as keyof typeof Rank]], 0)
-                    ) * handLevels[hand].mult
-            }}
-            break 
+            const hand = bestHand(updated)
+            next = {...next,
+                cards: {...state.cards,
+                    selected: updated
+                },
+                active: {
+                    name: hand,
+                    score: {
+                        chips: handLevels[hand].chips,
+                        mult: handLevels[hand].mult
+                    }
+                }
+            }
+            // card.selected = !card.selected
+            state.cards.hand[i].selected = !card.selected
+            break
         case 'submit':
-            let temp = [...state.cards.selected].reverse()
+            state.cards.selected.forEach(c => {
+                c.selected = false
+                c.submitted = true
+            })
             handLevels[state.active.name === 'ROYAL_FLUSH' ? 'STRAIGHT_FLUSH' : state.active.name].played++;
+            let score = scoreHand(state.cards.selected)
             next = {...next,
                 stats: {...state.stats,
                     hands: state.stats.hands - 1,
-                    score: state.stats.score + state.active.score
+                    score: state.stats.score + (score.chips * score.mult)
                 },
                 cards: {...state.cards,
-                    hand: state.cards.hand.filter(c => !temp.includes(c)),
+                    hand: state.cards.hand.filter(c => !state.cards.selected.includes(c)),
                     selected: [],
-                    submitted: temp
+                    submitted: state.cards.selected.reverse()
                 },
                 active: {...state.active,
-                    chips: state.active.chips + state.cards.selected.reduce((t, c) => t += rankChips[Rank[c.props.rank as keyof typeof Rank]], 0)
+                    score: score
                 }
             }
-            setTimeout(() => {
-                temp.forEach(c => {
-                    let div = document.getElementById(`card ${c.props.id}`)!
-                    div.classList.remove('selected')
-                    div.classList.add('submitted')
-                    let popup = document.createElement('div')
-                    popup.classList.add('popup')
-                    popup.textContent = `+${rankChips[Rank[c.props.rank] as keyof typeof rankChips]}`
-                    div.appendChild(popup)
-                })
-            })
             break 
         case 'discard':
             if(action.payload?.hand) {
@@ -254,17 +251,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                     hidden: [...state.cards.hidden, ...action.payload.hand!]
                 }}
             } else if(state.cards.submitted.length > 0) {
-                state.cards.submitted.forEach(c => {
-                    document.getElementById(`card ${c.props.id}`)?.classList.remove('submitted')
-                })
+                state.cards.submitted.forEach(c => c.submitted = false)
                 next = {...next, cards: {...state.cards,
                     submitted: [],
                     hidden: [...state.cards.hidden, ...state.cards.submitted]
                 }}
             } else {
-                state.cards.selected.forEach(c => {
-                    document.getElementById(`card ${c.props.id}`)?.classList.remove('selected')
-                })
+                state.cards.selected.forEach(c => c.selected = false)
                 next = {...next,
                     stats: {...state.stats,
                         discards: state.stats.discards - 1
@@ -289,7 +282,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                 hand: state.cards.hand.sort(sort),
                 sort: action.payload?.sort!
             }}
-            setTimeout(() => cardSnap(state.cards.hand))
+            setTimeout(() => cardSnap(state.cards.hand, 6000))
             break;
         case 'updateHand':
             next = {...next, cards: {...state.cards,

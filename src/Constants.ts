@@ -17,7 +17,7 @@ export const DeckType = {
     Zodiac: 'Zodiac'
 } as const
 
-export type Card = {
+export type CardInfo = {
     id: number
     suit: Suit
     rank: Rank
@@ -27,6 +27,8 @@ export type Card = {
 
     mode?: 'standard' | 'deck-view'
     selected?: boolean
+    submitted?: boolean
+    drawn?: boolean
     flipped?: boolean
     debuffed?: boolean
 }
@@ -170,7 +172,7 @@ export const Blinds: BlindType[] = [
     }, {
         img: '../assets/blinds/arm.webp',
         name: 'The Arm',
-        descrip: 'Decrease level of played poker hand',
+        descrip: 'Decrease level of played poker hand', // Does not lower if at lvl.1
         ante: 21,
         mult: 2,
         reward: 5

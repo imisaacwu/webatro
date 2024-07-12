@@ -8,6 +8,7 @@ import Hand from './components/Hand'
 import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
 import { GameStateContext } from './GameState'
+import { Card } from './components/Card'
 
 export default function App() {
     const { state: game, dispatch } = useContext(GameStateContext)
@@ -17,6 +18,7 @@ export default function App() {
     useEffect(() => dispatch({type: 'init'}), [])
     
     useEffect(() => {
+        console.log('add key listener')
         document.addEventListener('keydown', handleKeys)
 
         return () => document.removeEventListener('keydown', handleKeys)
@@ -69,7 +71,7 @@ export default function App() {
                         </>}
                         {game.state === 'scoring' && <>
                             <div id='mid'>
-                                {gameRef.current.cards.submitted}
+                                {gameRef.current.cards.submitted.map(c => <Card key={c.id} {...c} />)}
                             </div>
                             <div id='bot'>
                                 <Hand />

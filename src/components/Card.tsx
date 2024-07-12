@@ -1,21 +1,9 @@
 import { useContext, useRef } from 'react';
-import { Edition, Enhancement, Rank, Seal, Suit, rankChips } from '../Constants';
+import { CardInfo, Rank, Suit, rankChips } from '../Constants';
 import { GameStateContext } from '../GameState';
 import { cardSnap } from '../Utilities';
 import './Card.css';
 const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true });
-
-type CardProps = {
-    id: number
-    suit: Suit
-    rank: Rank
-    edition?: Edition
-    enhancement?: Enhancement
-    seal?: Seal
-    flipped?: boolean
-    debuffed?: boolean
-    deckView?: boolean
-}
 
 const getImagePath = (suit: Suit, rank: Rank) => {
     const fileName = `${Suit[suit].charAt(0).toLowerCase()}${rankChips[Rank[rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[rank] as keyof typeof rankChips] : Rank[rank].charAt(0).toLowerCase()}.webp`;
@@ -25,8 +13,15 @@ const getImagePath = (suit: Suit, rank: Rank) => {
     return module ? module.default : null
 };
 
-export const Card = (props: CardProps) => {
-    const { flipped = false, debuffed = false, deckView = false } = props;
+export const Card = (props: CardInfo) => {
+    const {
+        mode = 'standard', 
+        selected = false,
+        submitted = false,
+        drawn = false,
+        flipped = false, 
+        debuffed = false
+    } = props;
     const { state: game, dispatch } = useContext(GameStateContext)
     const gameRef = useRef(game);
     gameRef.current = game;
@@ -37,17 +32,19 @@ export const Card = (props: CardProps) => {
     let dragElem: HTMLElement | null = null, origX: number, origY: number, origI: number, startX: number, startY: number;
 
     const mouseDown = (e: React.MouseEvent<HTMLElement>) => {
-        dragElem = e.target as HTMLElement
-        origX = dragElem.offsetLeft
-        origY = dragElem.offsetTop
-        origI = gameRef.current.cards.hand.findIndex(c => c.props.id === props.id)
-        startX = e.clientX - origX
-        startY = e.clientY - origY
-        
-        dragElem.style.zIndex = '2'
+        if(mode === 'standard') {
+            dragElem = e.target as HTMLElement
+            origX = dragElem.offsetLeft
+            origY = dragElem.offsetTop
+            origI = gameRef.current.cards.hand.findIndex(c => c.id === props.id)
+            startX = e.clientX - origX
+            startY = e.clientY - origY
+            
+            dragElem.style.zIndex = '2'
 
-        document.addEventListener('mousemove', mouseMove)
-        document.addEventListener('mouseup', mouseUp)
+            document.addEventListener('mousemove', mouseMove)
+            document.addEventListener('mouseup', mouseUp)
+        }
     }
 
     const tolerance = 10, renderDelay = 100;
@@ -84,7 +81,7 @@ export const Card = (props: CardProps) => {
 
     const mouseUp = () => {
         if (dragElem) {
-            cardSnap(gameRef.current.cards.hand)
+            cardSnap(gameRef.current.cards.hand, 6000)
             document.removeEventListener('mousemove', mouseMove)
             document.removeEventListener('mouseup', mouseUp)
             dragElem.style.zIndex = 'auto'
@@ -95,10 +92,10 @@ export const Card = (props: CardProps) => {
     return (
         <div
             id={`card ${props.id}`}
-            className={`card ${Suit[props.suit]} ${deckView ? 'deck-view' : ''}`}
+            className={`card ${Suit[props.suit]} ${mode} ${selected ? 'selected' : ''} ${submitted ? 'submitted' : ''} ${drawn ? 'drawn' : ''}`}
             onClick={() => {
-                if(!deckView && (gameRef.current.cards.selected.length < 5 || document.getElementById(`card ${props.id}`)?.classList.contains('selected'))) {
-                    dispatch({type: 'select', payload: {card: gameRef.current.cards.hand.find(c => c.props.id === props.id)}})
+                if(mode === 'standard' && (gameRef.current.cards.selected.length < 5 || props.selected)) {
+                    dispatch({type: 'select', payload: {card: game.cards.hand.find(c => c.id === props.id)}})
                 }
             }}
             onMouseDown={mouseDown}
@@ -120,6 +117,7 @@ export const Card = (props: CardProps) => {
                     </div>
                 </div>
             }
+            {submitted && <div className='popup'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>}
         </div>
     )
 }

@@ -14,9 +14,9 @@ export const Calculator = () => {
                 <div id='hand-level'>{game.active.name !== 'NONE' ? `lvl.${handStats.level}` : ''}</div>
             </div>
             <div id='calculator'>
-                <div id='chips'>{game.active.chips}</div>
+                <div id='chips'>{game.active.score.chips}</div>
                 <div id='X'>X</div>
-                <div id='mult'>{handStats.mult}</div>
+                <div id='mult'>{game.active.score.mult}</div>
             </div>
         </div>
     )

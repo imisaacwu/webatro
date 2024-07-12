@@ -35,25 +35,6 @@
 .Clubs { color: var(--blue) }
 .Diamonds { color: var(--yellow) }
 
-.card.deck-view {
-    width: 85px;
-    height: 114px;
-}
-
-.card.deck-view:hover {
-    cursor: initial;
-}
-
-.card.deck-view img {
-    width: 85px;
-    height: 114px;
-}
-
-.card.deck-view.drawn {
-    opacity: .3;
-    z-index: auto;
-}
-
 .card.selected {
     transform: translateY(-3vh);
 }
@@ -74,6 +55,25 @@
     border: 4px solid var(--light-grey);
     border-radius: 8px;
     font-size: 24px;
+}
+
+.card.deck-view {
+    width: 85px;
+    height: 114px;
+}
+
+.card.deck-view:hover {
+    cursor: initial;
+}
+
+.card.deck-view img {
+    width: 85px;
+    height: 114px;
+}
+
+.card.deck-view.drawn {
+    opacity: .3;
+    z-index: auto;
 }
 
 .card.deck-view:hover #info-popup {
