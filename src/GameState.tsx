@@ -72,7 +72,7 @@ const initialGameState: GameState = {
     },
 
     blind: {
-        curr: 'boss',
+        curr: 'small',
         boss: Blinds[0],
         base: 0
     },

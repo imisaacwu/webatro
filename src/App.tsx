@@ -14,8 +14,6 @@ export default function App() {
     const gameRef = useRef(game)
     gameRef.current = game
     
-    
-    
     useEffect(() => dispatch({type: 'init'}), [])
     
     useEffect(() => {

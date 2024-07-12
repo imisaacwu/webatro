@@ -120,7 +120,6 @@ export const Card = (props: CardProps) => {
                     </div>
                 </div>
             }
-            {/* {document.getElementById(`card ${props.id}`)?.classList.contains('submitted') && <div className='popup'></div>} */}
         </div>
     )
 }
