@@ -18,7 +18,6 @@ export default function App() {
     useEffect(() => dispatch({type: 'init'}), [])
     
     useEffect(() => {
-        console.log('add key listener')
         document.addEventListener('keydown', handleKeys)
 
         return () => document.removeEventListener('keydown', handleKeys)

@@ -73,7 +73,7 @@ const initialGameState: GameState = {
     },
 
     blind: {
-        curr: 'small',
+        curr: 'boss',
         boss: boss_roll(1),
         base: ante_base(1)
     },
@@ -105,7 +105,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     let next = state
     switch(action.type) {
         case 'init':
-            console.log('game init')
             let arr: CardInfo[] = []
             let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
             let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
@@ -199,7 +198,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             break 
         case 'select':
             const card = action.payload?.card!
-            const i = state.cards.hand.findIndex(c => c.id === card.id)
             let updated = state.cards.selected
             if(state.cards.selected.includes(card)) {
                 updated = updated.filter(c => c.id !== card.id)
@@ -219,15 +217,20 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                     }
                 }
             }
-            // card.selected = !card.selected
-            state.cards.hand[i].selected = !card.selected
+            card.selected = !card.selected
             break
         case 'submit':
             state.cards.selected.forEach(c => {
                 c.selected = false
+                c.flipped = false
                 c.submitted = true
             })
-            handLevels[state.active.name === 'ROYAL_FLUSH' ? 'STRAIGHT_FLUSH' : state.active.name].played++;
+            handLevels[state.active.name].played++;
+            if(['FLUSH_FIVE', 'FLUSH_HOUSE', 'FIVE', 'STRAIGHT_FLUSH', 'FULL_HOUSE', 'FLUSH', 'STRAIGHT'].includes(state.active.name)) {
+                state.cards.selected.forEach(c => {
+                    c.scored = true
+                })
+            }
             let score = scoreHand(state.cards.selected)
             next = {...next,
                 stats: {...state.stats,
@@ -276,6 +279,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                 hand: [...state.cards.hand, ...state.cards.deck.slice(0, action.payload?.amount)].sort(sort),
                 deck: state.cards.deck.slice(action.payload?.amount)
             }}
+            if(state.cards.hand.length === 0) {
+                if(state.blind.curr === 'boss' && state.blind.boss.name === 'The House') {
+                    next.cards.hand.forEach(c => {
+                        c.flipped = true
+                    })
+                }
+            }
             break;
         case 'setSort':
             next = {...next, cards: {...state.cards,

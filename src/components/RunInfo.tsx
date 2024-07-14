@@ -13,7 +13,7 @@ export default function RunInfo(props: RunInfoProps) {
     const { state: game } = useContext(GameStateContext)
 
     const hands = Object.keys(handLevels).filter(k => (
-        isNaN(Number(k)) && !k.match('NONE|ROYAL_FLUSH') && (!k.match('FLUSH_FIVE|FLUSH_HOUSE|FIVE') || handLevels[k as keyof typeof handLevels].played > 0)
+        isNaN(Number(k)) && !k.match('NONE') && (!k.match('FLUSH_FIVE|FLUSH_HOUSE|FIVE') || handLevels[k as keyof typeof handLevels].played > 0)
     ))
 
     useEffect(() => {

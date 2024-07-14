@@ -16,19 +16,20 @@ export default function DeckMenu(props: DeckMenuProps) {
     const [ view, setView ] = useState<'remaining' | 'full'>('remaining')
 
     const cards: CardInfo[][] = []
+    const drawn = [...game.cards.hand, ...game.cards.hidden, ...game.cards.submitted]
     Object.values(Suit).filter(s => isNaN(Number(s))).forEach(suit => {
-        cards.push([...game.cards.deck, ...game.cards.hand, ...game.cards.hidden, ...game.cards.submitted].filter(c => c.suit === Suit[suit as keyof typeof Suit]).sort((a, b) => b.rank - a.rank).map(c => ({
+        const temp = [...drawn, ...game.cards.deck].filter(c => c.suit === Suit[suit as keyof typeof Suit]).sort((a, b) => b.rank - a.rank)
+        cards.push(temp.map(c => ({...c,
             id: -c.id,
-            suit: c.suit,
-            rank: c.rank,
+            drawn: (!c.flipped && view === 'remaining' && (drawn.find(d => c.id === d.id) !== undefined)),
+            flipped: false,
             mode: 'deck-view'
         })))
     })
 
-    const drawn = [...game.cards.hand, ...game.cards.hidden, ...game.cards.submitted]
     const elements = cards.map((arr, i) =>
         <div className='deck-row' key={i} id={`deck-row-${i}`}>
-            {arr.map(c => <Card key={c.id} drawn={view === 'remaining' && drawn.find(d => c.id === -d.id) !== undefined} {...c} />)}
+            {arr.map(c => <Card key={c.id} {...c} />)}
         </div>)
 
     setTimeout(() => {

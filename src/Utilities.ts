@@ -32,7 +32,6 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
 
     if(suits[0] === 5) {
         if(ranks[0] === 5) return 'FLUSH_FIVE'
-        if(hand === 0x1F00) return 'ROYAL_FLUSH'
         if(straights.includes(hand)) return 'STRAIGHT_FLUSH'
         if(ranks[0] === 3 && ranks[1] === 2) return 'FLUSH_HOUSE'
         return 'FLUSH'
@@ -51,6 +50,7 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
 
 export const scoreHand = (cards: CardInfo[]): {chips: number, mult: number} => {
     let hand = bestHand(cards), chips = handLevels[hand].chips, mult = handLevels[hand].mult
+    
     cards.forEach(c => {
         if(!c.debuffed) {
             chips += rankChips[Rank[c.rank] as keyof typeof rankChips]

@@ -3,6 +3,7 @@ import { CardInfo, Rank, Suit, rankChips } from '../Constants';
 import { GameStateContext } from '../GameState';
 import { cardSnap } from '../Utilities';
 import './Card.css';
+import { redDeck } from '../assets/decks';
 const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true });
 
 const getImagePath = (suit: Suit, rank: Rank) => {
@@ -18,6 +19,7 @@ export const Card = (props: CardInfo) => {
         mode = 'standard', 
         selected = false,
         submitted = false,
+        scored = false,
         drawn = false,
         flipped = false, 
         debuffed = false
@@ -92,7 +94,13 @@ export const Card = (props: CardInfo) => {
     return (
         <div
             id={`card ${props.id}`}
-            className={`card ${Suit[props.suit]} ${mode} ${selected ? 'selected' : ''} ${submitted ? 'submitted' : ''} ${drawn ? 'drawn' : ''}`}
+            className={`card ${Suit[props.suit]}` +
+                ` ${mode}` + 
+                `${selected ? ' selected' : ''}` +
+                `${submitted ? ' submitted' : ''}` +
+                `${submitted && !scored ? ' unscored' : ''}` +
+                `${drawn ? ' drawn' : ''}`
+            }
             onClick={() => {
                 if(mode === 'standard' && (gameRef.current.cards.selected.length < 5 || props.selected)) {
                     dispatch({type: 'select', payload: {card: game.cards.hand.find(c => c.id === props.id)}})
@@ -101,7 +109,8 @@ export const Card = (props: CardInfo) => {
             onMouseDown={mouseDown}
             onMouseUp={mouseUp}
         >
-            <img src={image} alt={`${Rank[props.rank]} of ${Suit[props.suit]}`}/>
+            {!flipped && <img src={image} alt={`${Rank[props.rank]} of ${Suit[props.suit]}`} />}
+            {flipped && <img src={redDeck} />}
             {!dragElem && !flipped &&
                 <div id='info-popup'>
                     <div id='inner'>
@@ -117,7 +126,7 @@ export const Card = (props: CardInfo) => {
                     </div>
                 </div>
             }
-            {submitted && <div className='popup'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>}
+            {submitted && scored && <div className='popup'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>}
         </div>
     )
 }

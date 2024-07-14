@@ -18,6 +18,8 @@
     margin: 0;
     padding: 0;
     pointer-events: none;
+    width: 142px;
+    height: 190px;
 }
 
 .card:hover {

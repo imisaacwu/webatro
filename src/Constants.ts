@@ -28,6 +28,7 @@ export type CardInfo = {
     mode?: 'standard' | 'deck-view'
     selected?: boolean
     submitted?: boolean
+    scored?: boolean
     drawn?: boolean
     flipped?: boolean
     debuffed?: boolean
@@ -59,7 +60,6 @@ export const HandType = {
     FLUSH_FIVE: 'Flush Five',
     FLUSH_HOUSE: 'Flush House',
     FIVE: 'Five of a Kind',
-    ROYAL_FLUSH: 'Royal Flush',
     STRAIGHT_FLUSH: 'Straight Flush',
     FOUR: 'Four of a Kind',
     FULL_HOUSE: 'Full House',
@@ -80,7 +80,6 @@ export const handLevels: HandLevel = {
     'FLUSH_FIVE': {level: 1, chips: 160, mult: 16, played: 0},
     'FLUSH_HOUSE': {level: 1, chips: 140, mult: 14, played: 0},
     'FIVE': {level: 1, chips: 120, mult: 12, played: 0},
-    'ROYAL_FLUSH': {level: 1, chips: 100, mult: 8, played: 0},
     'STRAIGHT_FLUSH': {level: 1, chips: 100, mult: 8, played: 0},
     'FOUR': {level: 1, chips: 60, mult: 7, played: 0},
     'FULL_HOUSE': {level: 1, chips: 40, mult: 4, played: 0},
@@ -97,7 +96,6 @@ export const handUpgrade = {
     'FLUSH_FIVE': {chips: 50, mult: 3},
     'FLUSH_HOUSE': {chips: 40, mult: 4},
     'FIVE': {chips: 35, mult: 3},
-    'ROYAL_FLUSH': {chips: 40, mult: 4},
     'STRAIGHT_FLUSH': {chips: 40, mult: 4},
     'FOUR': {chips: 30, mult: 3},
     'FULL_HOUSE': {chips: 25, mult: 2},
