@@ -36,7 +36,7 @@ export default function Hand() {
                             if(gameRef.current.stats.score >= req) {
                                 dispatch({type: 'state', payload: {state: 'post-scoring'}})
                             } else {
-                                dispatch({type: 'draw', payload: {amount: len}})
+                                dispatch({type: 'draw', payload: {amount: len, previous: 'played'}})
                             }
                         }, 1500)
                     }
@@ -53,7 +53,7 @@ export default function Hand() {
                         let amount = game.cards.selected.length
                         dispatch({type: 'discard'})
                         setTimeout(() => {
-                            dispatch({type: 'draw', payload: {amount: amount}})
+                            dispatch({type: 'draw', payload: {amount: amount, previous: 'discarded'}})
                         }, 500)
                     }
                 }}>Discard</div>

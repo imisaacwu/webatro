@@ -25,8 +25,8 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
     const straights = [0x100F, 0x1F, 0x3E, 0x7C, 0xF8, 0x1F0, 0x3E0, 0x7C0, 0xF80, 0x1F00]
     const hand = cards.reduce((total, c) => total | (1 << c.rank), 0)
 
-    let ranks: number[] = new Array(13).fill(0), suits: number[] = new Array(4).fill(0);
-    cards.forEach(c => {ranks[c.rank]++; suits[c.suit]++;})
+    let ranks: number[] = new Array(13).fill(0), suits: number[] = new Array(4).fill(0)
+    cards.forEach(c => {ranks[c.rank]++; suits[c.suit]++})
     ranks = ranks.filter(r => r !== 0).sort((a, b) => b - a)
     suits = suits.filter(s => s !== 0).sort((a, b) => b - a)
 
@@ -52,7 +52,7 @@ export const scoreHand = (cards: CardInfo[]): {chips: number, mult: number} => {
     let hand = bestHand(cards), chips = handLevels[hand].chips, mult = handLevels[hand].mult
     
     cards.forEach(c => {
-        if(!c.debuffed) {
+        if(!c.debuffed && c.scored) {
             chips += rankChips[Rank[c.rank] as keyof typeof rankChips]
         }
     })

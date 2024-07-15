@@ -12,7 +12,6 @@ type BlindProps = {
 
 export const Blind = ({ type, blind }: BlindProps) => {
     const { state: game, dispatch } = useContext(GameStateContext)
-
     const anteChips = game.blind.base;
     const blindMult = blind.mult;
     const req_score = (blindMult * anteChips).toLocaleString().length < 11 ? (blindMult * anteChips).toLocaleString() : (blindMult * anteChips).toExponential()
@@ -54,7 +53,12 @@ export const Blind = ({ type, blind }: BlindProps) => {
                                 <div id='blind-select' className={`${select} ${type}`} onClick={() => {
                                     if(select && type === 'select'){
                                         dispatch({type: 'state', payload: {state: 'scoring'}})
-                                        dispatch({type: 'draw', payload: {amount: game.stats.handSize}})
+                                        let draw = game.stats.handSize
+                                        if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Manacle') {
+                                            dispatch({type: 'stat', payload: {stat: 'handSize'}})
+                                            draw--
+                                        }
+                                        dispatch({type: 'draw', payload: {amount: draw}})
                                     }
                                 }}>{
                                     select ? (type === 'select' ? 'Select' : 'Current') : ((game.blind.curr === 'boss' && Blinds.indexOf(blind) < 2) || (game.blind.curr === 'big' && Blinds.indexOf(blind) < 1)) ? 'Defeated' : 'Upcoming'

@@ -94,12 +94,13 @@ export const Card = (props: CardInfo) => {
     return (
         <div
             id={`card ${props.id}`}
-            className={`card ${Suit[props.suit]}` +
+            className={`card` +
                 ` ${mode}` + 
                 `${selected ? ' selected' : ''}` +
                 `${submitted ? ' submitted' : ''}` +
                 `${submitted && !scored ? ' unscored' : ''}` +
-                `${drawn ? ' drawn' : ''}`
+                `${drawn ? ' drawn' : ''}` +
+                `${debuffed ? ' debuffed' : ''}`
             }
             onClick={() => {
                 if(mode === 'standard' && (gameRef.current.cards.selected.length < 5 || props.selected)) {
@@ -111,6 +112,7 @@ export const Card = (props: CardInfo) => {
         >
             {!flipped && <img src={image} alt={`${Rank[props.rank]} of ${Suit[props.suit]}`} />}
             {flipped && <img src={redDeck} />}
+            {game.state === 'scoring' && debuffed && <img className='debuff' src={images['../assets/cards/debuffed.webp'].default} />}
             {!dragElem && !flipped &&
                 <div id='info-popup'>
                     <div id='inner'>
@@ -126,7 +128,7 @@ export const Card = (props: CardInfo) => {
                     </div>
                 </div>
             }
-            {submitted && scored && <div className='popup'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>}
+            {submitted && scored && !debuffed && <div className='popup'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>}
         </div>
     )
 }

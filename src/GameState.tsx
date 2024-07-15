@@ -1,5 +1,5 @@
 import { createContext, Dispatch, ReactNode, useReducer } from "react"
-import { BlindType, CardInfo, DeckType, handLevels, HandType, Rank, Suit } from "./Constants"
+import { BlindType, CardInfo, DeckType, handLevels, HandType, handUpgrade, Rank, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
 
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
@@ -30,6 +30,7 @@ type GameState = {
         submitted: CardInfo[]   // To be scored
         hidden: CardInfo[]      // Off-screen
         sort: 'rank' | 'suit'
+        played: (keyof typeof HandType | CardInfo)[] // For boss blinds
     }
 
     // In hand or submitted, handled automatically
@@ -50,6 +51,7 @@ type GameAction = {
         state?: GameStates
 
         stat?: 'handSize' | 'hands' | 'discards' | 'money' | 'ante' | 'score'
+        previous?: 'played' | 'discarded'   // To know during a draw which came previously
         amount?: number
 
         card?: CardInfo
@@ -84,7 +86,8 @@ const initialGameState: GameState = {
         selected: [],
         submitted: [],
         hidden: [],
-        sort: 'rank'
+        sort: 'rank',
+        played: []
     },
 
     active: {
@@ -102,7 +105,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         (a.rank !== b.rank? b.rank - a.rank : a.suit - b.suit) :
         (a.suit !== b.suit ? a.suit - b.suit : b.rank - a.rank)
     )
-    let next = state
+    let next = state, name = state.blind.boss.name
     switch(action.type) {
         case 'init':
             let arr: CardInfo[] = []
@@ -155,25 +158,82 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                             deck: shuffle(state.cards.deck)
                         }
                     }
+                    if(state.blind.curr === 'boss') {
+                        if(name === 'The Club') {
+                            next.cards.deck.forEach(c => {
+                                if(c.suit === Suit.Clubs) {
+                                    c.debuffed = true
+                                }
+                            })
+                        } else if(name === 'The Goad') {
+                            next.cards.deck.forEach(c => {
+                                if(c.suit === Suit.Spades) {
+                                    c.debuffed = true
+                                }
+                            })
+                        } else if(name === 'The Head') {
+                            next.cards.deck.forEach(c => {
+                                if(c.suit === Suit.Hearts) {
+                                    c.debuffed = true
+                                }
+                            })
+                        } else if(name === 'The Pillar') {
+                            next.cards.deck.forEach(c => {
+                                if(state.cards.played.includes(c)) {
+                                    c.debuffed = true
+                                }
+                            })
+                        } else if(name === 'The Plant') {
+                            next.cards.deck.forEach(c => {
+                                if([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)) {
+                                    c.debuffed = true
+                                }
+                            })
+                        } else if(name === 'The Needle') {
+                            next.stats.hands = 1
+                        } else if(name === 'The Water') {
+                            next.stats.discards = 0
+                        } else if(name === 'The Window') {
+                            next.cards.deck.forEach(c => {
+                                if(c.suit === Suit.Diamonds) {
+                                    c.debuffed = true
+                                }
+                            })
+                        }
+                    }
                     break
                 case 'post-scoring':
-                    state.cards.selected.forEach(c => c.selected = false)
+                    let deck = [...state.cards.deck, ...state.cards.hand, ...state.cards.hidden, ...state.cards.submitted]
+                    deck.forEach(c => {
+                            c.selected = false
+                            c.debuffed = false
+                        }
+                    )
                     next = {...next,
                         ...(getNextBlind(state.blind.curr) === 'small' && {...state.stats,
                             ante: state.stats.ante + 1
                         }),
                         cards: {...state.cards,
-                            deck: [...state.cards.deck, ...state.cards.hand, ...state.cards.hidden, ...state.cards.submitted],
+                            deck: deck,
                             hand: [],
                             hidden: [],
-                            submitted: []
+                            submitted: [],
                         }
+                    }
+                    if(state.blind.curr === 'boss' || name !== 'The Pillar') {
+                        next = {...next, cards: {...next.cards,
+                            played: []
+                        }}
+                    }
+                    if(state.blind.curr === 'boss' && name === 'The Tooth') {
+                        next.stats.money -= state.cards.played.length
                     }
                     break
                 case 'shop':
                     let nextBlind = getNextBlind(state.blind.curr)
                     next = {...next,
                         stats: {...state.stats,
+                            handSize: initialGameState.stats.handSize,
                             hands: initialGameState.stats.hands,
                             discards: initialGameState.stats.discards,
                             money: state.stats.money + action.payload.amount!,
@@ -193,31 +253,33 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             break 
         case 'stat':
             next = {...next, stats: {...state.stats,
-                [action.payload?.stat!]: state.stats[action.payload?.stat!] + (action.payload?.amount == undefined ? -1 : action.payload.amount)
+                [action.payload?.stat!]: state.stats[action.payload?.stat!] + (action.payload?.amount === undefined ? -1 : action.payload.amount)
             }}
             break 
         case 'select':
             const card = action.payload?.card!
-            let updated = state.cards.selected
-            if(state.cards.selected.includes(card)) {
-                updated = updated.filter(c => c.id !== card.id)
-            } else {
-                updated.push(card)
-            }
-            const hand = bestHand(updated)
-            next = {...next,
-                cards: {...state.cards,
-                    selected: updated
-                },
-                active: {
-                    name: hand,
-                    score: {
-                        chips: handLevels[hand].chips,
-                        mult: handLevels[hand].mult
+            if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
+                let updated = state.cards.selected
+                if(state.cards.selected.includes(card)) {
+                    updated = updated.filter(c => c.id !== card.id)
+                } else {
+                    updated.push(card)
+                }
+                const hand = bestHand(updated)
+                next = {...next,
+                    cards: {...state.cards,
+                        selected: updated
+                    },
+                    active: {
+                        name: hand,
+                        score: {
+                            chips: handLevels[hand].chips,
+                            mult: handLevels[hand].mult
+                        }
                     }
                 }
+                card.selected = !card.selected
             }
-            card.selected = !card.selected
             break
         case 'submit':
             state.cards.selected.forEach(c => {
@@ -225,29 +287,69 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                 c.flipped = false
                 c.submitted = true
             })
-            handLevels[state.active.name].played++;
-            if(['FLUSH_FIVE', 'FLUSH_HOUSE', 'FIVE', 'STRAIGHT_FLUSH', 'FULL_HOUSE', 'FLUSH', 'STRAIGHT'].includes(state.active.name)) {
+            if(state.blind.curr === 'boss' && ((name === 'The Psychic' && state.cards.selected.length < 5) ||
+                (name === 'The Eye' && state.cards.played.includes(state.active.name)) ||
+                (name === 'The Mouth' && state.cards.played.length > 0 && !state.cards.played.includes(state.active.name)))) {
+                next = {...next, active: initialGameState.active}
+            } else {
+                let hand = state.active.name;
+                if(state.blind.curr === 'boss') {
+                    if(name === 'The Arm') {
+                        if(handLevels[hand].level > 1) {
+                            handLevels[hand].level--;
+                            handLevels[hand].chips -= handUpgrade[hand].chips
+                            handLevels[hand].mult -= handUpgrade[hand].mult
+                        }
+                    } else if(name.match('The\ [Eye|Mouth]')) {
+                        next.cards.played.push(hand)
+                    } else if(name === 'The Tooth') {
+                        next.cards.played = [...next.cards.played, ...state.cards.selected]
+                    }
+                } else if(name === 'The Pillar') {
+                    next.cards.played = [...next.cards.played, ...state.cards.selected]
+                }
+                handLevels[hand].played++;
+                let ranks: number[] = new Array(13).fill(0)
                 state.cards.selected.forEach(c => {
                     c.scored = true
+                    ranks[c.rank]++
                 })
+                let main = hand === 'FOUR' ? 4 : hand === 'THREE' ? 3 : hand.match('(TWO_)?PAIR') ? 2 : -1
+                if(main > 0) {
+                    state.cards.selected.forEach(c => {
+                        if(ranks[c.rank] !== main) {
+                            c.scored = false
+                        }
+                    })
+                } else if(hand === 'HIGH_CARD') {
+                    state.cards.selected.sort((a, b) => b.rank - a.rank).forEach((c, i) => {
+                        if(i > 0) { c.scored = false }
+                    })
+                }
+                let score = scoreHand(state.cards.selected)
+                if(state.blind.curr === 'boss' && name === 'The Flint') {
+                    score.chips = Math.ceil(score.chips / 2.0)
+                    score.mult = Math.ceil(score.mult / 2.0)
+                }
+                next.stats.score += (score.chips * score.mult)
+                next.active.score = score
             }
-            let score = scoreHand(state.cards.selected)
             next = {...next,
-                stats: {...state.stats,
-                    hands: state.stats.hands - 1,
-                    score: state.stats.score + (score.chips * score.mult)
+                stats: {...next.stats,
+                    hands: state.stats.hands - 1
                 },
-                cards: {...state.cards,
+                cards: {...next.cards,
                     hand: state.cards.hand.filter(c => !state.cards.selected.includes(c)),
                     selected: [],
-                    submitted: state.cards.selected.reverse()
-                },
-                active: {...state.active,
-                    score: score
+                    submitted: state.cards.selected
                 }
             }
             break 
         case 'discard':
+            state.cards.selected.forEach(c => {
+                c.selected = false
+                c.flipped = false
+            })
             if(action.payload?.hand) {
                 next = {...next, cards: {...state.cards,
                     hand: state.cards.hand.filter(c => action.payload?.hand!.includes(c)),
@@ -275,16 +377,41 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             next = {...next, active: initialGameState['active']}
             break
         case 'draw':
-            next = {...next, cards: {...state.cards,
-                hand: [...state.cards.hand, ...state.cards.deck.slice(0, action.payload?.amount)].sort(sort),
-                deck: state.cards.deck.slice(action.payload?.amount)
-            }}
-            if(state.cards.hand.length === 0) {
-                if(state.blind.curr === 'boss' && state.blind.boss.name === 'The House') {
-                    next.cards.hand.forEach(c => {
-                        c.flipped = true
-                    })
+            let draw = action.payload?.amount
+            if(state.blind.curr === 'boss' && name === 'The Serpent' && action.payload?.previous !== undefined) { draw = 3 }
+            let nextHand = state.cards.deck.slice(0, draw)
+            if(state.blind.curr === 'boss') {
+                switch(name) {
+                    case 'The House':
+                        if(action.payload?.previous === undefined) {
+                            nextHand.forEach(c => c.flipped = true)
+                        }
+                        break
+                    case 'The Wheel':
+                        nextHand.forEach(c => c.flipped = Math.random() <= (1 / 7))
+                        break
+                    case 'The Fish':
+                        if(action.payload?.previous === 'played') {
+                            nextHand.forEach(c => c.flipped = true)
+                        }
+                        break
+                    case 'The Mark':
+                        nextHand.forEach(c => {
+                            if([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)) {
+                                c.flipped = true
+                            }
+                        })
+                        break
                 }
+            }
+            next = {...next, cards: {...state.cards,
+                hand: [...state.cards.hand, ...nextHand].sort(sort),
+                deck: state.cards.deck.slice(draw)
+            }}
+            if(state.blind.curr === 'boss' && name === 'Cerulean Bell') {
+                let card = next.cards.hand[Math.floor(Math.random() * next.cards.hand.length)]
+                next.cards.selected.push(card)
+                card.selected = true
             }
             break;
         case 'setSort':
