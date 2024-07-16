@@ -342,3 +342,58 @@ export const AnteChips = {
     7: 35000,
     8: 50000
 }
+
+export type ConsumableType = {
+    id: number
+    name: string
+    hand?: keyof typeof HandType
+    type: 'Planet' | 'Tarot' | 'Spectral'
+}
+
+export const Consumables: {name: string, hand?: keyof typeof HandType, type: 'Planet' | 'Tarot' | 'Spectral'}[] = [
+    {
+        name: 'Pluto',
+        hand: 'HIGH_CARD',
+        type: 'Planet'
+    }, {
+        name: 'Mercury',
+        hand: 'PAIR',
+        type: 'Planet'
+    }, {
+        name: 'Uranus',
+        hand: 'TWO_PAIR',
+        type: 'Planet'
+    }, {
+        name: 'Venus',
+        hand: 'THREE',
+        type: 'Planet'
+    }, {
+        name: 'Saturn',
+        hand: 'STRAIGHT',
+        type: 'Planet'
+    }, {
+        name: 'Jupiter',
+        hand: 'FLUSH',
+        type: 'Planet',
+    }, {
+        name: 'Earth',
+        hand: 'FULL_HOUSE',
+        type: 'Planet',
+    }, {
+        name: 'Mars',
+        hand: 'FOUR',
+        type: 'Planet'
+    }, {
+        name: 'Planet X',
+        hand: 'FIVE',
+        type: 'Planet'
+    }, {
+        name: 'Ceres',
+        hand: 'FLUSH_HOUSE',
+        type: 'Planet'
+    }, {
+        name: 'Eris',
+        hand: 'FLUSH_FIVE',
+        type: 'Planet'
+    }
+]

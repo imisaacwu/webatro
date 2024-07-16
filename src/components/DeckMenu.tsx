@@ -1,10 +1,10 @@
 import './DeckMenu.css'
 import { useContext, useState } from 'react'
 import { CardInfo, Rank, Suit, rankChips } from '../Constants'
-import { aceIcon, faceIcon, numIcon, spades, hearts, clubs, diamonds } from '../assets/ui';
-import { GameStateContext } from '../GameState';
-import { Card } from './Card';
-import { cardSnap } from '../Utilities';
+import { aceIcon, faceIcon, numIcon, spades, hearts, clubs, diamonds } from '../assets/ui'
+import { GameStateContext } from '../GameState'
+import { Card } from './Card'
+import { cardSnap } from '../Utilities'
 
 type DeckMenuProps = {
     menu: boolean

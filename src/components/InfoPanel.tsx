@@ -5,7 +5,7 @@ import { GameStateContext } from '../GameState'
 
 export const InfoPanel = () => {
     const { state: game } = useContext(GameStateContext)
-    const [ runMenu, setRunMenu ] = useState(false);
+    const [ runMenu, setRunMenu ] = useState(false)
 
     return (
         <div id='info'>

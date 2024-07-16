@@ -1,0 +1,76 @@
+div[id^='consumable '] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    width: 142px;
+    height: 190px;
+    text-align: center;
+    transition: .1s;
+    z-index: auto;
+}
+
+div[id^='consumable ']:hover {
+    cursor: pointer;
+    scale: 1.1;
+}
+
+div[id^='consumable ']:active {
+    z-index: 1;
+}
+
+div[id^='consumable '] img {
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    width: 142px;
+    height: 190px;
+}
+
+#consumable-name {
+    font-size: 32px;
+    line-height: 24px;
+}
+
+div[id^='consumable '] #info-popup {
+    display: none;
+}
+
+div[id^='consumable ']:hover #info-popup {
+    display: initial;
+    position: absolute;
+    top: 190px;
+    border: 4px solid var(--light-grey);
+    border-radius: 8px;
+    font-size: 20px;
+    width: 156px
+}
+
+#score-info.planet {
+    padding: 4px;
+}
+
+#score-info div div{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#level {
+    display: flex;
+    flex-direction: row;
+}
+
+#planet-hand {
+    color: var(--orange)
+}
+
+#consumable-type {
+    font-size: 24px;
+    border-radius: 8px;
+    margin: 4px 0 0 0;
+}
+
+#consumable-type.Planet {
+    background-color: var(--blue);
+}

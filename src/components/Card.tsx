@@ -1,18 +1,18 @@
-import { useContext, useRef } from 'react';
-import { CardInfo, Rank, Suit, rankChips } from '../Constants';
-import { GameStateContext } from '../GameState';
-import { cardSnap } from '../Utilities';
-import './Card.css';
-import { redDeck } from '../assets/decks';
-const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true });
+import { useContext, useRef } from 'react'
+import { CardInfo, Rank, Suit, rankChips } from '../Constants'
+import { GameStateContext } from '../GameState'
+import { cardSnap } from '../Utilities'
+import './Card.css'
+import redDeck from '../assets/decks/red.png'
+const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true })
 
 const getImagePath = (suit: Suit, rank: Rank) => {
-    const fileName = `${Suit[suit].charAt(0).toLowerCase()}${rankChips[Rank[rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[rank] as keyof typeof rankChips] : Rank[rank].charAt(0).toLowerCase()}.webp`;
-    const imagePath = `../assets/cards/${fileName}`;
+    const fileName = `${Suit[suit].charAt(0).toLowerCase()}${rankChips[Rank[rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[rank] as keyof typeof rankChips] : Rank[rank].charAt(0).toLowerCase()}.webp`
+    const imagePath = `../assets/cards/${fileName}`
   
     const module = images[imagePath]
     return module ? module.default : null
-};
+}
 
 export const Card = (props: CardInfo) => {
     const {
@@ -23,15 +23,15 @@ export const Card = (props: CardInfo) => {
         drawn = false,
         flipped = false, 
         debuffed = false
-    } = props;
+    } = props
     const { state: game, dispatch } = useContext(GameStateContext)
-    const gameRef = useRef(game);
-    gameRef.current = game;
+    const gameRef = useRef(game)
+    gameRef.current = game
 
-    const image = getImagePath(props.suit, props.rank);
+    const image = getImagePath(props.suit, props.rank)
     if(!image) { throw new Error(`no such image ${Suit[props.suit].charAt(0).toLowerCase()}${rankChips[Rank[props.rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[props.rank] as keyof typeof rankChips] : Rank[props.rank].charAt(0).toLowerCase()}.webp`) }
 
-    let dragElem: HTMLElement | null = null, origX: number, origY: number, origI: number, startX: number, startY: number;
+    let dragElem: HTMLElement | null = null, origX: number, origY: number, origI: number, startX: number, startY: number
 
     const mouseDown = (e: React.MouseEvent<HTMLElement>) => {
         if(mode === 'standard') {
@@ -49,8 +49,8 @@ export const Card = (props: CardInfo) => {
         }
     }
 
-    const tolerance = 10, renderDelay = 100;
-    let lastReorder  = 0;
+    const tolerance = 10, renderDelay = 100
+    let lastReorder  = 0
 
     const mouseMove = (e: MouseEvent) => {
         if(dragElem) {
@@ -75,8 +75,8 @@ export const Card = (props: CardInfo) => {
                 const [c] = update.splice(origI, 1)
                 update.splice(i, 0, c)
                 dispatch({type: 'updateHand', payload: {hand: update}})
-                origI = i;
-                lastReorder = now;
+                origI = i
+                lastReorder = now
             }
         }
     }
@@ -122,7 +122,7 @@ export const Card = (props: CardInfo) => {
                         <div id='score-info'>
                             {debuffed ?
                                 'Scores no chips and all abilities are disabled' :
-                                <><div className='chip'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>&nbsp;chips</>
+                                <><div className='blue'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>&nbsp;chips</>
                             }
                         </div>
                     </div>

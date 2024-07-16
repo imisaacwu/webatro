@@ -1,5 +1,5 @@
 import { createContext, Dispatch, ReactNode, useReducer } from "react"
-import { BlindType, CardInfo, DeckType, handLevels, HandType, handUpgrade, Rank, Suit } from "./Constants"
+import { BlindType, CardInfo, Consumables, ConsumableType, DeckType, handLevels, HandType, handUpgrade, Rank, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
 
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
@@ -15,6 +15,7 @@ type GameState = {
         ante: number
         round: number
         score: number
+        consumableSize: number
     }
 
     blind: {
@@ -31,6 +32,7 @@ type GameState = {
         hidden: CardInfo[]      // Off-screen
         sort: 'rank' | 'suit'
         played: (keyof typeof HandType | CardInfo)[] // For boss blinds
+        consumables: ConsumableType[]
     }
 
     // In hand or submitted, handled automatically
@@ -44,7 +46,13 @@ type GameState = {
 }
 
 type GameAction = {
-    type: 'init' | 'state' | 'stat' | 'select' | 'submit' | 'discard' | 'draw' | 'setSort' | 'updateHand'
+    type:
+        'init' |
+        'state' |
+        'stat' |
+        'select' | 'submit' | 'discard' | 'draw' |
+        'buy' | 'use' | 'sell' |
+        'setSort' | 'updateHand'
     payload?: {
         deck?: keyof typeof DeckType,
 
@@ -56,6 +64,7 @@ type GameAction = {
 
         card?: CardInfo
         hand?: CardInfo[]
+        consumable?: ConsumableType
 
         sort?: 'rank' | 'suit'
     }
@@ -71,7 +80,8 @@ const initialGameState: GameState = {
         money: 4,
         ante: 1,
         round: 0,
-        score: 0
+        score: 0,
+        consumableSize: 2
     },
 
     blind: {
@@ -87,7 +97,8 @@ const initialGameState: GameState = {
         submitted: [],
         hidden: [],
         sort: 'rank',
-        played: []
+        played: [],
+        consumables: [{id: 0, ...Consumables[0]}, {id: 1, ...Consumables[8]}]
     },
 
     active: {
@@ -292,11 +303,11 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                 (name === 'The Mouth' && state.cards.played.length > 0 && !state.cards.played.includes(state.active.name)))) {
                 next = {...next, active: initialGameState.active}
             } else {
-                let hand = state.active.name;
+                let hand = state.active.name
                 if(state.blind.curr === 'boss') {
                     if(name === 'The Arm') {
                         if(handLevels[hand].level > 1) {
-                            handLevels[hand].level--;
+                            handLevels[hand].level--
                             handLevels[hand].chips -= handUpgrade[hand].chips
                             handLevels[hand].mult -= handUpgrade[hand].mult
                         }
@@ -308,7 +319,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                 } else if(name === 'The Pillar') {
                     next.cards.played = [...next.cards.played, ...state.cards.selected]
                 }
-                handLevels[hand].played++;
+                handLevels[hand].played++
                 let ranks: number[] = new Array(13).fill(0)
                 state.cards.selected.forEach(c => {
                     c.scored = true
@@ -413,19 +424,32 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                 next.cards.selected.push(card)
                 card.selected = true
             }
-            break;
+            break
+        case 'buy':
+            next = {...next,
+                stats: {...state.stats,
+                    money: state.stats.money - action.payload?.amount!
+                },
+                cards: {...state.cards,
+                    consumables: [...state.cards.consumables, action.payload?.consumable!]
+                }
+            }
+            break
+        case 'use':
+        case 'sell':
+            break
         case 'setSort':
             next = {...next, cards: {...state.cards,
                 hand: state.cards.hand.sort(sort),
                 sort: action.payload?.sort!
             }}
             setTimeout(() => cardSnap(state.cards.hand, 6000))
-            break;
+            break
         case 'updateHand':
             next = {...next, cards: {...state.cards,
                 hand: action.payload?.hand!
             }}
-            break;
+            break
         default:
     }
     return next 

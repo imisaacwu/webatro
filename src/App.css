@@ -17,6 +17,18 @@ body {
     --small-blind-secondary: #224B69;
 }
 
+.red {
+    color: var(--red)
+}
+
+.blue {
+    color: var(--blue)
+}
+
+.yellow {
+    color: var(--yellow)
+}
+
 .container {
     display: flex;
     flex-direction: row;
@@ -208,6 +220,10 @@ body {
 }
 
 #consumables-area {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    align-items: center;
     height: 175px;
 }
 

@@ -9,6 +9,8 @@ import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
 import { GameStateContext } from './GameState'
 import { Card } from './components/Card'
+import { Consumable } from './components/Consumable'
+import { consumableSnap } from './Utilities'
 
 export default function App() {
     const { state: game, dispatch } = useContext(GameStateContext)
@@ -30,6 +32,8 @@ export default function App() {
             })
         }
     }
+
+    consumableSnap(game.cards.consumables)
 
     const currBlindType = game.blind.curr === 'small' ? Blinds[0] : game.blind.curr === 'big' ? Blinds[1] : game.blind.boss
 
@@ -55,8 +59,12 @@ export default function App() {
                         <div id='joker-label' className='counter'>0/5</div>
                     </div>
                     <div id='consumables' className='card-container'>
-                        <div id='consumables-area' className='card-area'></div>
-                        <div id='consumables-label' className='counter'>0/2</div>
+                        <div id='consumables-area' className='card-area'>
+                            {game.cards.consumables.map(c => (
+                                <Consumable key={c.id} {...c} />
+                            ))}
+                        </div>
+                        <div id='consumables-label' className='counter'>{`${game.cards.consumables.length}/${game.stats.consumableSize}`}</div>
                     </div>
                 </div>
                 <div id='lower'>
@@ -70,7 +78,7 @@ export default function App() {
                         </>}
                         {game.state === 'scoring' && <>
                             <div id='mid'>
-                                {gameRef.current.cards.submitted.map(c => <Card key={c.id} {...c} />)}
+                                {game.cards.submitted.map(c => <Card key={c.id} {...c} />)}
                             </div>
                             <div id='bot'>
                                 <Hand />

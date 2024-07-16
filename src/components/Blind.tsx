@@ -1,9 +1,9 @@
 import stake_icon from '../assets/white_stake.webp'
 import './Blind.css'
 import { Blinds, BlindType, handLevels, HandType } from '../Constants'
-import { useContext } from 'react';
-import { GameStateContext } from '../GameState';
-const icons: Record<string, { default: string }> = import.meta.glob('../assets/blinds/*.webp', { eager: true });
+import { useContext } from 'react'
+import { GameStateContext } from '../GameState'
+const icons: Record<string, { default: string }> = import.meta.glob('../assets/blinds/*.webp', { eager: true })
 
 type BlindProps = {
     type: 'sidebar' | 'select' | 'post' | 'run-info'
@@ -12,8 +12,8 @@ type BlindProps = {
 
 export const Blind = ({ type, blind }: BlindProps) => {
     const { state: game, dispatch } = useContext(GameStateContext)
-    const anteChips = game.blind.base;
-    const blindMult = blind.mult;
+    const anteChips = game.blind.base
+    const blindMult = blind.mult
     const req_score = (blindMult * anteChips).toLocaleString().length < 11 ? (blindMult * anteChips).toLocaleString() : (blindMult * anteChips).toExponential()
     const select = (game.blind.curr === 'small' && Blinds.indexOf(blind) === 0) || (game.blind.curr === 'big' && Blinds.indexOf(blind) === 1) || (game.blind.curr === 'boss' && Blinds.indexOf(blind) > 1)
     const icon = !icons[blind.img] ? '' : icons[blind.img].default

@@ -37,8 +37,6 @@
     z-index: 1;
 }
 
-.chip { color: var(--blue) }
-
 .card.selected {
     transform: translateY(-3vh);
 }
@@ -95,7 +93,7 @@
 
 #inner {
     background-color: var(--grey);
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 4px;
 }
 

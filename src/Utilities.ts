@@ -1,13 +1,13 @@
-import { AnteChips, Blinds, CardInfo, handLevels, HandType, Rank, rankChips } from "./Constants";
+import { AnteChips, Blinds, CardInfo, ConsumableType, handLevels, HandType, Rank, rankChips } from "./Constants"
 
 // https://www.desmos.com/calculator/fsvcr75cdx
 export const ante_base = (ante: number) => {
     if(ante > 8) {
         const b = 1.6, c = ante - 8, d = 1 + 0.2 * c
-        const f = Math.floor(AnteChips[8] * ((b + ((0.75 * c) ** d)) ** c));
+        const f = Math.floor(AnteChips[8] * ((b + ((0.75 * c) ** d)) ** c))
         return f - (f % (10 ** (Math.floor(Math.log10(f))-1)))
     }
-    return AnteChips[ante as keyof typeof AnteChips];
+    return AnteChips[ante as keyof typeof AnteChips]
 }
 
 export const boss_roll = (ante: number) => {
@@ -65,7 +65,7 @@ export const shuffle = (cards: CardInfo[]): CardInfo[] => {
         let rand = Math.floor(Math.random() * i--);
         [arr[i], arr[rand]] = [arr[rand], arr[i]]
     }
-    return arr;
+    return arr
 }
 
 // https://www.desmos.com/calculator/vaaglwvmxl
@@ -86,6 +86,21 @@ export const cardSnap = (cards: CardInfo[], r: number) => {
             c!.style.left = `${left}px`
             c!.style.bottom = `${y}px`
             c!.style.rotate = `${rot}rad`
+        })
+    }
+}
+
+export const consumableSnap = (cards: ConsumableType[]) => {
+    if(cards.length !== 0) {
+        const c = cards.map(c => document.getElementById(`consumable ${c.id}`))
+        if(!c.every(c => c !== null)) { return }
+        const w = 305, l = cards.length
+        const lStep = w / l, extra = (lStep - 142) / (l - 1)
+
+        c.forEach((c, i) => {
+            const left = i * (lStep + extra)
+            console.log(lStep)
+            c!.style.left = `${left}px`
         })
     }
 }
