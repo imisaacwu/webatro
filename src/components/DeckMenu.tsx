@@ -1,10 +1,11 @@
-import './DeckMenu.css'
 import { useContext, useState } from 'react'
-import { CardInfo, Rank, Suit, rankChips } from '../Constants'
-import { aceIcon, faceIcon, numIcon, spades, hearts, clubs, diamonds } from '../assets/ui'
-import { GameStateContext } from '../GameState'
-import { Card } from './Card'
+import { aceIcon, clubs, diamonds, faceIcon, hearts, numIcon, spades } from '../assets/ui'
+import { Rank, Suit, rankChips } from '../Constants'
 import { cardSnap } from '../Utilities'
+import './DeckMenu.css'
+import { PlayingCardInfo } from './PlayingCardInfo'
+import { PlayingCard } from './PlayingCard'
+import { GameStateContext } from '../GameState'
 
 type DeckMenuProps = {
     menu: boolean
@@ -15,7 +16,7 @@ export default function DeckMenu(props: DeckMenuProps) {
     const { state: game } = useContext(GameStateContext)
     const [ view, setView ] = useState<'remaining' | 'full'>('remaining')
 
-    const cards: CardInfo[][] = []
+    const cards: PlayingCardInfo[][] = []
     const drawn = [...game.cards.hand, ...game.cards.hidden, ...game.cards.submitted]
     Object.values(Suit).filter(s => isNaN(Number(s))).forEach(suit => {
         const temp = [...drawn, ...game.cards.deck].filter(c => c.suit === Suit[suit as keyof typeof Suit]).sort((a, b) => b.rank - a.rank)
@@ -29,7 +30,7 @@ export default function DeckMenu(props: DeckMenuProps) {
 
     const elements = cards.map((arr, i) =>
         <div className='deck-row' key={i} id={`deck-row-${i}`}>
-            {arr.map(c => <Card key={c.id} {...c} />)}
+            {arr.map(c => <PlayingCard key={c.id} {...c} />)}
         </div>)
 
     setTimeout(() => {

@@ -1,19 +1,19 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import './App.css'
 import { Blind } from './components/Blind'
 import { Calculator } from './components/Calculator'
-import { Blinds } from './Constants'
+import { Consumable } from './components/Consumable'
 import { Deck } from './components/Deck'
 import Hand from './components/Hand'
 import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
-import { GameStateContext } from './GameState'
-import { Card } from './components/Card'
-import { Consumable } from './components/Consumable'
+import { Blinds } from './Constants'
+import { gameReducer, GameStateContext, initialGameState } from './GameState'
 import { consumableSnap } from './Utilities'
+import { PlayingCard } from './components/PlayingCard'
 
 export default function App() {
-    const { state: game, dispatch } = useContext(GameStateContext)
+    const [ game, dispatch ] = useReducer(gameReducer, initialGameState)
     const gameRef = useRef(game)
     gameRef.current = game
     
@@ -40,85 +40,87 @@ export default function App() {
     const reward = currBlindType.reward + game.stats.hands + Math.min(Math.floor(game.stats.money / 5), 5)
 
     return (
-        <div className='container'>
-            <div id='sidebar'>
-                <div id='top-sidebar'>
-                    {game.state === 'blind-select' && <div>Choose your<br />next Blind</div>}
-                    {game.state === 'scoring' &&
-                        <Blind type='sidebar' blind={currBlindType} />
-                    }
-                </div>
-                <Round />
-                <Calculator />
-                <InfoPanel />
-            </div>
-            <div id='main'>
-                <div id='top'>
-                    <div id='jokers' className='card-container'>
-                        <div id='joker-area' className='card-area'></div>
-                        <div id='joker-label' className='counter'>0/5</div>
+        <GameStateContext.Provider value={{ state: game, dispatch }}>
+            <div className='container'>
+                <div id='sidebar'>
+                    <div id='top-sidebar'>
+                        {game.state === 'blind-select' && <div>Choose your<br />next Blind</div>}
+                        {game.state === 'scoring' &&
+                            <Blind type='sidebar' blind={currBlindType} />
+                        }
                     </div>
-                    <div id='consumables' className='card-container'>
-                        <div id='consumables-area' className='card-area'>
-                            {game.cards.consumables.map(c => (
-                                <Consumable key={c.id} {...c} />
-                            ))}
+                    <Round />
+                    <Calculator />
+                    <InfoPanel />
+                </div>
+                <div id='main'>
+                    <div id='top'>
+                        <div id='jokers' className='card-container'>
+                            <div id='joker-area' className='card-area'></div>
+                            <div id='joker-label' className='counter'>0/5</div>
                         </div>
-                        <div id='consumables-label' className='counter'>{`${game.cards.consumables.length}/${game.stats.consumableSize}`}</div>
+                        <div id='consumables' className='card-container'>
+                            <div id='consumables-area' className='card-area'>
+                                {game.cards.consumables.map(c => (
+                                    <Consumable key={c.id} {...c} />
+                                ))}
+                            </div>
+                            <div id='consumables-label' className='counter'>{`${game.cards.consumables.length}/${game.stats.consumableSize}`}</div>
+                        </div>
                     </div>
-                </div>
-                <div id='lower'>
-                    <div id='content'>
-                        {game.state === 'blind-select' && <>
-                            <div id='blinds-container'>
-                                <Blind type='select' blind={Blinds[0]} />
-                                <Blind type='select' blind={Blinds[1]} />
-                                <Blind type='select' blind={game.blind.boss} />
-                            </div>
-                        </>}
-                        {game.state === 'scoring' && <>
-                            <div id='mid'>
-                                {game.cards.submitted.map(c => <Card key={c.id} {...c} />)}
-                            </div>
-                            <div id='bot'>
-                                <Hand />
-                            </div>
-                        </>}
-                        {game.state === 'post-scoring' && <>
-                            <div id='post-outer'>
-                                <div id='post-container'>
-                                    <div id='post-inner'>
-                                        <div id='cash-out' onClick={() => {
-                                            dispatch({type: 'state', payload: {
-                                                state: 'shop',
-                                                amount: reward,
-                                            }})
-                                            dispatch({type: 'state', payload: {state: 'blind-select'}})
-                                        }}>{`Cash Out: $${reward}`}</div>
-                                        <Blind type='post' blind={currBlindType} />
-                                        <div id='post-dots'>{'. '.repeat(49)}</div>
-                                        {game.stats.hands > 0 &&
-                                            <div id='remaining-hands' className='extra-reward'>
-                                                <div className='num-extra'>{game.stats.hands}</div>
-                                                <div className='extra-reward-text'>{'Remaining Hands \[$1 each\]'}</div>
-                                                <div className='reward'>{'$'.repeat(game.stats.hands)}</div>
-                                            </div>
-                                        }
-                                        {game.stats.money > 4 &&
-                                            <div id='interest' className='extra-reward'>
-                                                <div className='num-extra'>{Math.min(Math.floor(game.stats.money / 5), 5)}</div>
-                                                <div className='extra-reward-text'>{'1 interest per $5 \[5 max\]'}</div>
-                                                <div className='reward'>{'$'.repeat(Math.min(Math.floor(game.stats.money / 5), 5))}</div>
-                                            </div>
-                                        }
+                    <div id='lower'>
+                        <div id='content'>
+                            {game.state === 'blind-select' && <>
+                                <div id='blinds-container'>
+                                    <Blind type='select' blind={Blinds[0]} />
+                                    <Blind type='select' blind={Blinds[1]} />
+                                    <Blind type='select' blind={game.blind.boss} />
+                                </div>
+                            </>}
+                            {game.state === 'scoring' && <>
+                                <div id='mid'>
+                                    {game.cards.submitted.map(c => <PlayingCard key={c.id} {...c} />)}
+                                </div>
+                                <div id='bot'>
+                                    <Hand />
+                                </div>
+                            </>}
+                            {game.state === 'post-scoring' && <>
+                                <div id='post-outer'>
+                                    <div id='post-container'>
+                                        <div id='post-inner'>
+                                            <div id='cash-out' onClick={() => {
+                                                dispatch({type: 'state', payload: {
+                                                    state: 'shop',
+                                                    amount: reward,
+                                                }})
+                                                dispatch({type: 'state', payload: {state: 'blind-select'}})
+                                            }}>{`Cash Out: $${reward}`}</div>
+                                            <Blind type='post' blind={currBlindType} />
+                                            <div id='post-dots'>{'. '.repeat(49)}</div>
+                                            {game.stats.hands > 0 &&
+                                                <div id='remaining-hands' className='extra-reward'>
+                                                    <div className='num-extra'>{game.stats.hands}</div>
+                                                    <div className='extra-reward-text'>{'Remaining Hands \[$1 each\]'}</div>
+                                                    <div className='reward'>{'$'.repeat(game.stats.hands)}</div>
+                                                </div>
+                                            }
+                                            {game.stats.money > 4 &&
+                                                <div id='interest' className='extra-reward'>
+                                                    <div className='num-extra'>{Math.min(Math.floor(game.stats.money / 5), 5)}</div>
+                                                    <div className='extra-reward-text'>{'1 interest per $5 \[5 max\]'}</div>
+                                                    <div className='reward'>{'$'.repeat(Math.min(Math.floor(game.stats.money / 5), 5))}</div>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </>}
+                            </>}
+                        </div>
+                        <Deck />
                     </div>
-                    <Deck />
                 </div>
             </div>
-        </div>
+        </GameStateContext.Provider>
     )
 }

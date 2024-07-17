@@ -1,4 +1,5 @@
-import { AnteChips, Blinds, CardInfo, ConsumableType, handLevels, HandType, Rank, rankChips } from "./Constants"
+import { PlayingCardInfo } from "./components/PlayingCardInfo"
+import { AnteChips, Blinds, ConsumableType, handLevels, HandType, Rank, rankChips } from "./Constants"
 
 // https://www.desmos.com/calculator/fsvcr75cdx
 export const ante_base = (ante: number) => {
@@ -20,7 +21,7 @@ export const getNextBlind = (ante: AnteBlinds): AnteBlinds => {
     return (ante === 'small') ? 'big' : (ante === 'big') ? 'boss' : 'small'
 }
 
-export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
+export const bestHand = (cards: PlayingCardInfo[]): keyof typeof HandType => {
     // xxxAKQJT 98765432
     const straights = [0x100F, 0x1F, 0x3E, 0x7C, 0xF8, 0x1F0, 0x3E0, 0x7C0, 0xF80, 0x1F00]
     const hand = cards.reduce((total, c) => total | (1 << c.rank), 0)
@@ -48,7 +49,7 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
     return 'NONE'
 }
 
-export const scoreHand = (cards: CardInfo[]): {chips: number, mult: number} => {
+export const scoreHand = (cards: PlayingCardInfo[]): {chips: number, mult: number} => {
     let hand = bestHand(cards), chips = handLevels[hand].chips, mult = handLevels[hand].mult
     
     cards.forEach(c => {
@@ -59,7 +60,7 @@ export const scoreHand = (cards: CardInfo[]): {chips: number, mult: number} => {
     return {chips, mult}
 }
 
-export const shuffle = (cards: CardInfo[]): CardInfo[] => {
+export const shuffle = (cards: any[]) => {
     let arr = [...cards], i = cards.length
     while(i > 0) {
         let rand = Math.floor(Math.random() * i--);
@@ -69,7 +70,7 @@ export const shuffle = (cards: CardInfo[]): CardInfo[] => {
 }
 
 // https://www.desmos.com/calculator/vaaglwvmxl
-export const cardSnap = (cards: CardInfo[], r: number) => {
+export const cardSnap = (cards: PlayingCardInfo[], r: number) => {
     if(cards.length !== 0) {
         const c = cards.map(c => document.getElementById(`card ${c.id}`))
         if(!c.every(c => c !== null)) { return }

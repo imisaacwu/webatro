@@ -14,5 +14,15 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
+    'no-unexpected-multiline' : 'error',
+    'semi': [
+        'error',
+        'never',
+        { 'beforeStatementContinuationChars': 'always' }
+    ],
+    'semi-style': [
+        'error',
+        'first'
+    ]
   },
 }

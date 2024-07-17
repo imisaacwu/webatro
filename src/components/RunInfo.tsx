@@ -1,7 +1,7 @@
-import { Blind } from './Blind'
-import { Blinds, handLevels, HandType } from '../Constants'
-import './RunInfo.css'
 import { useContext, useEffect, useState } from 'react'
+import { Blinds, handLevels, HandType } from '../Constants'
+import { Blind } from './Blind'
+import './RunInfo.css'
 import { GameStateContext } from '../GameState'
 
 type RunInfoProps = {
@@ -9,8 +9,8 @@ type RunInfoProps = {
 }
 
 export default function RunInfo(props: RunInfoProps) {
-    const [ window, setWindow ] = useState<'poker-hands' | 'blinds' | 'vouchers'>('poker-hands')
     const { state: game } = useContext(GameStateContext)
+    const [ window, setWindow ] = useState<'poker-hands' | 'blinds' | 'vouchers'>('poker-hands')
 
     const hands = Object.keys(handLevels).filter(k => (
         isNaN(Number(k)) && !k.match('NONE') && (!k.match('FLUSH_FIVE|FLUSH_HOUSE|FIVE') || handLevels[k as keyof typeof handLevels].played > 0)

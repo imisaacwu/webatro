@@ -8,6 +8,7 @@ div[id^='consumable '] {
     text-align: center;
     transition: .1s;
     z-index: auto;
+    border: 1px solid white
 }
 
 div[id^='consumable ']:hover {
@@ -19,12 +20,23 @@ div[id^='consumable ']:active {
     z-index: 1;
 }
 
+div[id^='consumable '].selected {
+    transform: translateX(-50px);
+}
+
+
 div[id^='consumable '] img {
     margin: 0;
     padding: 0;
     pointer-events: none;
     width: 142px;
     height: 190px;
+}
+
+
+.tab {
+    position: absolute;
+    left: 142px;
 }
 
 #consumable-name {

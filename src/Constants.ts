@@ -1,38 +1,4 @@
-export const DeckType = {
-    Abandoned: 'Abandoned',
-    Anaglyph: 'Anaglyph',
-    Black: 'Black',
-    Blue: 'Blue',
-    Challenge: 'Challenge',
-    Checkered: 'Checkered',
-    Erratic: 'Erratic',
-    Ghost: 'Ghost',
-    Green: 'Green',
-    Magic: 'Magic',
-    Nebula: 'Nebula',
-    Painted: 'Painted',
-    Plasma: 'Plasma',
-    Red: 'Red',
-    Yellow: 'Yellow',
-    Zodiac: 'Zodiac'
-} as const
-
-export type CardInfo = {
-    id: number
-    suit: Suit
-    rank: Rank
-    edition?: Edition
-    enhancement?: Enhancement
-    seal?: Seal
-
-    mode?: 'standard' | 'deck-view'
-    selected?: boolean
-    submitted?: boolean
-    scored?: boolean
-    drawn?: boolean
-    flipped?: boolean
-    debuffed?: boolean
-}
+export enum Deck { Abandoned, Anaglyph, Black, Blue, Challenge, Checkered, Erratic, Ghost, Green, Magic, Nebula, Painted, Plasma, Red, Yellow, Zodiac }
 
 export enum Suit { Spades, Hearts, Clubs, Diamonds }
 export enum Rank { Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace }
@@ -72,7 +38,7 @@ export const HandType = {
     NONE: ''
 } as const
 
-type HandLevel = {
+export type HandLevel = {
     [K in keyof typeof HandType]: { level: number, chips: number, mult: number, played: number }
 }
 
@@ -119,210 +85,210 @@ export type BlindType = {
 
 export const Blinds: BlindType[] = [
     {
-        img: '../assets/blinds/small_blind.webp',
+        img: 'small_blind',
         name: 'Small Blind',
         descrip: '',
         ante: 1,
         mult: 1,
         reward: 3
     }, {
-        img: '../assets/blinds/big_blind.webp',
+        img: 'big_blind',
         name: 'Big Blind',
         descrip: '',
         ante: 1,
         mult: 1.5,
         reward: 4
     }, {
-        img: '../assets/blinds/hook.webp',
+        img: 'hook',
         name: 'The Hook',
         descrip: 'Discards 2 random cards per hand played',
         ante: 1,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/ox.webp',
+        img: 'ox',
         name: 'The Ox',
         descrip: 'Playing a _ sets money to $0',
         ante: 6,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/house.webp',
+        img: 'house',
         name: 'The House',
         descrip: 'First hand is drawn face down',
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/wall.webp',
+        img: 'wall',
         name: 'The Wall',
         descrip: 'Extra large blind',
         ante: 2,
         mult: 4,
         reward: 5
     }, {
-        img: '../assets/blinds/wheel.webp',
+        img: 'wheel',
         name: 'The Wheel',
         descrip: '1 in 7 cards drawn face down',
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/arm.webp',
+        img: 'arm',
         name: 'The Arm',
         descrip: 'Decrease level of played poker hand', // Does not lower if at lvl.1
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/club.webp',
+        img: 'club',
         name: 'The Club',
         descrip: 'All Club cards are debuffed',
         ante: 1,
         mult: 2,
         reward: 5,
     }, {
-        img: '../assets/blinds/fish.webp',
+        img: 'fish',
         name: 'The Fish',
         descrip: 'Cards drawn face down after each hand played',
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/psychic.webp',
+        img: 'psychic',
         name: 'The Psychic',
         descrip: 'Must play 5 cards', // TODO: warning
         ante: 1,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/goad.webp',
+        img: 'goad',
         name: 'The Goad',
         descrip: 'All Spade cards are debuffed',
         ante: 1,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/water.webp',
+        img: 'water',
         name: 'The Water',
         descrip: 'Start with 0 discards',
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/window.webp',
+        img: 'window',
         name: 'The Window',
         descrip:  'All Diamond cards are debuffed',
         ante: 1,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/manacle.webp',
+        img: 'manacle',
         name: 'The Manacle',
         descrip: '-1 Hand Size',
         ante: 1,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/eye.webp',
+        img: 'eye',
         name: 'The Eye',
         descrip: 'No repeat hand types this round',
         ante: 3,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/mouth.webp',
+        img: 'mouth',
         name: 'The Mouth',
         descrip: 'Play only 1 hand type this round',
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/plant.webp',
+        img: 'plant',
         name: 'The Plant',
         descrip: 'All face cards are debuffed',
         ante: 4,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/serpent.webp',
+        img: 'serpent',
         name: 'The Serpent',
         descrip: 'After Play or Discard, always draw 3 cards',
         ante: 5,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/pillar.webp',
+        img: 'pillar',
         name: 'The Pillar',
         descrip: 'Cards played previously this Ante are debuffed',
         ante: 1,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/needle.webp',
+        img: 'needle',
         name: 'The Needle',
         descrip: 'Play only 1 hand',
         ante: 2,
         mult: 1,
         reward: 5
     }, {
-        img: '../assets/blinds/head.webp',
+        img: 'head',
         name: 'The Head',
         descrip: 'All Heart cards are debuffed',
         ante: 1,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/tooth.webp',
+        img: 'tooth',
         name: 'The Tooth',
         descrip: 'Lose $1 per card played', // TODO: add to post-scoring menu
         ante: 3,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/flint.webp',
+        img: 'flint',
         name: 'The Flint',
         descrip: 'Base Chips and Mult are halved',
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/mark.webp',
+        img: 'mark',
         name: 'The Mark',
         descrip: 'All face cards are drawn face down',
         ante: 2,
         mult: 2,
         reward: 5
     }, {
-        img: '../assets/blinds/amber_acorn.webp',
+        img: 'amber_acorn',
         name: 'Amber Acorn',
         descrip: 'Flips and shuffles all Joker cards', // TODO
         ante: 81,
         mult: 2,
         reward: 8
     }, {
-        img: '../assets/blinds/verdant_leaf.webp',
+        img: 'verdant_leaf',
         name: 'Verdant Leaf',
         descrip: 'All cards debuffed until 1 Joker sold', // TODO
         ante: 81,
         mult: 2,
         reward: 8
     }, {
-        img: '../assets/blinds/violet_vessel.webp',
+        img: 'violet_vessel',
         name: 'Violet Vessel',
         descrip: 'Very large blind',
         ante: 8,
         mult: 6,
         reward: 8
     }, {
-        img: '../assets/blinds/crimson_heart.webp',
+        img: 'crimson_heart',
         name: 'Crimson Heart',
         descrip: 'One random Joker disabled every hand', // TODO
         ante: 81,
         mult: 2,
         reward: 8
     }, {
-        img: '../assets/blinds/cerulean_bell.webp',
+        img: 'cerulean_bell',
         name: 'Cerulean Bell',
         descrip: 'Forces 1 card to always be selected',
         ante: 8,
@@ -348,6 +314,7 @@ export type ConsumableType = {
     name: string
     hand?: keyof typeof HandType
     type: 'Planet' | 'Tarot' | 'Spectral'
+    selected?: boolean
 }
 
 export const Consumables: {name: string, hand?: keyof typeof HandType, type: 'Planet' | 'Tarot' | 'Spectral'}[] = [

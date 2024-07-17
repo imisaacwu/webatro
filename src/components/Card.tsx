@@ -1,44 +1,36 @@
 import { useContext, useRef } from 'react'
-import { CardInfo, Rank, Suit, rankChips } from '../Constants'
-import { GameStateContext } from '../GameState'
+import debuff from '../assets/cards/debuffed.webp'
+import { Deck } from '../Constants'
 import { cardSnap } from '../Utilities'
 import './Card.css'
-import redDeck from '../assets/decks/red.png'
-const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true })
+import { CardInfo } from './CardInfo'
+import { GameStateContext } from '../GameState'
+const decks: Record<string, { default: string }> = import.meta.glob('../assets/decks/*.png', { eager: true })
 
-const getImagePath = (suit: Suit, rank: Rank) => {
-    const fileName = `${Suit[suit].charAt(0).toLowerCase()}${rankChips[Rank[rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[rank] as keyof typeof rankChips] : Rank[rank].charAt(0).toLowerCase()}.webp`
-    const imagePath = `../assets/cards/${fileName}`
-  
-    const module = images[imagePath]
-    return module ? module.default : null
+const getCardBack = (deck: Deck) => {
+    const url = `../assets/decks/${Deck[deck].toLowerCase()}.png`
+    const module = decks[url]
+    if(!module) { throw new Error(`no such image ${url}`) }
+    return module.default
 }
 
-export const Card = (props: CardInfo) => {
-    const {
-        mode = 'standard', 
-        selected = false,
-        submitted = false,
-        scored = false,
-        drawn = false,
-        flipped = false, 
-        debuffed = false
-    } = props
+export const Card = ({id, image, deck, onClick, children, draggable = true, selected = false, flipped = false, debuffed = false}: CardInfo) => {
     const { state: game, dispatch } = useContext(GameStateContext)
     const gameRef = useRef(game)
     gameRef.current = game
 
-    const image = getImagePath(props.suit, props.rank)
-    if(!image) { throw new Error(`no such image ${Suit[props.suit].charAt(0).toLowerCase()}${rankChips[Rank[props.rank] as keyof typeof rankChips] < 10 ? rankChips[Rank[props.rank] as keyof typeof rankChips] : Rank[props.rank].charAt(0).toLowerCase()}.webp`) }
-
-    let dragElem: HTMLElement | null = null, origX: number, origY: number, origI: number, startX: number, startY: number
+    const tolerance = 10, renderDelay = 100
+    let dragElem: HTMLElement | null = null
+    let [origX, origY, origI, startX, startY]: number[] = []
+    let lastReorder  = 0
 
     const mouseDown = (e: React.MouseEvent<HTMLElement>) => {
-        if(mode === 'standard') {
+        if(draggable) {
             dragElem = e.target as HTMLElement
             origX = dragElem.offsetLeft
             origY = dragElem.offsetTop
-            origI = gameRef.current.cards.hand.findIndex(c => c.id === props.id)
+            origI = [...dragElem.parentElement!.children].indexOf(dragElem)
+            // origI = gameRef.current.cards.hand.findIndex(c => c.id === id)
             startX = e.clientX - origX
             startY = e.clientY - origY
             
@@ -48,9 +40,6 @@ export const Card = (props: CardInfo) => {
             document.addEventListener('mouseup', mouseUp)
         }
     }
-
-    const tolerance = 10, renderDelay = 100
-    let lastReorder  = 0
 
     const mouseMove = (e: MouseEvent) => {
         if(dragElem) {
@@ -93,42 +82,18 @@ export const Card = (props: CardInfo) => {
 
     return (
         <div
-            id={`card ${props.id}`}
+            id={`card ${id}`}
             className={`card` +
-                ` ${mode}` + 
                 `${selected ? ' selected' : ''}` +
-                `${submitted ? ' submitted' : ''}` +
-                `${submitted && !scored ? ' unscored' : ''}` +
-                `${drawn ? ' drawn' : ''}` +
                 `${debuffed ? ' debuffed' : ''}`
             }
-            onClick={() => {
-                if(mode === 'standard' && (gameRef.current.cards.selected.length < 5 || props.selected)) {
-                    dispatch({type: 'select', payload: {card: game.cards.hand.find(c => c.id === props.id)}})
-                }
-            }}
+            onClick={onClick}
             onMouseDown={mouseDown}
             onMouseUp={mouseUp}
         >
-            {!flipped && <img src={image} alt={`${Rank[props.rank]} of ${Suit[props.suit]}`} />}
-            {flipped && <img src={redDeck} />}
-            {game.state === 'scoring' && debuffed && <img className='debuff' src={images['../assets/cards/debuffed.webp'].default} />}
-            {!dragElem && !flipped &&
-                <div id='info-popup'>
-                    <div id='inner'>
-                        <div id='card-name'>
-                            {`${props.rank < 9 ? rankChips[Rank[props.rank] as keyof typeof rankChips] : Rank[props.rank]} of`}&nbsp;<div className={Suit[props.suit]}>{Suit[props.suit]}</div>
-                        </div>
-                        <div id='score-info'>
-                            {debuffed ?
-                                'Scores no chips and all abilities are disabled' :
-                                <><div className='blue'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>&nbsp;chips</>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-            {submitted && scored && !debuffed && <div className='popup'>{`+${rankChips[Rank[props.rank] as keyof typeof rankChips]}`}</div>}
+            <img src={flipped ? getCardBack(deck) : image} />
+            {game.state === 'scoring' && debuffed && <img className='debuff' src={debuff} />}
+            {!dragElem && !flipped && children}
         </div>
     )
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ConsumableType, handLevels, HandType } from "../Constants";
 import './Consumable.css';
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
@@ -12,10 +13,15 @@ const getImagePath = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
 
 export const Consumable = (props: ConsumableType) => {
     const image = getImagePath(props.type, props.name)
+    const [ selected, setSelected ] = useState(props.selected)
     
     return (
-        <div id={`consumable ${props.id}`} className={props.name}>
+        <div id={`consumable ${props.id}`} className={props.name + `${selected ? ' selected' : ''}`} onClick={() => {
+            setSelected(!selected)
+        }}>
             <img src={image} />
+            <div id='sell' className='tab'>{`Sell $${props.type === 'Spectral' ? 2 : 1}`}</div>
+            <div id='use' className='tab'>Use</div>
             <div id='info-popup'>
                 <div id='inner'>
                     <div id='consumable-name'>

@@ -1,6 +1,7 @@
-import { createContext, Dispatch, ReactNode, useReducer } from "react"
-import { BlindType, CardInfo, Consumables, ConsumableType, DeckType, handLevels, HandType, handUpgrade, Rank, Suit } from "./Constants"
+import { createContext, Dispatch } from "react"
+import { BlindType, Consumables, ConsumableType, Deck, handLevels, HandType, handUpgrade, Rank, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
+import { PlayingCardInfo } from "./components/PlayingCardInfo"
 
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
@@ -25,13 +26,13 @@ type GameState = {
     }
 
     cards: {
-        deck: CardInfo[]
-        hand: CardInfo[]
-        selected: CardInfo[]    // Still in hand, selected
-        submitted: CardInfo[]   // To be scored
-        hidden: CardInfo[]      // Off-screen
+        deck: PlayingCardInfo[]
+        hand: PlayingCardInfo[]
+        selected: PlayingCardInfo[]    // Still in hand, selected
+        submitted: PlayingCardInfo[]   // To be scored
+        hidden: PlayingCardInfo[]      // Off-screen
         sort: 'rank' | 'suit'
-        played: (keyof typeof HandType | CardInfo)[] // For boss blinds
+        played: (keyof typeof HandType | PlayingCardInfo)[] // For boss blinds
         consumables: ConsumableType[]
     }
 
@@ -54,7 +55,7 @@ type GameAction = {
         'buy' | 'use' | 'sell' |
         'setSort' | 'updateHand'
     payload?: {
-        deck?: keyof typeof DeckType,
+        deck?: Deck,
 
         state?: GameStates
 
@@ -62,15 +63,15 @@ type GameAction = {
         previous?: 'played' | 'discarded'   // To know during a draw which came previously
         amount?: number
 
-        card?: CardInfo
-        hand?: CardInfo[]
+        card?: PlayingCardInfo
+        hand?: PlayingCardInfo[]
         consumable?: ConsumableType
 
         sort?: 'rank' | 'suit'
     }
 }
 
-const initialGameState: GameState = {
+export const initialGameState: GameState = {
     state: 'blind-select' as GameStates,
 
     stats: {
@@ -110,8 +111,8 @@ const initialGameState: GameState = {
     }
 }
 
-const gameReducer = (state: GameState, action: GameAction): GameState => {
-    const sort = (a: CardInfo, b: CardInfo) => (
+export const gameReducer = (state: GameState, action: GameAction): GameState => {
+    const sort = (a: PlayingCardInfo, b: PlayingCardInfo) => (
         ((!!action.payload?.sort) ? action.payload.sort : state.cards.sort) === 'rank' ?
         (a.rank !== b.rank? b.rank - a.rank : a.suit - b.suit) :
         (a.suit !== b.suit ? a.suit - b.suit : b.rank - a.rank)
@@ -119,17 +120,18 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     let next = state, name = state.blind.boss.name
     switch(action.type) {
         case 'init':
-            let arr: CardInfo[] = []
+            let arr: PlayingCardInfo[] = []
             let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
             let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
-            switch(action.payload?.deck) {
-                case 'Erratic':
-                    for(let i = 0; i < 52; i++) {
+            switch(action.payload?.deck!) {
+                case Deck.Erratic:
+                    for(let i = 1; i <= 52; i++) {
                         arr.push(
                             {
                                 id: i,
                                 suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
-                                rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]]
+                                rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]],
+                                deck: Deck.Erratic
                             }
                         )
                     }
@@ -141,6 +143,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                                 id: arr.length + 1,
                                 suit: Suit[s],
                                 rank: Rank[r],
+                                deck: action.payload?.deck!
                             }
                         )
                     })})
@@ -462,12 +465,3 @@ export const GameStateContext = createContext<{
     state: initialGameState,
     dispatch: () => undefined
 })
-
-export const GameStateProvider = ({ children }: { children: ReactNode }) => {
-    const [ state, dispatch ] = useReducer(gameReducer, initialGameState)
-    return (
-        <GameStateContext.Provider value={{ state, dispatch }}>
-            {children}
-        </GameStateContext.Provider>
-    )
-}

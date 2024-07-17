@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react'
+import redDeck from '../assets/decks/red.png'
 import './Deck.css'
 import DeckMenu from './DeckMenu'
-import redDeck from '../assets/decks/red.png'
 import { GameStateContext } from '../GameState'
 
 export const Deck = () => {
