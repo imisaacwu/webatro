@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef } from 'react'
 import { cardSnap, shuffle } from '../Utilities'
 import './Hand.css'
-import { PlayingCard } from './PlayingCard'
 import { GameStateContext } from '../GameState'
+import { Card } from './Card'
 
 export default function Hand() {
     const { state: game, dispatch } = useContext(GameStateContext)
@@ -16,7 +16,7 @@ export default function Hand() {
     return (
         <div id='hand' className='card-container'>
             <div id='hand-area' className='card-area'>
-                {game.cards.hand.map(c => <PlayingCard key={c.id} {...c} />)}
+                {game.cards.hand.map(c => <Card key={c.id} {...c} />)}
             </div>
             <div id='hand-label' className='counter'>{game.cards.hand.length}/{game.stats.handSize}</div>
             {game.cards.submitted.length === 0 &&

@@ -10,7 +10,7 @@ import { Round } from './components/Round'
 import { Blinds } from './Constants'
 import { gameReducer, GameStateContext, initialGameState } from './GameState'
 import { consumableSnap } from './Utilities'
-import { PlayingCard } from './components/PlayingCard'
+import { Card } from './components/Card'
 
 export default function App() {
     const [ game, dispatch ] = useReducer(gameReducer, initialGameState)
@@ -79,7 +79,7 @@ export default function App() {
                             </>}
                             {game.state === 'scoring' && <>
                                 <div id='mid'>
-                                    {game.cards.submitted.map(c => <PlayingCard key={c.id} {...c} />)}
+                                    {game.cards.submitted.map(c => <Card key={c.id} {...c} />)}
                                 </div>
                                 <div id='bot'>
                                     <Hand />

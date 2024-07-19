@@ -1,16 +1,20 @@
-import { MouseEventHandler, ReactNode } from "react"
-import { Deck, Edition } from "../Constants"
+import { Deck, Rank, Suit } from "../Constants"
 
 export type CardInfo = {
     id: number
-    image: string
+    suit: Suit
+    rank: Rank
     deck: Deck
-    onClick: MouseEventHandler
-    children?: ReactNode
 
-    edition?: Edition
+    mode?: 'standard' | 'deck-view'
+    // edition?: Edition
+    // enhancement?: Enhancement
+    // seal?: Seal
     draggable?: boolean
     selected?: boolean
+    submitted?: boolean
+    scored?: boolean
+    drawn?: boolean
     flipped?: boolean
     debuffed?: boolean
 }

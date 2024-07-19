@@ -1,7 +1,7 @@
 import { createContext, Dispatch } from "react"
 import { BlindType, Consumables, ConsumableType, Deck, handLevels, HandType, handUpgrade, Rank, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
-import { PlayingCardInfo } from "./components/PlayingCardInfo"
+import { CardInfo } from "./components/CardInfo"
 
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
@@ -26,13 +26,13 @@ type GameState = {
     }
 
     cards: {
-        deck: PlayingCardInfo[]
-        hand: PlayingCardInfo[]
-        selected: PlayingCardInfo[]    // Still in hand, selected
-        submitted: PlayingCardInfo[]   // To be scored
-        hidden: PlayingCardInfo[]      // Off-screen
+        deck: CardInfo[]
+        hand: CardInfo[]
+        selected: CardInfo[]    // Still in hand, selected
+        submitted: CardInfo[]   // To be scored
+        hidden: CardInfo[]      // Off-screen
         sort: 'rank' | 'suit'
-        played: (keyof typeof HandType | PlayingCardInfo)[] // For boss blinds
+        played: (keyof typeof HandType | CardInfo)[] // For boss blinds
         consumables: ConsumableType[]
     }
 
@@ -63,8 +63,8 @@ type GameAction = {
         previous?: 'played' | 'discarded'   // To know during a draw which came previously
         amount?: number
 
-        card?: PlayingCardInfo
-        hand?: PlayingCardInfo[]
+        card?: CardInfo
+        hand?: CardInfo[]
         consumable?: ConsumableType
 
         sort?: 'rank' | 'suit'
@@ -112,7 +112,7 @@ export const initialGameState: GameState = {
 }
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
-    const sort = (a: PlayingCardInfo, b: PlayingCardInfo) => (
+    const sort = (a: CardInfo, b: CardInfo) => (
         ((!!action.payload?.sort) ? action.payload.sort : state.cards.sort) === 'rank' ?
         (a.rank !== b.rank? b.rank - a.rank : a.suit - b.suit) :
         (a.suit !== b.suit ? a.suit - b.suit : b.rank - a.rank)
@@ -120,7 +120,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     let next = state, name = state.blind.boss.name
     switch(action.type) {
         case 'init':
-            let arr: PlayingCardInfo[] = []
+            let arr: CardInfo[] = []
             let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
             let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
             switch(action.payload?.deck!) {

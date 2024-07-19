@@ -1,11 +1,21 @@
 import { useContext, useRef } from 'react'
 import debuff from '../assets/cards/debuffed.webp'
-import { Deck } from '../Constants'
+import { Deck, Rank, rankChips, Suit } from '../Constants'
 import { cardSnap } from '../Utilities'
 import './Card.css'
 import { CardInfo } from './CardInfo'
 import { GameStateContext } from '../GameState'
+const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true })
 const decks: Record<string, { default: string }> = import.meta.glob('../assets/decks/*.png', { eager: true })
+
+const getCardImage = (suit: Suit, rank: Rank) => {
+    const shortSuit = Suit[suit].charAt(0).toLowerCase()
+    const shortRank = rank < 8 ? rank + 2 : Rank[rank].charAt(0).toLowerCase()
+    const url = `../assets/cards/${shortSuit}${shortRank}.webp`
+    const module = images[url]
+    if(!module) { throw new Error(`no such image ${url}`) }
+    return module.default
+}
 
 const getCardBack = (deck: Deck) => {
     const url = `../assets/decks/${Deck[deck].toLowerCase()}.png`
@@ -14,7 +24,16 @@ const getCardBack = (deck: Deck) => {
     return module.default
 }
 
-export const Card = ({id, image, deck, onClick, children, draggable = true, selected = false, flipped = false, debuffed = false}: CardInfo) => {
+export const Card = ({
+        id, suit, rank, deck,
+        mode = 'standard',
+        // edition = Edition.Base,
+        // enhancement = Enhancement.None,
+        // seal = Seal.None,
+        draggable = true,
+        selected, submitted, scored, drawn, flipped, debuffed
+    }: CardInfo) => {
+
     const { state: game, dispatch } = useContext(GameStateContext)
     const gameRef = useRef(game)
     gameRef.current = game
@@ -80,20 +99,50 @@ export const Card = ({id, image, deck, onClick, children, draggable = true, sele
         }
     }
 
+    const cardName = `${rank < 9 ? rank + 2 : Rank[rank]} of ${Suit[suit]}`
+
     return (
         <div
             id={`card ${id}`}
             className={`card` +
                 `${selected ? ' selected' : ''}` +
-                `${debuffed ? ' debuffed' : ''}`
+                `${debuffed ? ' debuffed' : ''}` +
+                `${mode === 'deck-view' && drawn ? ' drawn' : ''}`
             }
-            onClick={onClick}
+            onClick={() => {
+                const card = game.cards.selected.find(c => c.id === id)!
+                if((mode === 'standard' && game.cards.selected.length < 5) || game.cards.selected.includes(card)) {
+                    dispatch({type: 'select', payload: {card: card}})
+                }
+            }}
             onMouseDown={mouseDown}
             onMouseUp={mouseUp}
         >
-            <img src={flipped ? getCardBack(deck) : image} />
+            <img src={flipped ? getCardBack(deck) : getCardImage(suit, rank)} />
             {game.state === 'scoring' && debuffed && <img className='debuff' src={debuff} />}
-            {!dragElem && !flipped && children}
+            {!dragElem && !flipped && <div id='playing-card-popup'>
+                <div id='playing-card-popup-inner'>
+                    <div id='playing-card-name'>
+                        {cardName}
+                    </div>
+                    <div id='playing-card-score'>
+                        {debuffed ?
+                            'Scores no chips and all abilities are disabled' :
+                            <>
+                                <div className='blue'>
+                                    {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
+                                </div>
+                                {' chips'}
+                            </>
+                        }
+                    </div>
+                </div>
+            </div>}
+            {submitted && scored && !debuffed &&
+                <div id='playing-card-scored-popup'>
+                    {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
+                </div>
+            }
         </div>
     )
 }
