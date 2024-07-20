@@ -100,7 +100,6 @@ export const consumableSnap = (cards: ConsumableType[]) => {
 
         c.forEach((c, i) => {
             const left = i * (lStep + extra)
-            console.log(lStep)
             c!.style.left = `${left}px`
         })
     }

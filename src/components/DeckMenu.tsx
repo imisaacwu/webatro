@@ -22,9 +22,10 @@ export default function DeckMenu(props: DeckMenuProps) {
         const temp = [...drawn, ...game.cards.deck].filter(c => c.suit === Suit[suit as keyof typeof Suit]).sort((a, b) => b.rank - a.rank)
         cards.push(temp.map(c => ({...c,
             id: -c.id,
+            mode: 'deck-view',
+            draggable: false,
             drawn: (!c.flipped && view === 'remaining' && (drawn.find(d => c.id === d.id) !== undefined)),
             flipped: false,
-            mode: 'deck-view'
         })))
     })
 

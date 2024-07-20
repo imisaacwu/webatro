@@ -9,7 +9,7 @@ export const Calculator = () => {
     const anyFlipped = game.cards.submitted.length === 0 && !(selected.every(c => !c.flipped))
     
     let handName: string = HandType[game.active.name]
-    if(handName === 'STRAIGHT_FLUSH' && [Rank.Ace, Rank.King].every(r => selected.some(c => c.rank == r))) {
+    if(handName === 'Straight Flush' && [Rank.Ace, Rank.King].every(r => selected.some(c => c.rank == r))) {
         handName = 'Royal Flush'
     }
     if(anyFlipped) { handName = '???' }

@@ -104,13 +104,15 @@ export const Card = ({
     return (
         <div
             id={`card ${id}`}
-            className={`card` +
+            className={`card ${mode}` +
                 `${selected ? ' selected' : ''}` +
+                `${mode === 'standard' && submitted ? ' submitted' : ''}` +
+                `${mode === 'standard' && scored && !debuffed ? '' : ' unscored'}` +
                 `${debuffed ? ' debuffed' : ''}` +
-                `${mode === 'deck-view' && drawn ? ' drawn' : ''}`
+                `${mode === 'deck-view' && drawn && !flipped ? ' drawn' : ''}`
             }
             onClick={() => {
-                const card = game.cards.selected.find(c => c.id === id)!
+                const card = game.cards.hand.find(c => c.id === id)!
                 if((mode === 'standard' && game.cards.selected.length < 5) || game.cards.selected.includes(card)) {
                     dispatch({type: 'select', payload: {card: card}})
                 }
@@ -120,19 +122,19 @@ export const Card = ({
         >
             <img src={flipped ? getCardBack(deck) : getCardImage(suit, rank)} />
             {game.state === 'scoring' && debuffed && <img className='debuff' src={debuff} />}
-            {!dragElem && !flipped && <div id='playing-card-popup'>
+            {!dragElem && !flipped && !drawn && <div id='playing-card-popup'>
                 <div id='playing-card-popup-inner'>
                     <div id='playing-card-name'>
                         {cardName}
                     </div>
-                    <div id='playing-card-score'>
+                    <div id='playing-card-score' className={debuffed ? 'debuffed' : ''}>
                         {debuffed ?
                             'Scores no chips and all abilities are disabled' :
                             <>
                                 <div className='blue'>
                                     {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
-                                </div>
-                                {' chips'}
+                                </div>&nbsp;
+                                {'chips'}
                             </>
                         }
                     </div>
