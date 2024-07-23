@@ -271,28 +271,43 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }}
             break 
         case 'select':
-            const card = action.payload?.card!
-            if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
-                let updated = state.cards.selected
-                if(state.cards.selected.includes(card)) {
-                    updated = updated.filter(c => c.id !== card.id)
-                } else {
-                    updated.push(card)
+            if(action.payload?.consumable) {
+                const consumables = state.cards.consumables
+                const i = consumables.findIndex(c => c.id === action.payload!.consumable!.id)!
+                console.log(consumables, i)
+                if(consumables[i].selected || consumables.every(c => !c.selected)) {
+                    let updated = state.cards.consumables
+                    updated[i].selected = !updated[i].selected
+                    console.log(updated)
+                    next = {...next, cards: {...state.cards,
+                        consumables: updated
+                    }}
                 }
-                const hand = bestHand(updated)
-                next = {...next,
-                    cards: {...state.cards,
-                        selected: updated
-                    },
-                    active: {
-                        name: hand,
-                        score: {
-                            chips: handLevels[hand].chips,
-                            mult: handLevels[hand].mult
+                console.log(consumables[i], i, next)
+            } else {
+                const card = action.payload?.card!
+                if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
+                    let updated = state.cards.selected
+                    if(state.cards.selected.includes(card)) {
+                        updated = updated.filter(c => c.id !== card.id)
+                    } else {
+                        updated.push(card)
+                    }
+                    const hand = bestHand(updated)
+                    next = {...next,
+                        cards: {...state.cards,
+                            selected: updated
+                        },
+                        active: {
+                            name: hand,
+                            score: {
+                                chips: handLevels[hand].chips,
+                                mult: handLevels[hand].mult
+                            }
                         }
                     }
+                    card.selected = !card.selected
                 }
-                card.selected = !card.selected
             }
             break
         case 'submit':
@@ -360,35 +375,46 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }
             break 
         case 'discard':
-            state.cards.selected.forEach(c => {
-                c.selected = false
-                c.flipped = false
-            })
-            if(action.payload?.hand) {
-                next = {...next, cards: {...state.cards,
-                    hand: state.cards.hand.filter(c => action.payload?.hand!.includes(c)),
-                    hidden: [...state.cards.hidden, ...action.payload.hand!]
-                }}
-            } else if(state.cards.submitted.length > 0) {
-                state.cards.submitted.forEach(c => c.submitted = false)
-                next = {...next, cards: {...state.cards,
-                    submitted: [],
-                    hidden: [...state.cards.hidden, ...state.cards.submitted]
-                }}
-            } else {
-                state.cards.selected.forEach(c => c.selected = false)
+            if(state.cards.consumables.some(c => c.selected)) {
                 next = {...next,
                     stats: {...state.stats,
-                        discards: state.stats.discards - 1
+                        money: state.stats.money + action.payload!.amount!
                     },
                     cards: {...state.cards,
-                        hand: state.cards.hand.filter(c => !state.cards.selected.includes(c)),
-                        selected: [],
-                        hidden: [...state.cards.hidden, ...state.cards.selected]
+                        consumables: state.cards.consumables.filter(c => !c.selected)
                     }
                 }
+            } else {
+                state.cards.selected.forEach(c => {
+                    c.selected = false
+                    c.flipped = false
+                })
+                if(action.payload?.hand) {
+                    next = {...next, cards: {...state.cards,
+                        hand: state.cards.hand.filter(c => action.payload?.hand!.includes(c)),
+                        hidden: [...state.cards.hidden, ...action.payload.hand!]
+                    }}
+                } else if(state.cards.submitted.length > 0) {
+                    state.cards.submitted.forEach(c => c.submitted = false)
+                    next = {...next, cards: {...state.cards,
+                        submitted: [],
+                        hidden: [...state.cards.hidden, ...state.cards.submitted]
+                    }}
+                } else {
+                    state.cards.selected.forEach(c => c.selected = false)
+                    next = {...next,
+                        stats: {...state.stats,
+                            discards: state.stats.discards - 1
+                        },
+                        cards: {...state.cards,
+                            hand: state.cards.hand.filter(c => !state.cards.selected.includes(c)),
+                            selected: [],
+                            hidden: [...state.cards.hidden, ...state.cards.selected]
+                        }
+                    }
+                }
+                next = {...next, active: initialGameState['active']}
             }
-            next = {...next, active: initialGameState['active']}
             break
         case 'draw':
             let draw = action.payload?.amount

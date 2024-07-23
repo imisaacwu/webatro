@@ -57,7 +57,7 @@
     position: absolute;
     bottom: 200px;
     padding: 2px;
-    color: black;
+    color: var(--grey);
     background-color: aliceblue;
     border-radius: 8px;
     font-size: 24px;

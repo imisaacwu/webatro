@@ -12,29 +12,29 @@
     margin: 4px 8px;
 }
 
-#run-info {
+.info-button {
     display: flex;
-    flex-direction: column;
     flex: 1;
     justify-content: center;
     align-items: center;
-    background-color: #eb5a4a;
-    font-size: 30px;
-    line-height: 12px;
     border-radius: 8px;
+    font-size: 30px;
     margin: 4px;
 }
 
+.info-button:hover {
+    cursor: pointer;
+}
+
+#run-info-button {
+    flex-direction: column;
+    background-color: #eb5a4a;
+    line-height: 12px;
+}
+
 #options {
-    display: flex;
-    flex: 1;
-    justify-content: center;
-    align-items: center;
     background-color: #f19d38;
     font-weight: bold;
-    border-radius: 8px;
-    font-size: 30px;
-    margin: 4px;
 }
 
 .box {

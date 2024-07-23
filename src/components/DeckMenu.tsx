@@ -50,7 +50,7 @@ export default function DeckMenu(props: DeckMenuProps) {
     const ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).sort((a, b) => Rank[b as keyof typeof Rank] - Rank[a as keyof typeof Rank]).map(r => <div key={Rank[r as keyof typeof Rank]}>{rankChips[r as keyof typeof rankChips] < 10 ? rankChips[r as keyof typeof rankChips] : r.charAt(0)}</div>)
     
     return (
-        <div id='menu' className={`${props.menu}`}>
+        <div id='deck-menu' className={`${props.menu}`}>
             <div id='menu-views'>
                 {game.state === 'scoring' &&
                     <div id='remaining' className='view-container'>

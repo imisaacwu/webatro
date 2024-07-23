@@ -2,13 +2,12 @@ div[id^='consumable '] {
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: absolute;
+    /* position: absolute; */
     width: 142px;
     height: 190px;
     text-align: center;
     transition: .1s;
     z-index: auto;
-    border: 1px solid white
 }
 
 div[id^='consumable ']:hover {
@@ -21,7 +20,8 @@ div[id^='consumable ']:active {
 }
 
 div[id^='consumable '].selected {
-    transform: translateX(-50px);
+    transform: translateY(-10px);
+    z-index: 1;
 }
 
 
@@ -31,35 +31,84 @@ div[id^='consumable '] img {
     pointer-events: none;
     width: 142px;
     height: 190px;
+    z-index: 2;
 }
 
-
-.tab {
+#consumable-tabs {
     position: absolute;
-    left: 142px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    transition: .1s;
+    z-index: -1;
+}
+
+div[id^='consumable '].selected #consumable-tabs {
+    transform: translateX(80px);
+}
+
+.consumable-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin: 4px;
+    padding: 4px 4px 0 32px;
+    border-radius: 0 8px 8px 0;
+}
+
+#sell-consumable {
+    background-color: var(--green);
+    font-size: 24px;
+    line-height: 24px;
+}
+
+#consumable-sell-price {
+    font-size: 36px;
+    line-height: 32px;
+}
+
+#use-consumable {
+    font-size: 32px;
+    background-color: var(--red);
+}
+
+#consumable-popup {
+    display: none;
+    top: 190px;
+    border: 4px solid var(--light-grey);
+    border-radius: 8px;
+    font-size: 20px;
+    color: var(--grey);
+    width: 136px
+}
+
+div[id^='consumable ']:hover #consumable-popup {
+    display: initial;
+}
+
+#consumable-popup-inner {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--grey);
+    border-radius: 4px;
 }
 
 #consumable-name {
     font-size: 32px;
     line-height: 24px;
+    color: aliceblue;
+    margin: 4px;
 }
 
-div[id^='consumable '] #info-popup {
-    display: none;
-}
-
-div[id^='consumable ']:hover #info-popup {
-    display: initial;
-    position: absolute;
-    top: 190px;
-    border: 4px solid var(--light-grey);
-    border-radius: 8px;
-    font-size: 20px;
-    width: 156px
-}
-
-#score-info.planet {
+#consumable-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 4px;
+    background-color: aliceblue;
+    border-radius: 8px;
+    margin: 0 4px;
 }
 
 #score-info div div{
@@ -85,4 +134,10 @@ div[id^='consumable ']:hover #info-popup {
 
 #consumable-type.Planet {
     background-color: var(--blue);
+    margin: 4px;
+}
+
+.planet-upgrade {
+    display: flex;
+    justify-content: center;
 }

@@ -24,6 +24,13 @@ export default function RunInfo(props: RunInfoProps) {
         })
     }, [handLevels])
 
+    useEffect(() => {
+        const arrow = document.getElementById('run-info-arrow')!
+        const button = document.getElementById(window)!, rect = button.getBoundingClientRect()
+        const left = button.offsetLeft + (rect.width - arrow.getBoundingClientRect().width) / 2
+        arrow.style.left = `${left}px`
+    }, [window])
+
     const levelDisplay = hands.map((h, i) => (
         <div id='hand-display' key={i}>
             <div id='level-outline'>
@@ -44,22 +51,20 @@ export default function RunInfo(props: RunInfoProps) {
     ))
 
     return (
-        <div id='menu' className='base'>
-            <div id='menu-views'>
+        <div id='run-info'>
+            <div id='run-info-views'>
+                <div id='run-info-arrow' className='arrow' />
                 <div id='poker-hands' className='view-container'>
-                    {window === 'poker-hands' && <div className='arrow runinfo' />}
-                    <div className='view-button base' onClick={() => setWindow('poker-hands')}>Poker Hands</div>
+                    <div className='run-info-view' onClick={() => setWindow('poker-hands')}>Poker Hands</div>
                 </div>
                 <div id='blinds' className='view-container'>
-                   {(window === 'blinds') && <div className='arrow runinfo' />}
-                    <div className='view-button base' onClick={() => setWindow('blinds')}>Blinds</div>
+                    <div className='run-info-view' onClick={() => setWindow('blinds')}>Blinds</div>
                 </div>
                 <div id='vouchers' className='view-container'>
-                    {(window === 'vouchers') && <div className='arrow runinfo' />}
-                    <div className='view-button base' onClick={() => setWindow('vouchers')}>Vouchers</div>
+                    <div className='run-info-view' onClick={() => setWindow('vouchers')}>Vouchers</div>
                 </div>
             </div>
-            <div id='menu-area'>
+            <div id='run-info-area'>
                 {window === 'poker-hands' &&
                     <div id='hand-levels'>
                         {levelDisplay}
@@ -73,7 +78,7 @@ export default function RunInfo(props: RunInfoProps) {
                     </div>
                 }
             </div>
-            <div id='back' className='base' onClick={() => props.setMenu(false)}>Back</div>
+            <div id='run-info-back' onClick={() => props.setMenu(false)}>Back</div>
         </div>
     )
 }

@@ -10,9 +10,11 @@ export const InfoPanel = () => {
     return (
         <div id='info'>
             <div id='buttons'>
-                <div id='run-info' onClick={() => setRunMenu(true)}><b style={{fontSize: '36px'}}>Run</b><br />Info</div>
+                <div id='run-info-button' className='info-button' onClick={() => setRunMenu(true)}>
+                    <b style={{fontSize: '36px'}}>Run</b><br />Info
+                </div>
                 {runMenu && <RunInfo setMenu={setRunMenu} />}
-                <div id='options'>Options</div>
+                <div id='options' className='info-button'>Options</div>
             </div>
             <div id='stats'>
                 <div id='hands-discards'>

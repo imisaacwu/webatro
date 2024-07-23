@@ -2,6 +2,7 @@ body {
     margin: 0;
     user-select: none;
     overflow: hidden;
+    z-index: auto;
 }
 
 :root {
@@ -10,6 +11,7 @@ body {
     --yellow: hsl(39, 71%, 60%);
     --orange: hsl(33, 87%, 51%);
     --dark-orange: hsl(33, 87%, 51%);
+    --green: #38bd85;
     --dark-grey: #1C2729;
     --grey: #384244;
     --light-grey: #b7c2cc;
