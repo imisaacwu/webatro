@@ -71,13 +71,14 @@
 #level-display {
     display: flex;
     align-items: center;
+    justify-content: center;
     background-color: #eef0f2;
     border-radius: 8px;
     margin: 2px;
-    padding: 2px 20px;
     color: var(--dark-grey);
     font-size: 32px;
     line-height: 20px;
+    width: 80px;
 }
 
 #hand-name.base {

@@ -93,12 +93,12 @@ export const cardSnap = (cards: CardInfo[], r: number) => {
 
 export const consumableSnap = (cards: ConsumableType[]) => {
     if(cards.length !== 0) {
-        const c = cards.map(c => document.getElementById(`consumable ${c.id}`))
-        if(!c.every(c => c !== null)) { return }
-        const w = 305, l = cards.length
-        const lStep = w / l, extra = (lStep - 142) / (l - 1)
+        const cardDiv = cards.map(c => document.getElementById(`consumable ${c.id}`))
+        if(!cardDiv.every(c => c !== null)) { return }
+        const containerWidth = 305, n = cards.length
+        const lStep = containerWidth / n, extra = (lStep - 126) / (n - 1)
 
-        c.forEach((c, i) => {
+        cardDiv.forEach((c, i) => {
             const left = i * (lStep + extra)
             c!.style.left = `${left}px`
         })

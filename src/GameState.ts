@@ -3,6 +3,12 @@ import { BlindType, Consumables, ConsumableType, Deck, handLevels, HandType, han
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
 
+export const handLevel = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
+    handLevels[hand].level += n
+    handLevels[hand].chips += handUpgrade[hand].chips * n
+    handLevels[hand].mult += handUpgrade[hand].mult * n
+}
+
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
 type GameState = {
@@ -269,7 +275,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             next = {...next, stats: {...state.stats,
                 [action.payload?.stat!]: state.stats[action.payload?.stat!] + (action.payload?.amount === undefined ? -1 : action.payload.amount)
             }}
-            break 
+            break
         case 'select':
             if(action.payload?.consumable) {
                 const consumables = state.cards.consumables
@@ -325,9 +331,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 if(state.blind.curr === 'boss') {
                     if(name === 'The Arm') {
                         if(handLevels[hand].level > 1) {
-                            handLevels[hand].level--
-                            handLevels[hand].chips -= handUpgrade[hand].chips
-                            handLevels[hand].mult -= handUpgrade[hand].mult
+                            handLevel({hand: hand, n: -1})
                         }
                     } else if(name.match('The\ [Eye|Mouth]')) {
                         next.cards.played.push(hand)
@@ -376,14 +380,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             break 
         case 'discard':
             if(state.cards.consumables.some(c => c.selected)) {
-                next = {...next,
-                    stats: {...state.stats,
-                        money: state.stats.money + action.payload!.amount!
-                    },
-                    cards: {...state.cards,
-                        consumables: state.cards.consumables.filter(c => !c.selected)
-                    }
-                }
+                next = {...next, cards: {...state.cards,
+                    consumables: state.cards.consumables.filter(c => !c.selected)
+                }}
             } else {
                 state.cards.selected.forEach(c => {
                     c.selected = false

@@ -1,7 +1,7 @@
 import { MouseEventHandler, useContext } from "react";
 import { ConsumableType, handLevels, HandType, handUpgrade } from "../Constants";
 import './Consumable.css';
-import { GameStateContext } from "../GameState";
+import { GameStateContext, handLevel } from "../GameState";
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
 
 const getImagePath = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
@@ -18,24 +18,31 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
     const consumable = game.cards.consumables.find(c => c.id === props.id)
     const sellPrice = props.type === 'Spectral' ? 2 : 1
 
+    console.log(props.name, selected)
+
     const sell: MouseEventHandler = () => {
-        // if(selected) {
-            dispatch({type: 'discard', payload: {amount: sellPrice}})
-        // }
+        dispatch({type: 'stat', payload: {stat: 'money', amount: sellPrice}})
+        dispatch({type: 'discard'})
+    }
+
+    const use: MouseEventHandler = () => {
+        if(props.type === 'Planet') {
+            handLevel({hand: props.hand!})
+        }
+        // dispatch({type: 'discard'})
     }
     
     return (
         <div id={`consumable ${props.id}`} className={props.name + `${selected ? ' selected' : ''}`}>
             <img src={image} onClick={() => {
-                alert('image')
                 dispatch({type: 'select', payload: {consumable: consumable}})
-            }} />
+            }} draggable={false} />
             {selected &&
                 <div id='consumable-tabs'>
                     <div id='sell-consumable' className='consumable-tab' onClick={sell}>
                         SELL<div id='consumable-sell-price'>{`$${sellPrice}`}</div>
                     </div>
-                    <div id='use-consumable' className='consumable-tab'>USE</div>
+                    <div id='use-consumable' className='consumable-tab' onClick={use}>USE</div>
                 </div>
             }
             <div id='consumable-popup'>
@@ -45,12 +52,12 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                     </div>
                     <div id='consumable-info' className='planet'>
                         {props.type === 'Planet' &&
-                            <div>
+                            <>
                                 <div id='level'>[<div className='yellow'>{`lvl.${handLevels[props.hand!].level}`}</div>] Level up</div>
                                 <div id='planet-hand'>{HandType[props.hand as keyof typeof HandType]}</div>
                                 <div className='planet-upgrade'><div className='red'>+{handUpgrade[props.hand!].mult}</div>&nbsp;Mult and</div>
                                 <div className='planet-upgrade'><div className='blue'>+{handUpgrade[props.hand!].chips}</div>&nbsp;chips</div>
-                            </div>
+                            </>
                         }
                     </div>
                     <div id='consumable-type' className={props.type}>
