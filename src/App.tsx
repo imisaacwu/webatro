@@ -9,8 +9,8 @@ import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
 import { Blinds } from './Constants'
 import { gameReducer, GameStateContext, initialGameState } from './GameState'
-import { consumableSnap } from './Utilities'
 import { Card } from './components/Card'
+import { cardSnap } from './Utilities'
 
 export default function App() {
     const [ game, dispatch ] = useReducer(gameReducer, initialGameState)
@@ -25,6 +25,11 @@ export default function App() {
         return () => document.removeEventListener('keydown', handleKeys)
     }, [])
 
+    useEffect(() => {
+    }, [gameRef.current.cards.consumables])
+    cardSnap({cards: gameRef.current.cards.consumables, r: -1})
+
+
     const handleKeys = (e: KeyboardEvent) => {
         if(e.key === 'Escape') {
             gameRef.current.cards.selected.forEach(c => {
@@ -32,8 +37,6 @@ export default function App() {
             })
         }
     }
-
-    consumableSnap(game.cards.consumables)
 
     const currBlindType = game.blind.curr === 'small' ? Blinds[0] : game.blind.curr === 'big' ? Blinds[1] : game.blind.boss
 

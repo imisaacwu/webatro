@@ -59,7 +59,7 @@ type GameAction = {
         'stat' |
         'select' | 'submit' | 'discard' | 'draw' |
         'buy' | 'use' | 'sell' |
-        'setSort' | 'updateHand'
+        'setSort' | 'reorder'
     payload?: {
         deck?: Deck,
 
@@ -69,8 +69,9 @@ type GameAction = {
         previous?: 'played' | 'discarded'   // To know during a draw which came previously
         amount?: number
 
+        cards?: keyof typeof initialGameState['cards']
+        update?: (CardInfo | ConsumableType)[]
         card?: CardInfo
-        hand?: CardInfo[]
         consumable?: ConsumableType
 
         sort?: 'rank' | 'suit'
@@ -105,7 +106,7 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: [{id: 0, ...Consumables[0]}, {id: 1, ...Consumables[8]}]
+        consumables: [{id: 0.5, ...Consumables[0]}, {id: 1.5, ...Consumables[8]}]
     },
 
     active: {
@@ -279,17 +280,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         case 'select':
             if(action.payload?.consumable) {
                 const consumables = state.cards.consumables
-                const i = consumables.findIndex(c => c.id === action.payload!.consumable!.id)!
-                console.log(consumables, i)
-                if(consumables[i].selected || consumables.every(c => !c.selected)) {
-                    let updated = state.cards.consumables
-                    updated[i].selected = !updated[i].selected
-                    console.log(updated)
-                    next = {...next, cards: {...state.cards,
-                        consumables: updated
-                    }}
-                }
-                console.log(consumables[i], i, next)
+                const index = consumables.findIndex(c => c.id === action.payload!.consumable!.id)!
+                let updated = state.cards.consumables
+                updated.forEach((c, i) => c.selected = !c.selected && i === index)
+                next = {...next, cards: {...state.cards,
+                    consumables: updated
+                }}
             } else {
                 const card = action.payload?.card!
                 if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
@@ -388,10 +384,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     c.selected = false
                     c.flipped = false
                 })
-                if(action.payload?.hand) {
+                if(action.payload?.update) {
                     next = {...next, cards: {...state.cards,
-                        hand: state.cards.hand.filter(c => action.payload?.hand!.includes(c)),
-                        hidden: [...state.cards.hidden, ...action.payload.hand!]
+                        hand: state.cards.hand.filter(c => action.payload?.update!.includes(c)),
+                        hidden: [...state.cards.hidden, ...action.payload.update! as CardInfo[]]
                     }}
                 } else if(state.cards.submitted.length > 0) {
                     state.cards.submitted.forEach(c => c.submitted = false)
@@ -471,11 +467,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 hand: state.cards.hand.sort(sort),
                 sort: action.payload?.sort!
             }}
-            setTimeout(() => cardSnap(state.cards.hand, 6000))
+            setTimeout(() => cardSnap({cards: state.cards.hand}))
             break
-        case 'updateHand':
+        case 'reorder':
             next = {...next, cards: {...state.cards,
-                hand: action.payload?.hand!
+                [action.payload?.cards!]: action.payload?.update!
             }}
             break
         default:

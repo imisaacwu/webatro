@@ -10,7 +10,7 @@ export default function Hand() {
     gameRef.current = game
 
     useEffect(() => {
-        cardSnap(gameRef.current.cards.hand, 6000)
+        cardSnap({cards: gameRef.current.cards.hand})
     }, [gameRef.current.cards.hand])
 
     return (
@@ -27,7 +27,7 @@ export default function Hand() {
                         dispatch({type: 'submit'})
                         if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Hook') {
                             let discard = shuffle(game.cards.hand.filter(c => !game.cards.selected.includes(c))).slice(2)
-                            dispatch({type: 'discard', payload: {hand: discard}})
+                            dispatch({type: 'discard', payload: {update: discard}})
                             len += 2
                         }
                         setTimeout(() => {

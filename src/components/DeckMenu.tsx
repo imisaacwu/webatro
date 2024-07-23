@@ -36,7 +36,7 @@ export default function DeckMenu(props: DeckMenuProps) {
 
     setTimeout(() => {
         Object.values(Suit).filter(s => !isNaN(Number(s))).forEach(suit => {
-            cardSnap(cards[Number(suit)], 5000)
+            cardSnap({cards: cards[Number(suit)], r: 5000})
         })
     })
 

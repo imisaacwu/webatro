@@ -69,38 +69,28 @@ export const shuffle = (cards: any[]) => {
     return arr
 }
 
-// https://www.desmos.com/calculator/vaaglwvmxl
-export const cardSnap = (cards: CardInfo[], r: number) => {
+// https://www.desmos.com/calculator/1jlnwr1peo
+export const cardSnap = ({cards, r = 6000}: {cards: (CardInfo | ConsumableType)[], r?: number}) => {
     if(cards.length !== 0) {
-        const c = cards.map(c => document.getElementById(`card ${c.id}`))
-        if(!c.every(c => c !== null)) { return }
-        const container = c[0]!.parentElement!, w = container.clientWidth, l = container.childElementCount
-        const lStep = w / l, extra = (lStep - c[0]!.clientWidth) / (l - 1)
+        const cardDiv = cards.map(c => document.querySelector(`div[id$=\'${c.id}\']`) as HTMLElement)
+        if(!cardDiv.every(c => c !== null)) { return }
+        const container = cardDiv[0]!.parentElement!, w = container.clientWidth, n = cards.length
+        const lStep = w / n, extra = (lStep - cardDiv[0]!.clientWidth) / (n - 1)
         const h = w / 2, k = -Math.sqrt(r*r-h*h)
         
-        c.forEach((c, i) => {
+        cardDiv.forEach((c, i) => {
             const left = i * (lStep + extra)
             const x = Math.abs(h - (left + 71))
             const y = Math.sqrt(r * r - (h - (i * lStep + 71)) ** 2) + k
             const rot = (i < cards.length / 2 ? 1 : -1) * (Math.acos(x / r) - Math.PI / 2)
 
             c!.style.left = `${left}px`
-            c!.style.bottom = `${y}px`
-            c!.style.rotate = `${rot}rad`
-        })
-    }
-}
-
-export const consumableSnap = (cards: ConsumableType[]) => {
-    if(cards.length !== 0) {
-        const cardDiv = cards.map(c => document.getElementById(`consumable ${c.id}`))
-        if(!cardDiv.every(c => c !== null)) { return }
-        const containerWidth = 305, n = cards.length
-        const lStep = containerWidth / n, extra = (lStep - 126) / (n - 1)
-
-        cardDiv.forEach((c, i) => {
-            const left = i * (lStep + extra)
-            c!.style.left = `${left}px`
+            if(r > 0) {
+                c!.style.bottom = `${y}px`
+                c!.style.rotate = `${rot}rad`
+            } else {
+                c!.style.bottom = '0'
+            }
         })
     }
 }

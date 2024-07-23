@@ -49,7 +49,6 @@ export const Card = ({
             origX = dragElem.offsetLeft
             origY = dragElem.offsetTop
             origI = [...dragElem.parentElement!.children].indexOf(dragElem)
-            // origI = gameRef.current.cards.hand.findIndex(c => c.id === id)
             startX = e.clientX - origX
             startY = e.clientY - origY
             
@@ -82,7 +81,7 @@ export const Card = ({
                 const update = [...gameRef.current.cards.hand]
                 const [c] = update.splice(origI, 1)
                 update.splice(i, 0, c)
-                dispatch({type: 'updateHand', payload: {hand: update}})
+                dispatch({type: 'reorder', payload: {cards:'hand', update: update}})
                 origI = i
                 lastReorder = now
             }
@@ -91,7 +90,7 @@ export const Card = ({
 
     const mouseUp = () => {
         if (dragElem) {
-            cardSnap(gameRef.current.cards.hand, 6000)
+            cardSnap({cards: gameRef.current.cards.hand})
             document.removeEventListener('mousemove', mouseMove)
             document.removeEventListener('mouseup', mouseUp)
             dragElem.style.zIndex = 'auto'
