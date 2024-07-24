@@ -1,5 +1,5 @@
 import { createContext, Dispatch } from "react"
-import { BlindType, Consumables, ConsumableType, Deck, handLevels, HandType, handUpgrade, Rank, Suit } from "./Constants"
+import { BlindType, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
 
@@ -23,6 +23,7 @@ type GameState = {
         round: number
         score: number
         consumableSize: number
+        deck: DeckType
     }
 
     blind: {
@@ -61,7 +62,7 @@ type GameAction = {
         'buy' | 'use' | 'sell' |
         'setSort' | 'reorder'
     payload?: {
-        deck?: Deck,
+        deck?: DeckType,
 
         state?: GameStates
 
@@ -89,7 +90,8 @@ export const initialGameState: GameState = {
         ante: 1,
         round: 0,
         score: 0,
-        consumableSize: 2
+        consumableSize: 2,
+        deck: DeckType.Red
     },
 
     blind: {
@@ -106,7 +108,7 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: [{id: 0.5, ...Consumables[0]}, {id: 1.5, ...Consumables[8]}]
+        consumables: Consumables.slice(11).map((c, i) => ({id: i+0.5, ...c}))
     },
 
     active: {
@@ -130,15 +132,22 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             let arr: CardInfo[] = []
             let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
             let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
+            let editions = Object.keys(Edition).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Edition)
+            let enhancements = Object.keys(Enhancement).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Enhancement)
+            let seals = Object.keys(Seal).filter(s => isNaN(Number(s))).map(s => s as keyof typeof Seal)
             switch(action.payload?.deck!) {
-                case Deck.Erratic:
+                case DeckType.Erratic:
+                    next.stats.deck = DeckType.Erratic
                     for(let i = 1; i <= 52; i++) {
                         arr.push(
                             {
                                 id: i,
                                 suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
                                 rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]],
-                                deck: Deck.Erratic
+                                edition: Edition[editions[Math.floor(Math.random()*editions.length)]],
+                                enhancement: Enhancement[enhancements[Math.floor(Math.random()*enhancements.length)]],
+                                seal: Seal[seals[Math.floor(Math.random()*seals.length)]],
+                                deck: DeckType.Erratic
                             }
                         )
                     }

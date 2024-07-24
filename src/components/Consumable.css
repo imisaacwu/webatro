@@ -16,7 +16,7 @@ div[id^='consumable ']:active {
 
 div[id^='consumable '].selected {
     transform: translateY(-10px);
-    z-index: 1;
+    z-index: 2;
 }
 
 

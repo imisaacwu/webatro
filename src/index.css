@@ -31,3 +31,8 @@
     font-synthesis: none;
     text-rendering: optimizeLegibility;
 }
+
+.blue { color: var(--blue) }
+.red { color: var(--red) }
+.yellow { color: var(--yellow) }
+.orange { color: var(--orange) }

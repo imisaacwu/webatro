@@ -1,25 +1,18 @@
 import { useContext, useRef } from 'react'
-import debuff from '../assets/cards/debuffed.webp'
-import { Deck, Rank, rankChips, Suit } from '../Constants'
+import debuff from '../assets/cards/modifiers/debuffed.webp'
+import { DeckType, Edition, Enhancement, Rank, rankChips, Seal, Suit } from '../Constants'
 import { cardSnap } from '../Utilities'
 import './Card.css'
 import { CardInfo } from './CardInfo'
 import { GameStateContext } from '../GameState'
-const images: Record<string, { default: string }> = import.meta.glob('../assets/cards/*.webp', { eager: true })
-const decks: Record<string, { default: string }> = import.meta.glob('../assets/decks/*.png', { eager: true })
+const images: Record<string, { default: string }> = import.meta.glob([
+    '../assets/cards/*.webp',
+    '../assets/decks/*.png',
+    '../assets/cards/modifiers/*/*.png'
+], { eager: true })
 
-const getCardImage = (suit: Suit, rank: Rank) => {
-    const shortSuit = Suit[suit].charAt(0).toLowerCase()
-    const shortRank = rank < 8 ? rank + 2 : Rank[rank].charAt(0).toLowerCase()
-    const url = `../assets/cards/${shortSuit}${shortRank}.webp`
+const getImage = (url: string) => {
     const module = images[url]
-    if(!module) { throw new Error(`no such image ${url}`) }
-    return module.default
-}
-
-const getCardBack = (deck: Deck) => {
-    const url = `../assets/decks/${Deck[deck].toLowerCase()}.png`
-    const module = decks[url]
     if(!module) { throw new Error(`no such image ${url}`) }
     return module.default
 }
@@ -27,9 +20,7 @@ const getCardBack = (deck: Deck) => {
 export const Card = ({
         id, suit, rank, deck,
         mode = 'standard',
-        // edition = Edition.Base,
-        // enhancement = Enhancement.None,
-        // seal = Seal.None,
+        edition, enhancement = Enhancement.Base, seal,
         draggable = true,
         selected, submitted, scored, drawn, flipped, debuffed
     }: CardInfo) => {
@@ -37,6 +28,11 @@ export const Card = ({
     const { state: game, dispatch } = useContext(GameStateContext)
     const gameRef = useRef(game)
     gameRef.current = game
+
+    const cardName = `${rank < 9 ? rank + 2 : Rank[rank]} of ${Suit[suit]}`
+    const image = getImage(`../assets/cards/${Suit[suit].charAt(0)}${rank < 8 ? rank + 2 : Rank[rank].charAt(0)}.webp`)
+    const bkg = getImage(`../assets/cards/modifiers/enhancements/${Enhancement[enhancement]}.png`)
+    const back = getImage(`../assets/decks/${DeckType[deck]}.png`)
 
     const tolerance = 10, renderDelay = 100
     let dragElem: HTMLElement | null = null
@@ -98,8 +94,6 @@ export const Card = ({
         }
     }
 
-    const cardName = `${rank < 9 ? rank + 2 : Rank[rank]} of ${Suit[suit]}`
-
     return (
         <div
             id={`card ${id}`}
@@ -108,7 +102,8 @@ export const Card = ({
                 `${mode === 'standard' && submitted ? ' submitted' : ''}` +
                 `${mode === 'standard' && scored && !debuffed ? '' : ' unscored'}` +
                 `${debuffed ? ' debuffed' : ''}` +
-                `${mode === 'deck-view' && drawn && !flipped ? ' drawn' : ''}`
+                `${mode === 'deck-view' && drawn && !flipped ? ' drawn' : ''}` +
+                ` ${edition !== undefined ? Edition[edition] : ''}`
             }
             onClick={() => {
                 const card = game.cards.hand.find(c => c.id === id)!
@@ -119,8 +114,10 @@ export const Card = ({
             onMouseDown={mouseDown}
             onMouseUp={mouseUp}
         >
-            <img src={flipped ? getCardBack(deck) : getCardImage(suit, rank)} />
+            <img src={flipped ? back : image} />
+            {!flipped && <img id='card-bkg' src={bkg} />}
             {game.state === 'scoring' && debuffed && <img className='debuff' src={debuff} />}
+            {seal !== undefined && <img id='seal-icon' src={getImage(`../assets/cards/modifiers/seals/${Seal[seal]}.png`)} />}
             {!dragElem && !flipped && !drawn && <div id='playing-card-popup'>
                 <div id='playing-card-popup-inner'>
                     <div id='playing-card-name'>
@@ -135,6 +132,17 @@ export const Card = ({
                                 </div>&nbsp;
                                 {'chips'}
                             </>
+                        }
+                    </div>
+                    <div id='playing-card-modifiers'>
+                        {enhancement !== undefined &&
+                            <div id='enhancement' className={`modifier ${enhancement}`}>{`${Enhancement[enhancement]} Card`}</div>
+                        }
+                        {edition !== undefined &&
+                            <div id='edition' className={`modifier ${edition}`}>{Edition[edition]}</div>
+                        }
+                        {seal !== undefined &&
+                            <div id='seal' className={`modifier ${seal}`}>{`${Seal[seal]} Seal`}</div>
                         }
                     </div>
                 </div>

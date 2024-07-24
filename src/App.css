@@ -5,10 +5,6 @@ body {
     z-index: auto;
 }
 
-.red { color: var(--red) }
-.blue { color: var(--blue) }
-.yellow { color: var(--yellow) }
-
 .container {
     display: flex;
     flex-direction: row;

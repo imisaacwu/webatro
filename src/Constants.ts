@@ -1,12 +1,19 @@
-export enum Deck { Abandoned, Anaglyph, Black, Blue, Challenge, Checkered, Erratic, Ghost, Green, Magic, Nebula, Painted, Plasma, Red, Yellow, Zodiac }
+export enum DeckType { Abandoned, Anaglyph, Black, Blue, Challenge, Checkered, Erratic, Ghost, Green, Magic, Nebula, Painted, Plasma, Red, Yellow, Zodiac }
 
 export enum Suit { Spades, Hearts, Clubs, Diamonds }
 export enum Rank { Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace }
-export enum Edition { Base, Foil, Holographic, Negative, Polychrome }
-export enum Enhancement { Bonus, Glass, Gold, Lucky, Mult, None, Steel, Stone, Wild }
-export enum Seal { Blue, Gold, None, Purple, Red }
+export enum Edition { Foil, Holographic, Negative, Polychrome }
+export enum Enhancement { Base, Bonus, Glass, Gold, Lucky, Mult, Steel, Stone, Wild }
+export enum Seal { Blue, Gold, Purple, Red }
 
-export const rankChips: { [R in keyof typeof Rank]: number } = {
+export const editionInfo: {[E in keyof typeof Edition]: string} = {
+    Foil: '+50 Chips',
+    Holographic: '+10 Mult',
+    Negative: '+1 Joker slot',
+    Polychrome: 'X1.5 Mult'
+}
+
+export const rankChips: {[R in keyof typeof Rank]: number} = {
     Two: 2,
     Three: 3,
     Four: 4,
@@ -312,12 +319,13 @@ export const AnteChips = {
 export type ConsumableType = {
     id: number
     name: string
+    description?: string
     hand?: keyof typeof HandType
-    type: 'Planet' | 'Tarot' | 'Spectral'
+    type: 'Planet' | 'Spectral'| 'Tarot'
     selected?: boolean
 }
 
-export const Consumables: {name: string, hand?: keyof typeof HandType, type: 'Planet' | 'Tarot' | 'Spectral'}[] = [
+export const Consumables: Omit<ConsumableType, 'id'>[] = [
     {
         name: 'Pluto',
         hand: 'HIGH_CARD',
@@ -362,5 +370,77 @@ export const Consumables: {name: string, hand?: keyof typeof HandType, type: 'Pl
         name: 'Eris',
         hand: 'FLUSH_FIVE',
         type: 'Planet'
+    }, { // TODO: add the rest of the text formatting
+        name: 'Familiar',
+        description: 'Destroy /{yellow}1/ random card in your hand, add /{yellow}3/ random /{orange}Enhanced face cards/ to your hand',
+        type: 'Spectral'
+    }, {
+        name: 'Grim',
+        description: 'Destroy /{yellow}1/ random card in your hand, add /{yellow}2/ random /{orange}Enhanced Aces/ to your hand',
+        type: 'Spectral'
+    }, {
+        name: 'Incantation',
+        description: 'Destroy /{yellow}1/ random card in your hand, add /{yellow}4/ random /{orange}Enhanced numbered cards/ to your hand',
+        type: 'Spectral'
+    }, {
+        name: 'Talisman',
+        description: 'Add a Gold Seal to /{yellow}1/ selected card in your hand',
+        type: 'Spectral'
+    }, {
+        name: 'Aura',
+        description: 'Add Foil, Holographic, or Polychrome effect to /{yellow}1/ selected card in hand',
+        type: 'Spectral'
+    }, {
+        name: 'Wraith',
+        description: 'Creates a random /{red}Rare/ /{orange}Joker/, sets money to /{yellow}$0/',
+        type: 'Spectral'
+    }, {
+        name: 'Sigil',
+        description: 'Converts all cards in hand to a single random suit',
+        type: 'Spectral'
+    }, {
+        name: 'Ouija',
+        description: 'Converts all cards in hand to a single random Rank. /{red}-1/ hand size',
+        type: 'Spectral'
+    }, {
+        name: 'Ectoplasm',
+        description: 'Add Negative to a random Joker. /{red}-1/ hand size',
+        type: 'Spectral'
+    }, {
+        name: 'Immolate',
+        description: 'Destroys /{yellow}5/ random cards in hand, gain /{yellow}$20/',
+        type: 'Spectral'
+    }, {
+        name: 'Ankh',
+        description: 'Create a copy of a random Joker, destroy all other Jokers (Removes Negative from copy)',
+        type: 'Spectral'
+    }, {
+        name: 'Deja Vu',
+        description: 'Add a Red Seal to /{yellow}1/ selected card in your hand',
+        type: 'Spectral'
+    }, {
+        name: 'Hex',
+        description: 'Add Polychrome to a random Joker, destroy all other Jokers',
+        type: 'Spectral'
+    }, {
+        name: 'Trance',
+        description: 'Add a Blue Seal to /{yellow}1/ selected card in your hand',
+        type: 'Spectral'
+    }, {
+        name: 'Medium',
+        description: 'Add a Purple Seal to /{yellow}1/ selected card in your hand',
+        type: 'Spectral'
+    }, {
+        name: 'Cryptid',
+        description: 'Creates 2 copies of /{yellow}1/ selected card in your hand',
+        type: 'Spectral'
+    }, {
+        name: 'The Soul',
+        description: 'Creates a Legendary Joker (Must have room)',
+        type: 'Spectral'
+    }, {
+        name: 'Black Hole',
+        description: 'Upgrade every poker hand by /{yellow}1/ level',
+        type: 'Spectral'
     }
 ]

@@ -7,7 +7,7 @@ import { Deck } from './components/Deck'
 import Hand from './components/Hand'
 import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
-import { Blinds } from './Constants'
+import { Blinds, DeckType } from './Constants'
 import { gameReducer, GameStateContext, initialGameState } from './GameState'
 import { Card } from './components/Card'
 import { cardSnap } from './Utilities'
@@ -17,7 +17,7 @@ export default function App() {
     const gameRef = useRef(game)
     gameRef.current = game
     
-    useEffect(() => dispatch({type: 'init'}), [])
+    useEffect(() => dispatch({type: 'init', payload: {deck: DeckType.Erratic }}), [])
     
     useEffect(() => {
         document.addEventListener('keydown', handleKeys)

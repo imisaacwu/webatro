@@ -5,9 +5,7 @@
     position: absolute;
     width: 142px;
     height: 190px;
-    border: 1px solid var(--grey);
     border-radius: 8px;
-    background-color: aliceblue;
     font-size: 32px;
     transition: .1s;
     z-index: auto;
@@ -21,16 +19,47 @@
     pointer-events: none;
     width: 142px;
     height: 190px;
+    z-index: 1;
 }
 .card.deck-view img {
     width: 85px;
     height: 114px;
 }
 
+#card-bkg {
+    position: absolute;
+    z-index: 0;
+}
+
+.Foil img {
+    filter: drop-shadow(0 0 10px blue)
+}
+.Holographic img {
+    filter: blur(2px)
+}
+.Negative img {
+    filter: invert(1)
+}
+.Polychrome img {
+    filter: saturate(1000%)
+}
+
 .card img.debuff {
     position: absolute;
     background-color: rgb(56, 66, 68, 0.3);
     border-radius: 7px;
+    z-index: 2;
+}
+
+#card-edition {
+    position: absolute;
+    opacity: .3;
+    z-index: 3;
+}
+
+#seal-icon {
+    position: absolute;
+    z-index: 4;
 }
 
 .card:hover { scale: 1.1; }
@@ -109,6 +138,27 @@
 
 .deck-view #playing-card-score.debuffed {
     font-size: 16px;
+}
+
+#playing-card-modifiers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#enhancement {
+    font-size: 24px;
+}
+
+.modifier {
+    margin: 2px 0 0 0;
+    font-size: 20px;
+    color: aliceblue;
+    background-color: var(--blue);
+    padding: 2px 0;
+    width: 128px;
+    text-align: center;
+    border-radius: 8px;
 }
 
 #playing-card-scored-popup {

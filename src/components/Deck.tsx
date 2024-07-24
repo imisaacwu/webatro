@@ -1,8 +1,9 @@
 import { useContext, useState } from 'react'
-import redDeck from '../assets/decks/red.png'
 import './Deck.css'
 import DeckMenu from './DeckMenu'
 import { GameStateContext } from '../GameState'
+import { DeckType } from '../Constants'
+const decks: Record<string, { default: string }> = import.meta.glob('../assets/decks/*.png', { eager: true })
 
 export const Deck = () => {
     const { state: game } = useContext(GameStateContext)
@@ -16,7 +17,7 @@ export const Deck = () => {
             />
             <div id='deck-area' className='card-area'>
                 <div id='face-down' onClick={() => setMenuActive(true)}>
-                    <img src={redDeck} />
+                    <img src={decks[`../assets/decks/${DeckType[game.stats.deck]}.png`].default} />
                 </div>
             </div>
             <div id='deck-label' className='counter'>{game.cards.deck.length}/{game.cards.deck.length + game.cards.hand.length + game.cards.submitted.length + game.cards.hidden.length}</div>
