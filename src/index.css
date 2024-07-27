@@ -22,6 +22,7 @@
     --orange: hsl(33, 87%, 51%);
     --dark-orange: hsl(33, 87%, 51%);
     --green: #38bd85;
+    --dark-purple: #231e79;
     --dark-grey: #1C2729;
     --grey: #384244;
     --light-grey: #b7c2cc;
@@ -34,5 +35,7 @@
 
 .blue { color: var(--blue) }
 .red { color: var(--red) }
+.red-invert { color: aliceblue; background-color: var(--red); border-radius: 2px; padding: 0 2px 0 4px; }
 .yellow { color: var(--yellow) }
 .orange { color: var(--orange) }
+.green { color: var(--green) }

@@ -27,7 +27,7 @@ export default function App() {
 
     useEffect(() => {
     }, [gameRef.current.cards.consumables])
-    cardSnap({cards: gameRef.current.cards.consumables, r: -1})
+    cardSnap({cards: gameRef.current.cards.consumables, idPrefix: 'consumable', r: -1})
 
 
     const handleKeys = (e: KeyboardEvent) => {

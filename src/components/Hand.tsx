@@ -10,7 +10,7 @@ export default function Hand() {
     gameRef.current = game
 
     useEffect(() => {
-        cardSnap({cards: gameRef.current.cards.hand})
+        cardSnap({cards: gameRef.current.cards.hand, idPrefix: 'card'})
     }, [gameRef.current.cards.hand])
 
     return (

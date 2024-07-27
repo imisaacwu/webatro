@@ -36,7 +36,7 @@ export default function DeckMenu(props: DeckMenuProps) {
 
     setTimeout(() => {
         Object.values(Suit).filter(s => !isNaN(Number(s))).forEach(suit => {
-            cardSnap({cards: cards[Number(suit)], r: 5000})
+            cardSnap({cards: cards[Number(suit)], idPrefix: 'card', r: 5000})
         })
     })
 
@@ -51,7 +51,7 @@ export default function DeckMenu(props: DeckMenuProps) {
     
     return (
         <div id='deck-menu' className={`${props.menu}`}>
-            <div id='menu-views'>
+            <div id='deck-menu-views'>
                 {game.state === 'scoring' &&
                     <div id='remaining' className='view-container'>
                         {view === 'remaining' && <div className='arrow' />}

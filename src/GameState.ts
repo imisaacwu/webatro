@@ -108,7 +108,7 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: Consumables.slice(11).map((c, i) => ({id: i+0.5, ...c}))
+        consumables: Consumables.slice(18).map((c, i) => ({id: i+0.5, ...c}))
     },
 
     active: {
@@ -144,9 +144,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                 id: i,
                                 suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
                                 rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]],
-                                edition: Edition[editions[Math.floor(Math.random()*editions.length)]],
-                                enhancement: Enhancement[enhancements[Math.floor(Math.random()*enhancements.length)]],
-                                seal: Seal[seals[Math.floor(Math.random()*seals.length)]],
+                                edition: Math.random() > .8 ? Edition[editions[Math.floor(Math.random()*editions.length)]] : undefined,
+                                enhancement: Math.random() > .8 ? Enhancement[enhancements[Math.floor(Math.random()*enhancements.length)]]: undefined,
+                                seal: Math.random() > .8 ? Seal[seals[Math.floor(Math.random()*seals.length)]]: undefined,
                                 deck: DeckType.Erratic
                             }
                         )
@@ -476,7 +476,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 hand: state.cards.hand.sort(sort),
                 sort: action.payload?.sort!
             }}
-            setTimeout(() => cardSnap({cards: state.cards.hand}))
+            setTimeout(() => cardSnap({cards: state.cards.hand, idPrefix: 'card'}))
             break
         case 'reorder':
             next = {...next, cards: {...state.cards,

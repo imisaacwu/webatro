@@ -1,6 +1,6 @@
 import { useContext, useRef } from 'react'
 import debuff from '../assets/cards/modifiers/debuffed.webp'
-import { DeckType, Edition, Enhancement, Rank, rankChips, Seal, Suit } from '../Constants'
+import { DeckType, Edition, editionInfo, Enhancement, enhancementInfo, Rank, rankChips, Seal, sealInfo, Suit } from '../Constants'
 import { cardSnap } from '../Utilities'
 import './Card.css'
 import { CardInfo } from './CardInfo'
@@ -29,10 +29,83 @@ export const Card = ({
     const gameRef = useRef(game)
     gameRef.current = game
 
-    const cardName = `${rank < 9 ? rank + 2 : Rank[rank]} of ${Suit[suit]}`
+    const cardName = <>{rank < 9 ? rank + 2 : Rank[rank]} of&nbsp;<div className={Suit[suit]}>{Suit[suit]}</div></>
     const image = getImage(`../assets/cards/${Suit[suit].charAt(0)}${rank < 8 ? rank + 2 : Rank[rank].charAt(0)}.webp`)
     const bkg = getImage(`../assets/cards/modifiers/enhancements/${Enhancement[enhancement]}.png`)
     const back = getImage(`../assets/decks/${DeckType[deck]}.png`)
+    const description = game.state === 'scoring' && debuffed ? 
+        <div id='playing-card-debuffed'>Scores no chips and all abilities are disabled</div> :
+        <>
+            <div id='playing-card-chips'>
+                <div className='blue'>
+                    {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
+                </div>&nbsp;{'chips'}
+            </div>
+            <div id='playing-card-enhancement-info'>
+                {enhancement &&
+                    enhancementInfo[Enhancement[enhancement] as keyof typeof enhancementInfo].split('\n').map((line, i) => 
+                        <div key={i}>
+                            {line.split('/').map((str, i) =>
+                                <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
+                                    {str.replace(/{.+}/g, '')}
+                                </div>
+                            )}
+                        </div>
+                    )
+                }
+            </div>
+        </>
+    const popupTags = game.state === 'scoring' && debuffed ?
+        <div id='debuffed-tag' className='tag'>Debuffed</div> :
+        <>
+            {enhancement !== undefined && enhancement !== Enhancement.Base &&
+                <div id='enhancement' className={`tag ${enhancement}`}>{`${Enhancement[enhancement]} Card`}</div>
+            }
+            {edition !== undefined &&
+                <div id='edition' className={`tag ${edition}`}>{Edition[edition]}</div>
+            }
+            {seal !== undefined &&
+                <div id='seal' className={`tag ${seal}`}>{`${Seal[seal]} Seal`}</div>
+            }
+            <div id='tags-side'>
+                {edition !== undefined &&
+                    <div className='tag-info'>
+                        <div className='tag-info-inner'>
+                            <div className='tag-name'>{Edition[edition]}</div>
+                            <div className='tag-description'>
+                                {editionInfo[Edition[edition] as keyof typeof editionInfo].split('\n').map((line, i) => 
+                                    <div key={i}>
+                                        {line.split('/').map((str, i) =>
+                                            <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
+                                                {str.replace(/{.+}/g, '')}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                }
+                {seal !== undefined &&
+                    <div className='tag-info'>
+                        <div className='tag-info-inner'>
+                            <div className='tag-name'>{Seal[seal]} Seal</div>
+                            <div className='tag-description'>
+                                {sealInfo[Seal[seal] as keyof typeof sealInfo].split('\n').map((line, i) => 
+                                    <div key={i}>
+                                        {line.split('/').map((str, i) =>
+                                            <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline-block'}}>
+                                                {str.replace(/{.+}/g, '')}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </>
 
     const tolerance = 10, renderDelay = 100
     let dragElem: HTMLElement | null = null
@@ -86,7 +159,7 @@ export const Card = ({
 
     const mouseUp = () => {
         if (dragElem) {
-            cardSnap({cards: gameRef.current.cards.hand})
+            cardSnap({cards: gameRef.current.cards.hand, idPrefix: 'card'})
             document.removeEventListener('mousemove', mouseMove)
             document.removeEventListener('mouseup', mouseUp)
             dragElem.style.zIndex = 'auto'
@@ -114,7 +187,7 @@ export const Card = ({
             onMouseDown={mouseDown}
             onMouseUp={mouseUp}
         >
-            <img src={flipped ? back : image} />
+            {(enhancement === undefined || enhancement !== Enhancement.Stone) && <img src={flipped ? back : image} />}
             {!flipped && <img id='card-bkg' src={bkg} />}
             {game.state === 'scoring' && debuffed && <img className='debuff' src={debuff} />}
             {seal !== undefined && <img id='seal-icon' src={getImage(`../assets/cards/modifiers/seals/${Seal[seal]}.png`)} />}
@@ -123,27 +196,11 @@ export const Card = ({
                     <div id='playing-card-name'>
                         {cardName}
                     </div>
-                    <div id='playing-card-score' className={debuffed ? 'debuffed' : ''}>
-                        {debuffed ?
-                            'Scores no chips and all abilities are disabled' :
-                            <>
-                                <div className='blue'>
-                                    {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
-                                </div>&nbsp;
-                                {'chips'}
-                            </>
-                        }
+                    <div id='playing-card-description'>
+                        {description}
                     </div>
-                    <div id='playing-card-modifiers'>
-                        {enhancement !== undefined &&
-                            <div id='enhancement' className={`modifier ${enhancement}`}>{`${Enhancement[enhancement]} Card`}</div>
-                        }
-                        {edition !== undefined &&
-                            <div id='edition' className={`modifier ${edition}`}>{Edition[edition]}</div>
-                        }
-                        {seal !== undefined &&
-                            <div id='seal' className={`modifier ${seal}`}>{`${Seal[seal]} Seal`}</div>
-                        }
+                    <div id='playing-card-tags'>
+                        {popupTags}
                     </div>
                 </div>
             </div>}

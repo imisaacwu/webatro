@@ -1,5 +1,5 @@
 import { CardInfo } from "./components/CardInfo"
-import { AnteChips, Blinds, ConsumableType, handLevels, HandType, Rank, rankChips } from "./Constants"
+import { AnteChips, Blinds, handLevels, HandType, Rank, rankChips } from "./Constants"
 
 // https://www.desmos.com/calculator/fsvcr75cdx
 export const ante_base = (ante: number) => {
@@ -70,9 +70,9 @@ export const shuffle = (cards: any[]) => {
 }
 
 // https://www.desmos.com/calculator/1jlnwr1peo
-export const cardSnap = ({cards, r = 6000}: {cards: (CardInfo | ConsumableType)[], r?: number}) => {
+export const cardSnap = ({cards, idPrefix, r = 6000}: {cards: any[], idPrefix: string, r?: number}) => {
     if(cards.length !== 0) {
-        const cardDiv = cards.map(c => document.querySelector(`div[id$=\'${c.id}\']`) as HTMLElement)
+        const cardDiv = cards.map(c => document.querySelector(`div[id^=\'${idPrefix}\'][id$=\'${c.id}\']`) as HTMLElement)
         if(!cardDiv.every(c => c !== null)) { return }
         const container = cardDiv[0]!.parentElement!, w = container.clientWidth, n = cards.length
         const lStep = w / n, extra = (lStep - cardDiv[0]!.clientWidth) / (n - 1)

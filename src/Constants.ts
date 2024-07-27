@@ -7,10 +7,29 @@ export enum Enhancement { Base, Bonus, Glass, Gold, Lucky, Mult, Steel, Stone, W
 export enum Seal { Blue, Gold, Purple, Red }
 
 export const editionInfo: {[E in keyof typeof Edition]: string} = {
-    Foil: '+50 Chips',
-    Holographic: '+10 Mult',
+    Foil: '{blue}+50/ Chips',
+    Holographic: '{red}+10/ Mult',
     Negative: '+1 Joker slot',
-    Polychrome: 'X1.5 Mult'
+    Polychrome: '{red-invert}X1.5/ Mult'
+}
+
+export const enhancementInfo: {[E in keyof typeof Enhancement]: string} = {
+    Base: "",
+    Bonus: "",
+    Glass: "{red-invert}X2/ Mult\n{green}1 in 4/ chance to destroy card",
+    Gold: "",
+    Lucky: "",
+    Mult: "",
+    Steel: "",
+    Stone: "",
+    Wild: ""
+}
+
+export const sealInfo: {[S in keyof typeof Seal]: string} = {
+    Blue: "Creates the/{blue}Planet/card\nfor final played/{orange}poker hand\nof round if/{orange}held/in hand\n{grey}(Must have room)",
+    Gold: "",
+    Purple: "",
+    Red: "Retrigger this\ncard/{yellow}1/time"
 }
 
 export const rankChips: {[R in keyof typeof Rank]: number} = {
