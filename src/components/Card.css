@@ -46,7 +46,7 @@
     filter: invert(1)
 }
 .Polychrome img {
-    filter: saturate(1000%)
+    filter: saturate(1000%) brightness(.8)
 }
 
 .card img.debuff {
@@ -87,7 +87,7 @@
 }
 
 #playing-card-popup {
-    /* display: none; */
+    display: none;
     position: absolute;
     bottom: 200px;
     padding: 2px;
@@ -96,6 +96,7 @@
     border-radius: 8px;
     font-size: 24px;
     z-index: 3000;
+    width: max-content;
 }
 
 .card:hover #playing-card-popup {
@@ -119,13 +120,10 @@
     justify-content: center;
     background-color: aliceblue;
     border-radius: 8px;
-    width: 155px;
     font-size: 20px;
-    padding-bottom: 2px;
-}
-
-.deck-view #playing-card-name {
-    width: 128px;
+    padding: 2px;
+    margin: 0 0px 4px;
+    min-width: 128px;
 }
 
 #playing-card-description {
@@ -135,7 +133,6 @@
     align-items: center;
     background-color: aliceblue;
     border-radius: 8px;
-    margin-top: 4px;
     padding: 4px;
 }
 
@@ -156,7 +153,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* font-size: 20px; */
+    padding: 0 20px;
 }
 
 #playing-card-enhancement-info div {
@@ -197,22 +194,20 @@
 
 #tags-side {
     position: absolute;
-    right: 168px;
+    right: 100%;
     top: 0;
     bottom: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: 1px solid #00beef;
-}
-
-.deck-view #tags-side {
-    right: 141px;
+    align-items: center;
 }
 
 .tag-info {
     background-color: aliceblue;
     border-radius: 8px;
+    margin: 2px 0;
+    width: fit-content;
 }
 
 .tag-info-inner {

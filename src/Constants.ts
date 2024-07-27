@@ -15,21 +15,21 @@ export const editionInfo: {[E in keyof typeof Edition]: string} = {
 
 export const enhancementInfo: {[E in keyof typeof Enhancement]: string} = {
     Base: "",
-    Bonus: "",
-    Glass: "{red-invert}X2/ Mult\n{green}1 in 4/ chance to destroy card",
-    Gold: "",
-    Lucky: "",
-    Mult: "",
-    Steel: "",
-    Stone: "",
-    Wild: ""
+    Bonus: "{blue}+30/ extra chips",
+    Glass: "{red-invert}X2/ Mult\n{green}1 in 4/ chance\nto destroy card",
+    Gold: "{yellow}+3/ if this\ncard is held in hand\nat end of round",
+    Lucky: "{green}1 in 5/ chance\nfor /{red}+20/ Mult\n{green}1 in 15/ chance\nto win /{yellow}$20",
+    Mult: "{red}+4/ Mult",
+    Steel: "{red-invert}X1.5/ Mult\nwhile this card\nstays in hand",
+    Stone: "{blue}+50/ Chips\nno rank or suit",
+    Wild: "Can be used\nas any suit"
 }
 
 export const sealInfo: {[S in keyof typeof Seal]: string} = {
     Blue: "Creates the/{blue}Planet/card\nfor final played/{orange}poker hand\nof round if/{orange}held/in hand\n{grey}(Must have room)",
-    Gold: "",
-    Purple: "",
-    Red: "Retrigger this\ncard/{yellow}1/time"
+    Gold: "Earn/{yellow}$3/when this\ncard is played\nand scores",
+    Purple: "Creates a/{purple}Tarot/card\nwhen/{orange}discarded\n{grey}(Must have room)",
+    Red: "Retrigger this\ncard/{orange}1/time"
 }
 
 export const rankChips: {[R in keyof typeof Rank]: number} = {

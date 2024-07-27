@@ -34,15 +34,21 @@ export const Card = ({
     const bkg = getImage(`../assets/cards/modifiers/enhancements/${Enhancement[enhancement]}.png`)
     const back = getImage(`../assets/decks/${DeckType[deck]}.png`)
     const description = game.state === 'scoring' && debuffed ? 
-        <div id='playing-card-debuffed'>Scores no chips and all abilities are disabled</div> :
         <>
-            <div id='playing-card-chips'>
-                <div className='blue'>
-                    {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
-                </div>&nbsp;{'chips'}
-            </div>
+            <div id='playing-card-debuffed'>Scores no chips</div>
+            <div id='playing-card-debuffed'>and all abilities</div>
+            <div id='playing-card-debuffed'>are disabled</div>
+        </> :
+        <>
+            {(enhancement === undefined || enhancement !== Enhancement.Stone) &&
+                <div id='playing-card-chips'>
+                    <div className='blue'>
+                        {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
+                    </div>&nbsp;{'chips'}
+                </div>
+            }
             <div id='playing-card-enhancement-info'>
-                {enhancement &&
+                {enhancement !== undefined && enhancement !== Enhancement.Base &&
                     enhancementInfo[Enhancement[enhancement] as keyof typeof enhancementInfo].split('\n').map((line, i) => 
                         <div key={i}>
                             {line.split('/').map((str, i) =>
@@ -193,9 +199,11 @@ export const Card = ({
             {seal !== undefined && <img id='seal-icon' src={getImage(`../assets/cards/modifiers/seals/${Seal[seal]}.png`)} />}
             {!dragElem && !flipped && !drawn && <div id='playing-card-popup'>
                 <div id='playing-card-popup-inner'>
-                    <div id='playing-card-name'>
-                        {cardName}
-                    </div>
+                    {(enhancement === undefined || enhancement !== Enhancement.Stone) &&
+                        <div id='playing-card-name'>
+                            {cardName}
+                        </div>
+                    }
                     <div id='playing-card-description'>
                         {description}
                     </div>
