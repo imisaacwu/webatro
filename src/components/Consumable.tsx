@@ -1,7 +1,7 @@
 import { MouseEventHandler, useContext, useRef } from "react";
-import { ConsumableType, handLevels, HandType, handUpgrade } from "../Constants";
+import { ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "../Constants";
 import './Consumable.css';
-import { GameStateContext, handLevel } from "../GameState";
+import { GameStateContext, levelHand } from "../GameState";
 import { cardSnap } from "../Utilities";
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
 
@@ -32,15 +32,135 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
     }
 
     const use: MouseEventHandler = () => {
-        if(props.type === 'Planet') {
-            handLevel({hand: props.hand!})
-        } else if(props.type === 'Spectral') {
-            switch(props.name) {
-                case 'Familiar':
-                    break;
+        if(game.cards.submitted.length === 0) {
+            if(props.type === 'Planet') {
+                levelHand({hand: props.hand!})
+            } else if(props.type === 'Spectral') {
+                let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
+                let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
+                let enhancements = Object.keys(Enhancement).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Enhancement)
+                switch(props.name) {
+                    case 'Familiar':
+                        if(game.state !== 'scoring') { return }
+                        dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Math.random() * game.cards.hand.length)]}})
+
+                        for(let i = 0; i < 3; i++) {
+                            dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
+                                suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
+                                rank: Rank[ranks[Math.floor(Math.random()*3)+9]],
+                                enhancement: Enhancement[enhancements[Math.floor(Math.random()*(enhancements.length-1))+1]],
+                                deck: DeckType.Red
+                            }}})
+                        }
+                        break
+                    case 'Grim':
+                        if(game.state !== 'scoring') { return }
+                        dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Math.random() * game.cards.hand.length)]}})
+
+                        for(let i = 0; i < 2; i++) {
+                            dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
+                                suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
+                                rank: Rank.Ace,
+                                enhancement: Enhancement[enhancements[Math.floor(Math.random()*(enhancements.length-1))+1]],
+                                deck: DeckType.Red
+                            }}})
+                        }
+                        break
+                    case 'Incantation':
+                        if(game.state !== 'scoring') { return }
+                        dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Math.random() * game.cards.hand.length)]}})
+
+                        for(let i = 0; i < 4; i++) {
+                            dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
+                                suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
+                                rank: Rank[ranks[Math.floor(Math.random()*9)]],
+                                enhancement: Enhancement[enhancements[Math.floor(Math.random()*(enhancements.length-1))+1]],
+                                deck: DeckType.Red
+                            }}})
+                        }
+                        break
+                    case 'Talisman':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].seal = Seal.Gold
+                        break
+                    case 'Aura':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        switch(Math.floor(Math.random() * 3)) {
+                            case 0:
+                                game.cards.selected[0].edition = Edition.Foil
+                                break
+                            case 1:
+                                game.cards.selected[0].edition = Edition.Holographic
+                                break
+                            case 2:
+                                game.cards.selected[0].edition = Edition.Polychrome
+                                break
+                        }
+                        break
+                    case 'Wraith': // TODO (after jokers)
+                        dispatch({type: 'stat', payload: {stat: 'money', amount: -game.stats.money}})
+                        break
+                    case 'Sigil':
+                        if(game.state !== 'scoring') { return }
+                        let suit = suits[Math.floor(Math.random()*suits.length)]
+                        game.cards.hand.forEach(c => c.suit = Suit[suit])
+                        break
+                    case 'Ouija':
+                        if(game.state !== 'scoring') { return }
+                        let rank = ranks[Math.floor(Math.random()*ranks.length)]
+                        game.cards.hand.forEach(c => c.rank = Rank[rank])
+                        dispatch({type: 'stat', payload: {stat: 'handSize'}})
+                        break
+                    case 'Ectoplasm': // TODO (after jokers)
+                        dispatch({type: 'stat', payload: {stat: 'handSize'}})
+                        break
+                    case 'Immolate':
+                        if(game.state !== 'scoring') { return }
+                        let update = game.cards.hand;
+                        for(let i = 0; i < 5; i++) {
+                            update.splice(Math.floor(Math.random()*update.length), 1)
+                        }
+                        dispatch({type: 'updateCards', payload: {cardLocation: 'hand', update: update}})
+                        dispatch({type: 'stat', payload: {stat: 'money', amount: 20}})
+                        break
+                    case 'Ankh': // TODO (after jokers)
+                        break
+                    case 'Deja Vu':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].seal = Seal.Red
+                        break
+                    case 'Hex': // TODO (after jokers)
+                        break
+                    case 'Trance':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].seal = Seal.Blue
+                        break
+                    case 'Medium':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].seal = Seal.Purple
+                        break
+                    case 'Cryptid':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        const { id: _, selected: __, ...card } = game.cards.selected[0]
+                        for(let i = 0; i < 2; i++) {
+                            dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
+                                selected: false,
+                                ...card
+                            }}})
+                        }
+                        break
+                    case 'The Soul': // TODO (after jokers)
+                        break
+                    case 'Black Hole':
+                        Object.keys(handLevels).filter(k => isNaN(Number(k))).map(h => h as keyof typeof handLevels).forEach(h => {
+                            levelHand({hand: h})
+                        })
+                        break
+                        
+                }
             }
+            dispatch({type: 'discard'})
         }
-        dispatch({type: 'discard'})
     }
 
     const tolerance = 10, renderDelay = 100
@@ -83,7 +203,7 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                 const update = [...gameRef.current.cards.consumables]
                 const [c] = update.splice(origI, 1)
                 update.splice(i, 0, c)
-                dispatch({type: 'reorder', payload: {cards: 'consumables', update: update}})
+                dispatch({type: 'updateCards', payload: {cardLocation: 'consumables', update: update}})
                 origI = i
                 lastReorder = now
             }

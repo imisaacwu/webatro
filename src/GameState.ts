@@ -1,9 +1,9 @@
 import { createContext, Dispatch } from "react"
-import { BlindType, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "./Constants"
-import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, scoreHand, shuffle } from "./Utilities"
+import { BlindType, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, rankChips, Seal, Suit } from "./Constants"
+import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
 
-export const handLevel = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
+export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
     handLevels[hand].level += n
     handLevels[hand].chips += handUpgrade[hand].chips * n
     handLevels[hand].mult += handUpgrade[hand].mult * n
@@ -33,6 +33,7 @@ type GameState = {
     }
 
     cards: {
+        nextId: number
         deck: CardInfo[]
         hand: CardInfo[]
         selected: CardInfo[]    // Still in hand, selected
@@ -60,7 +61,7 @@ type GameAction = {
         'stat' |
         'select' | 'submit' | 'discard' | 'draw' |
         'buy' | 'use' | 'sell' |
-        'setSort' | 'reorder'
+        'setSort' | 'updateCards' | 'addCard' | 'removeCard'
     payload?: {
         deck?: DeckType,
 
@@ -70,9 +71,9 @@ type GameAction = {
         previous?: 'played' | 'discarded'   // To know during a draw which came previously
         amount?: number
 
-        cards?: keyof typeof initialGameState['cards']
+        cardLocation?: keyof typeof initialGameState['cards']
         update?: (CardInfo | ConsumableType)[]
-        card?: CardInfo
+        card?: CardInfo | Omit<CardInfo, 'id'>
         consumable?: ConsumableType
 
         sort?: 'rank' | 'suit'
@@ -101,6 +102,7 @@ export const initialGameState: GameState = {
     },
 
     cards: {
+        nextId: 0,
         deck: [],
         hand: [],
         selected: [],
@@ -108,7 +110,7 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: Consumables.slice(18).map((c, i) => ({id: i+0.5, ...c}))
+        consumables: [{id: 57, ...Consumables[28]}]
     },
 
     active: {
@@ -132,7 +134,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             let arr: CardInfo[] = []
             let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
             let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
-            let editions = Object.keys(Edition).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Edition)
+            let editions = Object.keys(Edition).filter(e => (isNaN(Number(e)) && e !== 'Negative')).map(e => e as keyof typeof Edition)
             let enhancements = Object.keys(Enhancement).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Enhancement)
             let seals = Object.keys(Seal).filter(s => isNaN(Number(s))).map(s => s as keyof typeof Seal)
             switch(action.payload?.deck!) {
@@ -170,6 +172,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     base: ante_base(state.stats.ante)
                 },
                 cards: {...state.cards,
+                    nextId: 53,
                     deck: arr
                 }
             }
@@ -296,7 +299,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     consumables: updated
                 }}
             } else {
-                const card = action.payload?.card!
+                const card = action.payload?.card! as CardInfo
                 if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
                     let updated = state.cards.selected
                     if(state.cards.selected.includes(card)) {
@@ -322,64 +325,110 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }
             break
         case 'submit':
-            state.cards.selected.forEach(c => {
+            let selected = state.cards.selected.sort((a, b) => (
+                state.cards.hand.findIndex(c => c.id === b.id) - state.cards.hand.findIndex(c => c.id === a.id)
+            ))
+            // Update card state
+            selected.forEach(c => {
                 c.selected = false
                 c.flipped = false
                 c.submitted = true
             })
-            if(state.blind.curr === 'boss' && ((name === 'The Psychic' && state.cards.selected.length < 5) ||
+            // Does it score?
+            if(state.blind.curr === 'boss' && ((name === 'The Psychic' && selected.length < 5) ||
                 (name === 'The Eye' && state.cards.played.includes(state.active.name)) ||
                 (name === 'The Mouth' && state.cards.played.length > 0 && !state.cards.played.includes(state.active.name)))) {
                 next = {...next, active: initialGameState.active}
             } else {
                 let hand = state.active.name
+                // Keep track of hands for relevant bosses
                 if(state.blind.curr === 'boss') {
                     if(name === 'The Arm') {
                         if(handLevels[hand].level > 1) {
-                            handLevel({hand: hand, n: -1})
+                            levelHand({hand: hand, n: -1})
                         }
                     } else if(name.match('The\ [Eye|Mouth]')) {
                         next.cards.played.push(hand)
                     } else if(name === 'The Tooth') {
-                        next.cards.played = [...next.cards.played, ...state.cards.selected]
+                        next.cards.played = [...next.cards.played, ...selected]
                     }
                 } else if(name === 'The Pillar') {
-                    next.cards.played = [...next.cards.played, ...state.cards.selected]
+                    next.cards.played = [...next.cards.played, ...selected]
                 }
                 handLevels[hand].played++
+                // Determine which cards score
                 let ranks: number[] = new Array(13).fill(0)
-                state.cards.selected.forEach(c => {
+                selected.forEach(c => {
                     c.scored = true
                     ranks[c.rank]++
                 })
                 let main = hand === 'FOUR' ? 4 : hand === 'THREE' ? 3 : hand.match('(TWO_)?PAIR') ? 2 : -1
                 if(main > 0) {
-                    state.cards.selected.forEach(c => {
+                    selected.forEach(c => {
                         if(ranks[c.rank] !== main) {
                             c.scored = false
                         }
                     })
                 } else if(hand === 'HIGH_CARD') {
-                    state.cards.selected.sort((a, b) => b.rank - a.rank).forEach((c, i) => {
+                    selected.sort((a, b) => b.rank - a.rank).forEach((c, i) => {
                         if(i > 0) { c.scored = false }
                     })
                 }
-                let score = scoreHand(state.cards.selected)
+                // Activation sequence
+                let chips = handLevels[hand].chips, mult = handLevels[hand].mult
+                let glassToBreak = []
+                selected.forEach(c => {
+                    if(!c.debuffed && c.scored) {
+                        for(let i = 0; i < 1; i++) {
+                            chips += rankChips[Rank[c.rank] as keyof typeof rankChips]
+                            if(c.enhancement !== undefined) {
+                                switch(c.enhancement) {
+                                    case Enhancement.Bonus: chips += 30; break
+                                    case Enhancement.Glass:
+                                        mult *= 2;
+                                        if(Math.random() < .25) { glassToBreak.push(c) }
+                                        break
+                                    case Enhancement.Lucky:
+                                        if(Math.random() < .2) { mult += 20 }
+                                        if(Math.random() < .07) { next.stats.money += 20 }
+                                        break
+                                    case Enhancement.Mult: mult += 4; break
+                                    case Enhancement.Stone: chips += 50; break
+                                }
+                            }
+                            if(c.seal !== undefined && c.seal === Seal.Gold) {
+                                next.stats.money += 3
+                            }
+                            if(c.edition !== undefined) {
+                                switch(c.edition) {
+                                    case Edition.Foil: chips += 50; break
+                                    case Edition.Holographic: mult += 10; break
+                                    case Edition.Polychrome: mult *= 1.5; break
+                                }
+                            }
+                            if(c.enhancement !== undefined && c.enhancement === Enhancement.Bonus) { chips += 30 }
+
+                            // if(c.seal !== undefined && c.seal === Seal.Red) { i-- }
+                        }
+                    }
+                })
+                chips = Math.ceil(chips), mult = Math.ceil(mult)
+                
                 if(state.blind.curr === 'boss' && name === 'The Flint') {
-                    score.chips = Math.ceil(score.chips / 2.0)
-                    score.mult = Math.ceil(score.mult / 2.0)
+                    chips = Math.ceil(chips / 2.0)
+                    mult = Math.ceil(mult / 2.0)
                 }
-                next.stats.score += (score.chips * score.mult)
-                next.active.score = score
+                next.stats.score += (chips * mult)
+                next.active.score = {chips: chips, mult: mult}
             }
             next = {...next,
                 stats: {...next.stats,
                     hands: state.stats.hands - 1
                 },
                 cards: {...next.cards,
-                    hand: state.cards.hand.filter(c => !state.cards.selected.includes(c)),
+                    hand: state.cards.hand.filter(c => !selected.includes(c)),
                     selected: [],
-                    submitted: state.cards.selected
+                    submitted: selected
                 }
             }
             break 
@@ -478,9 +527,26 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }}
             setTimeout(() => cardSnap({cards: state.cards.hand, idPrefix: 'card'}))
             break
-        case 'reorder':
+        case 'updateCards':
             next = {...next, cards: {...state.cards,
-                [action.payload?.cards!]: action.payload?.update!
+                [action.payload?.cardLocation!]: action.payload?.update!
+            }}
+            let cards = state.cards[`${action.payload?.cardLocation!}`] as any[]
+            let prefix = action.payload?.cardLocation === 'hand' ? 'card' : 'consumable'
+            setTimeout(() => cardSnap({cards: cards, idPrefix: prefix}))
+            break
+        case 'addCard':
+            next = {...next, cards: {...state.cards,
+                nextId: state.cards.nextId + 1,
+                [action.payload?.cardLocation!]: [...state.cards[action.payload?.cardLocation!] as any[], {
+                    id: state.cards.nextId,
+                    ...action.payload?.card
+                }]
+            }}
+            break
+        case 'removeCard':
+            next = {...next, cards: {...state.cards,
+                [action.payload?.cardLocation!]: (state.cards[action.payload?.cardLocation!] as any[]).filter(c => c.id !== (action.payload?.card as CardInfo).id)
             }}
             break
         default:

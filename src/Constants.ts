@@ -391,23 +391,23 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         type: 'Planet'
     }, { // TODO: add the rest of the text formatting
         name: 'Familiar',
-        description: 'Destroy /{yellow}1/ random card in your hand, add /{yellow}3/ random /{orange}Enhanced face cards/ to your hand',
+        description: 'Destroy /{orange}1/ random card in your hand, add /{orange}3/ random /{orange}Enhanced face cards/ to your hand',
         type: 'Spectral'
     }, {
         name: 'Grim',
-        description: 'Destroy /{yellow}1/ random card in your hand, add /{yellow}2/ random /{orange}Enhanced Aces/ to your hand',
+        description: 'Destroy /{orange}1/ random card in your hand, add /{orange}2/ random /{orange}Enhanced Aces/ to your hand',
         type: 'Spectral'
     }, {
         name: 'Incantation',
-        description: 'Destroy /{yellow}1/ random card in your hand, add /{yellow}4/ random /{orange}Enhanced numbered cards/ to your hand',
+        description: 'Destroy /{orange}1/ random card in your hand, add /{orange}4/ random /{orange}Enhanced numbered cards/ to your hand',
         type: 'Spectral'
     }, {
         name: 'Talisman',
-        description: 'Add a Gold Seal to /{yellow}1/ selected card in your hand',
+        description: 'Add a Gold Seal to /{orange}1/ selected card in your hand',
         type: 'Spectral'
     }, {
         name: 'Aura',
-        description: 'Add Foil, Holographic, or Polychrome effect to /{yellow}1/ selected card in hand',
+        description: 'Add Foil, Holographic, or Polychrome effect to /{orange}1/ selected card in hand',
         type: 'Spectral'
     }, {
         name: 'Wraith',
@@ -427,7 +427,7 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         type: 'Spectral'
     }, {
         name: 'Immolate',
-        description: 'Destroys /{yellow}5/ random cards in hand, gain /{yellow}$20/',
+        description: 'Destroys /{orange}5/ random cards in hand, gain /{yellow}$20/',
         type: 'Spectral'
     }, {
         name: 'Ankh',
@@ -435,7 +435,7 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         type: 'Spectral'
     }, {
         name: 'Deja Vu',
-        description: 'Add a Red Seal to /{yellow}1/ selected card in your hand',
+        description: 'Add a Red Seal to /{orange}1/ selected card in your hand',
         type: 'Spectral'
     }, {
         name: 'Hex',
@@ -443,15 +443,15 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         type: 'Spectral'
     }, {
         name: 'Trance',
-        description: 'Add a Blue Seal to /{yellow}1/ selected card in your hand',
+        description: 'Add a Blue Seal to /{orange}1/ selected card in your hand',
         type: 'Spectral'
     }, {
         name: 'Medium',
-        description: 'Add a Purple Seal to /{yellow}1/ selected card in your hand',
+        description: 'Add a Purple Seal to /{orange}1/ selected card in your hand',
         type: 'Spectral'
     }, {
         name: 'Cryptid',
-        description: 'Creates 2 copies of /{yellow}1/ selected card in your hand',
+        description: 'Creates 2 copies of /{orange}1/ selected card in your hand',
         type: 'Spectral'
     }, {
         name: 'The Soul',
@@ -459,7 +459,7 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         type: 'Spectral'
     }, {
         name: 'Black Hole',
-        description: 'Upgrade every poker hand by /{yellow}1/ level',
+        description: 'Upgrade every poker hand by /{orange}1/ level',
         type: 'Spectral'
     }
 ]

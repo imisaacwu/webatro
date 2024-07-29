@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { aceIcon, clubs, diamonds, faceIcon, hearts, numIcon, spades } from '../assets/ui'
 import { Rank, Suit, rankChips } from '../Constants'
 import { cardSnap } from '../Utilities'
@@ -34,11 +34,11 @@ export default function DeckMenu(props: DeckMenuProps) {
             {arr.map(c => <Card key={c.id} {...c} />)}
         </div>)
 
-    setTimeout(() => {
+    useEffect(() => {
         Object.values(Suit).filter(s => !isNaN(Number(s))).forEach(suit => {
             cardSnap({cards: cards[Number(suit)], idPrefix: 'card', r: 5000})
         })
-    })
+    }, [cards])
 
     const rankCount: number[] = new Array(13).fill(0), suitCount: number[] = new Array(4).fill(0)
     if(game.state === 'scoring' && view === 'remaining') {

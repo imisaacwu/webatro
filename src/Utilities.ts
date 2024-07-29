@@ -1,5 +1,5 @@
 import { CardInfo } from "./components/CardInfo"
-import { AnteChips, Blinds, handLevels, HandType, Rank, rankChips } from "./Constants"
+import { AnteChips, Blinds, Enhancement, HandType } from "./Constants"
 
 // https://www.desmos.com/calculator/fsvcr75cdx
 export const ante_base = (ante: number) => {
@@ -26,8 +26,17 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
     const straights = [0x100F, 0x1F, 0x3E, 0x7C, 0xF8, 0x1F0, 0x3E0, 0x7C0, 0xF80, 0x1F00]
     const hand = cards.reduce((total, c) => total | (1 << c.rank), 0)
 
-    let ranks: number[] = new Array(13).fill(0), suits: number[] = new Array(4).fill(0)
-    cards.forEach(c => {ranks[c.rank]++; suits[c.suit]++})
+    // TODO: Stone
+    // [2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A, Stone]
+    let ranks: number[] = new Array(14).fill(0), suits: number[] = new Array(4).fill(0)
+    cards.forEach(c => {
+        if(c.enhancement !== undefined && c.enhancement === Enhancement.Stone) {
+            ranks[13]++;
+        } else {
+            ranks[c.rank]++
+            suits[c.suit]++
+        }
+    })
     ranks = ranks.filter(r => r !== 0).sort((a, b) => b - a)
     suits = suits.filter(s => s !== 0).sort((a, b) => b - a)
 
@@ -49,17 +58,6 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
     return 'NONE'
 }
 
-export const scoreHand = (cards: CardInfo[]): {chips: number, mult: number} => {
-    let hand = bestHand(cards), chips = handLevels[hand].chips, mult = handLevels[hand].mult
-    
-    cards.forEach(c => {
-        if(!c.debuffed && c.scored) {
-            chips += rankChips[Rank[c.rank] as keyof typeof rankChips]
-        }
-    })
-    return {chips, mult}
-}
-
 export const shuffle = (cards: any[]) => {
     let arr = [...cards], i = cards.length
     while(i > 0) {
@@ -72,7 +70,7 @@ export const shuffle = (cards: any[]) => {
 // https://www.desmos.com/calculator/1jlnwr1peo
 export const cardSnap = ({cards, idPrefix, r = 6000}: {cards: any[], idPrefix: string, r?: number}) => {
     if(cards.length !== 0) {
-        const cardDiv = cards.map(c => document.querySelector(`div[id^=\'${idPrefix}\'][id$=\'${c.id}\']`) as HTMLElement)
+        const cardDiv = cards.map(c => document.querySelector(`[id='${idPrefix}${c.id}']`) as HTMLElement)
         if(!cardDiv.every(c => c !== null)) { return }
         const container = cardDiv[0]!.parentElement!, w = container.clientWidth, n = cards.length
         const lStep = w / n, extra = (lStep - cardDiv[0]!.clientWidth) / (n - 1)

@@ -11,7 +11,7 @@ export default function Hand() {
 
     useEffect(() => {
         cardSnap({cards: gameRef.current.cards.hand, idPrefix: 'card'})
-    }, [gameRef.current.cards.hand])
+    })
 
     return (
         <div id='hand' className='card-container'>
@@ -23,12 +23,12 @@ export default function Hand() {
             <div id='hand-buttons'>
                 <div id='ship' className={`button ${game.cards.selected.length > 0}`} onClick={() => {
                     if(gameRef.current.cards.selected.length > 0) {
-                        let len = game.cards.selected.length
+                        let len = Math.max(gameRef.current.stats.handSize - (gameRef.current.cards.hand.length - gameRef.current.cards.selected.length), 0)
                         dispatch({type: 'submit'})
                         if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Hook') {
                             let discard = shuffle(game.cards.hand.filter(c => !game.cards.selected.includes(c))).slice(2)
                             dispatch({type: 'discard', payload: {update: discard}})
-                            len += 2
+                            len += (game.cards.hand.length - game.cards.selected.length) - discard.length
                         }
                         setTimeout(() => {
                             dispatch({type: 'discard'})
@@ -50,7 +50,7 @@ export default function Hand() {
                 </div>
                 <div id='discard' className={`button ${game.cards.selected.length > 0}`} onClick={() => {
                     if(game.cards.selected.length > 0 && gameRef.current.stats.discards > 0) {
-                        let amount = game.cards.selected.length
+                        let amount = Math.max(gameRef.current.stats.handSize - (gameRef.current.cards.hand.length - gameRef.current.cards.selected.length), 0)
                         dispatch({type: 'discard'})
                         setTimeout(() => {
                             dispatch({type: 'draw', payload: {amount: amount, previous: 'discarded'}})

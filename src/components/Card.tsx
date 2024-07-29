@@ -156,7 +156,7 @@ export const Card = ({
                 const update = [...gameRef.current.cards.hand]
                 const [c] = update.splice(origI, 1)
                 update.splice(i, 0, c)
-                dispatch({type: 'reorder', payload: {cards:'hand', update: update}})
+                dispatch({type: 'updateCards', payload: {cardLocation: 'hand', update: update}})
                 origI = i
                 lastReorder = now
             }
@@ -175,7 +175,7 @@ export const Card = ({
 
     return (
         <div
-            id={`card ${id}`}
+            id={`card${id}`}
             className={`card ${mode}` +
                 `${selected ? ' selected' : ''}` +
                 `${mode === 'standard' && submitted ? ' submitted' : ''}` +
