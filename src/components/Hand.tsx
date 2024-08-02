@@ -27,7 +27,8 @@ export default function Hand() {
                         dispatch({type: 'submit'})
                         if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Hook') {
                             let discard = shuffle(game.cards.hand.filter(c => !game.cards.selected.includes(c))).slice(2)
-                            dispatch({type: 'discard', payload: {update: discard}})
+                            discard.forEach(c => dispatch({type: 'select', payload: {card: c}}))
+                            dispatch({type: 'discard'})
                             len += (game.cards.hand.length - game.cards.selected.length) - discard.length
                         }
                         setTimeout(() => {

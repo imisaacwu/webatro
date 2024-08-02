@@ -17,7 +17,7 @@ export const enhancementInfo: {[E in keyof typeof Enhancement]: string} = {
     Base: "",
     Bonus: "{blue}+30/ extra chips",
     Glass: "{red-invert}X2/ Mult\n{green}1 in 4/ chance\nto destroy card",
-    Gold: "{yellow}+3/ if this\ncard is held in hand\nat end of round",
+    Gold: "{yellow}+$3/ if this\ncard is held in hand\nat end of round",
     Lucky: "{green}1 in 5/ chance\nfor /{red}+20/ Mult\n{green}1 in 15/ chance\nto win /{yellow}$20",
     Mult: "{red}+4/ Mult",
     Steel: "{red-invert}X1.5/ Mult\nwhile this card\nstays in hand",

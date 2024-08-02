@@ -1,0 +1,108 @@
+#shop-outline {
+    display: flex;
+    background-color: var(--red);
+    border-radius: 8px;
+    margin-top: 64px;
+}
+
+#shop-outline-inner {
+    display: flex;
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 4px;
+}
+
+#shop-content {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--dark-grey);
+    border-radius: 8px;
+    margin: 4px;
+}
+
+#shop-top {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    width: 774px;
+}
+
+#shop-buttons {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    margin: 12px;
+}
+
+.shop-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    border-radius: 8px;
+    margin: 4px;
+    font-size: 32px;
+}
+
+#next-round { background-color: var(--red); }
+
+#reroll { background-color: var(--green); }
+
+#reroll-price {
+    font-size: 64px;
+    line-height: 48px;
+}
+
+#buying-area {
+    flex: 5;
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 8px;
+    height: 225px;
+}
+
+#shop-bottom {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    height: 300px;
+    margin: 12px;
+}
+
+#voucher-outline {
+    flex: 1;
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 8px;
+    height: 225px;
+}
+
+#voucher-content {
+    display: flex;
+    background-color: var(--dark-grey);
+    border-radius: 8px;
+    margin: 12px;
+    height: calc(100% - 24px);
+}
+
+#ante-voucher-label {
+    flex: 1;
+    color: var(--grey);
+    font-size: 32px;
+    text-align: center;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    rotate: 180deg;
+}
+
+#voucher-area {
+    flex: 5;
+}
+
+#booster-packs {
+    flex: 1;
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 8px;
+}

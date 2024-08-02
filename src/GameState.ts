@@ -252,7 +252,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     break 
                 default:
             }
-            break 
+            break
         case 'stat':
             next = {...next, stats: {...state.stats,
                 [action.payload?.stat!]: state.stats[action.payload?.stat!] + (action.payload?.amount === undefined ? -1 : action.payload.amount)
@@ -404,18 +404,32 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     c.selected = false
                     c.flipped = false
                 })
-                if(action.payload?.update) {
-                    next = {...next, cards: {...state.cards,
-                        hand: state.cards.hand.filter(c => action.payload?.update!.includes(c)),
-                        hidden: [...state.cards.hidden, ...action.payload.update! as CardInfo[]]
-                    }}
-                } else if(state.cards.submitted.length > 0) {
+                if(state.cards.submitted.length > 0) {
                     state.cards.submitted.forEach(c => c.submitted = false)
                     next = {...next, cards: {...state.cards,
                         submitted: [],
                         hidden: [...state.cards.hidden, ...state.cards.submitted]
                     }}
                 } else {
+                    const purple = state.cards.selected.reduce((p, c) => p += c.seal !== undefined && c.seal === Seal.Purple ? 1 : 0, 0)
+                    if(purple > 0) {
+                        let validTarots = Consumables.slice(29, 51)
+                        validTarots = validTarots.filter(c => state.cards.consumables.every(con => con.name !== c.name))
+                        if(validTarots.length === 0) { validTarots.push(Consumables[40])}
+
+                        let tarot: Omit<ConsumableType, 'id'>
+                        const n = Math.min(purple, state.stats.consumableSize - state.cards.consumables.length)
+                        for(let i = 0; i < n; i++) {
+                            tarot = validTarots[Math.floor(Math.random() * validTarots.length)]
+                            next.cards.consumables.push({
+                                id: state.cards.nextId + i,
+                                ...tarot
+                            })
+                            validTarots = validTarots.filter(c => c.name !== tarot.name)
+                            if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
+                        }
+                        next.cards.nextId += n
+                    }
                     state.cards.selected.forEach(c => c.selected = false)
                     next = {...next,
                         stats: {...state.stats,
