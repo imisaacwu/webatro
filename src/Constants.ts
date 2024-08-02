@@ -5,6 +5,7 @@ export enum Rank { Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Q
 export enum Edition { Foil, Holographic, Negative, Polychrome }
 export enum Enhancement { Base, Bonus, Glass, Gold, Lucky, Mult, Steel, Stone, Wild }
 export enum Seal { Blue, Gold, Purple, Red }
+export enum Sticker { Eternal, Perishable, Rental }
 
 export const editionInfo: {[E in keyof typeof Edition]: string} = {
     Foil: '{blue}+50/ Chips',
