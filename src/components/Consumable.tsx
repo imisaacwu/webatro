@@ -2,6 +2,8 @@ import { MouseEventHandler, useContext, useRef } from "react";
 import { Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "../Constants";
 import './Consumable.css';
 import { GameStateContext, levelHand } from "../GameState";
+import { debuffCards } from "../App";
+import { cardSnap } from "../Utilities";
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
 
 const getImage = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
@@ -234,7 +236,16 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                         if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return }
                         game.cards.selected.forEach(c => dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: c}}))
                         break
-                    case 'Death': // TODO (after reorder)
+                    case 'Death':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 2) { return }
+                        const l = game.cards.selected[0], r = game.cards.selected[1]
+                        dispatch({type: 'select', payload: {card: l}})
+                        l.suit = r.suit
+                        l.rank = r.rank
+                        l.edition = r.edition
+                        l.enhancement = r.enhancement
+                        l.seal = r.seal
+                        dispatch({type: 'select', payload: {card: l}})
                         break
                     case 'Temperance':
                         break
@@ -266,13 +277,17 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                         break
                 }
             }
+            if(game.blind.curr === 'boss') {
+                debuffCards(game.blind.boss, game.cards.hand, game.cards.played)
+            }
             dispatch({type: 'setLastUsedConsumable', payload: {consumable: consumable}})
             dispatch({type: 'discard'})
+            cardSnap({cards: game.cards.consumables, idPrefix: 'consumable', r: -1})
         }
     }
     
     return (
-        <div id={`consumable${props.id}`} className={props.name + `${selected ? ' selected' : ''}`}>
+        <div id={`consumable_${props.id}`} className={props.name + `${selected ? ' selected' : ''}`}>
             <img src={image} onClick={() => {
                 dispatch({type: 'select', payload: {consumable: consumable}})
             }} draggable={false}/>

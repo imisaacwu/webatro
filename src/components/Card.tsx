@@ -175,7 +175,7 @@ export const Card = ({
 
     return (
         <div
-            id={`card${id}`}
+            id={`card_${id}`}
             className={`card ${mode}` +
                 `${selected ? ' selected' : ''}` +
                 `${mode === 'standard' && submitted ? ' submitted' : ''}` +

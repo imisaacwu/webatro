@@ -2,6 +2,7 @@ import { createContext, Dispatch } from "react"
 import { BlindType, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, rankChips, Seal, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
+import { debuffCards } from "./App"
 
 export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
     handLevels[hand].level += n
@@ -83,7 +84,7 @@ type GameAction = {
 }
 
 export const initialGameState: GameState = {
-    state: 'shop' as GameStates,
+    state: 'blind-select' as GameStates,
 
     stats: {
         handSize: 8,
@@ -112,7 +113,7 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: [{id: -1, ...Consumables[29]}, {id: -2, ...Consumables[19]}],
+        consumables: [{id: 100, ...Consumables[42]}, {id: 101, ...Consumables[19]}],
         lastCon: undefined
     },
 
@@ -195,46 +196,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         }
                     }
                     if(state.blind.curr === 'boss') {
-                        if(name === 'The Club') {
-                            next.cards.deck.forEach(c => {
-                                if(c.suit === Suit.Clubs) {
-                                    c.debuffed = true
-                                }
-                            })
-                        } else if(name === 'The Goad') {
-                            next.cards.deck.forEach(c => {
-                                if(c.suit === Suit.Spades) {
-                                    c.debuffed = true
-                                }
-                            })
-                        } else if(name === 'The Head') {
-                            next.cards.deck.forEach(c => {
-                                if(c.suit === Suit.Hearts) {
-                                    c.debuffed = true
-                                }
-                            })
-                        } else if(name === 'The Pillar') {
-                            next.cards.deck.forEach(c => {
-                                if(state.cards.played.includes(c)) {
-                                    c.debuffed = true
-                                }
-                            })
-                        } else if(name === 'The Plant') {
-                            next.cards.deck.forEach(c => {
-                                if([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)) {
-                                    c.debuffed = true
-                                }
-                            })
-                        } else if(name === 'The Needle') {
+                        debuffCards(state.blind.boss, next.cards.deck, state.cards.played)
+                        if(name === 'The Needle') {
                             next.stats.hands = 1
                         } else if(name === 'The Water') {
                             next.stats.discards = 0
-                        } else if(name === 'The Window') {
-                            next.cards.deck.forEach(c => {
-                                if(c.suit === Suit.Diamonds) {
-                                    c.debuffed = true
-                                }
-                            })
                         }
                     }
                     break
@@ -302,18 +268,13 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     consumables: updated
                 }}
             } else {
-                const card = action.payload?.card! as CardInfo
+                const card = state.cards.hand.find(c => c.id === (action.payload?.card! as CardInfo).id)!
                 if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
-                    let updated = state.cards.selected
-                    if(state.cards.selected.includes(card)) {
-                        updated = updated.filter(c => c.id !== card.id)
-                    } else {
-                        updated.push(card)
-                    }
-                    const hand = bestHand(updated)
+                    card.selected = !card.selected
+                    const hand = bestHand(state.cards.hand.filter(c => c.selected))
                     next = {...next,
                         cards: {...state.cards,
-                            selected: updated
+                            selected: state.cards.hand.filter(c => c.selected)
                         },
                         active: {
                             name: hand,
@@ -323,20 +284,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                         }
                     }
-                    card.selected = !card.selected
                 }
             }
             break
         case 'submit':
-            let selected = state.cards.selected.sort((a, b) => (
-                state.cards.hand.findIndex(c => c.id === b.id) - state.cards.hand.findIndex(c => c.id === a.id)
-            ))
+            let selected = state.cards.selected
             // Update card state
             selected.forEach(c => {
                 c.selected = false
                 c.flipped = false
                 c.submitted = true
             })
+            let glassToBreak: CardInfo[] = []
             // Does it score?
             if(state.blind.curr === 'boss' && ((name === 'The Psychic' && selected.length < 5) ||
                 (name === 'The Eye' && state.cards.played.includes(state.active.name)) ||
@@ -373,16 +332,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         }
                     })
                 } else if(hand === 'HIGH_CARD') {
-                    selected.sort((a, b) => b.rank - a.rank).forEach((c, i) => {
+                    [...selected].sort((a, b) => b.rank - a.rank).forEach((c, i) => {
                         if(i > 0) { c.scored = false }
                     })
                 }
                 // Activation sequence
                 let chips = handLevels[hand].chips, mult = handLevels[hand].mult
-                let glassToBreak = []
                 selected.forEach(c => {
                     if(!c.debuffed && c.scored) {
-                        for(let i = 0; i < 1; i++) {
+                        let max = 1
+                        for(let i = 0; i < max; i++) {
                             chips += rankChips[Rank[c.rank] as keyof typeof rankChips]
                             if(c.enhancement !== undefined) {
                                 switch(c.enhancement) {
@@ -411,7 +370,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                             if(c.enhancement !== undefined && c.enhancement === Enhancement.Bonus) { chips += 30 }
 
-                            // if(c.seal !== undefined && c.seal === Seal.Red) { i-- }
+                            if(c.seal !== undefined && c.seal === Seal.Red) { max = 2 }
                         }
                     }
                 })
@@ -429,9 +388,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     hands: state.stats.hands - 1
                 },
                 cards: {...next.cards,
-                    hand: state.cards.hand.filter(c => !selected.includes(c)),
+                    hand: state.cards.hand.filter(c => !c.submitted),
                     selected: [],
-                    submitted: selected
+                    submitted: selected.filter(c => !glassToBreak.includes(c))
                 }
             }
             break 

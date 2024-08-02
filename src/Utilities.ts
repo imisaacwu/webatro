@@ -70,7 +70,7 @@ export const shuffle = (cards: any[]) => {
 // https://www.desmos.com/calculator/1jlnwr1peo
 export const cardSnap = ({cards, idPrefix, r = 6000}: {cards: any[], idPrefix: string, r?: number}) => {
     if(cards.length !== 0) {
-        const cardDiv = cards.map(c => document.querySelector(`[id='${idPrefix}${c.id}']`) as HTMLElement)
+        const cardDiv = cards.map(c => document.querySelector(`[id='${idPrefix}_${c.id}']`) as HTMLElement)
         if(!cardDiv.every(c => c !== null)) { return }
         const container = cardDiv[0]!.parentElement!, w = container.clientWidth, n = cards.length
         const lStep = w / n, extra = (lStep - cardDiv[0]!.clientWidth) / (n - 1)
