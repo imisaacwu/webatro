@@ -1,26 +1,26 @@
-div[id^='consumable '] {
+#consumables-area > div[id^='consumable'] {
     position: absolute;
     display: flex;
     justify-content: center;
     z-index: auto;
 }
 
-div[id^='consumable ']:hover {
+#consumables-area > div[id^='consumable']:hover {
     cursor: pointer;
     scale: 1.1;
 }
 
-div[id^='consumable ']:active {
+#consumables-area > div[id^='consumable']:active {
     z-index: 1;
 }
 
-div[id^='consumable '].selected {
+#consumables-area > div[id^='consumable'].selected {
     transform: translateY(-10px);
     z-index: 2;
 }
 
 
-div[id^='consumable '] img {
+#consumables-area > div[id^='consumable'] img {
     width: 126px;
     height: 186px;
 }
@@ -68,10 +68,9 @@ div[id^='consumable '] img {
     border-radius: 8px;
     font-size: 20px;
     color: var(--grey);
-    width: 136px
 }
 
-div[id^='consumable ']:hover #consumable-popup {
+#consumables-area > div[id^='consumable']:hover > #consumable-popup {
     display: initial;
 }
 
@@ -98,15 +97,24 @@ div[id^='consumable ']:hover #consumable-popup {
     background-color: aliceblue;
     border-radius: 8px;
     margin: 0 4px;
+    width: fit-content;
 }
 
-#level {
+#consumable-info > div {
     display: flex;
+    flex-direction: row;
+    text-align: center;
+    margin: 0 2px;
 }
 
-#planet-hand {
-    color: var(--orange)
+#consumable-info > div > div {
+    width: max-content;
+    margin: 0 2px;
 }
+
+.small { font-size: 16px; }
+
+#consumable-info > div > div.nospace { margin: 0 0 0 -2px; }
 
 .planet-upgrade {
     display: flex;
@@ -116,10 +124,18 @@ div[id^='consumable ']:hover #consumable-popup {
     font-size: 24px;
     text-align: center;
     border-radius: 8px;
-    margin: 4px 0 0 0;
+    margin: 4px;
+    color: aliceblue;
 }
 
 #consumable-type.Planet {
+    background-color: var(--aqua);
+}
+
+#consumable-type.Spectral {
     background-color: var(--blue);
-    margin: 4px;
+}
+
+#consumable-type.Tarot {
+    background-color: var(--purple);
 }

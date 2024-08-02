@@ -42,6 +42,7 @@ type GameState = {
         sort: 'rank' | 'suit'
         played: (keyof typeof HandType | CardInfo)[] // For boss blinds
         consumables: ConsumableType[]
+        lastCon: string | undefined     // name of last used Consumable
     }
 
     // In hand or submitted, handled automatically
@@ -61,7 +62,8 @@ type GameAction = {
         'stat' |
         'select' | 'submit' | 'discard' | 'draw' |
         'buy' | 'use' | 'sell' |
-        'setSort' | 'updateCards' | 'addCard' | 'removeCard'
+        'setSort' | 'updateCards' | 'addCard' | 'removeCard' |
+        'setLastUsedConsumable'
     payload?: {
         deck?: DeckType,
 
@@ -74,14 +76,14 @@ type GameAction = {
         cardLocation?: keyof typeof initialGameState['cards']
         update?: (CardInfo | ConsumableType)[]
         card?: CardInfo | Omit<CardInfo, 'id'>
-        consumable?: ConsumableType
+        consumable?: ConsumableType | Omit<ConsumableType, 'id'>
 
         sort?: 'rank' | 'suit'
     }
 }
 
 export const initialGameState: GameState = {
-    state: 'blind-select' as GameStates,
+    state: 'shop' as GameStates,
 
     stats: {
         handSize: 8,
@@ -110,7 +112,8 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: [{id: 57, ...Consumables[28]}]
+        consumables: [{id: -1, ...Consumables[29]}, {id: -2, ...Consumables[19]}],
+        lastCon: undefined
     },
 
     active: {
@@ -292,7 +295,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         case 'select':
             if(action.payload?.consumable) {
                 const consumables = state.cards.consumables
-                const index = consumables.findIndex(c => c.id === action.payload!.consumable!.id)!
+                const index = consumables.findIndex(c => c.id === (action.payload!.consumable! as ConsumableType).id)!
                 let updated = state.cards.consumables
                 updated.forEach((c, i) => c.selected = !c.selected && i === index)
                 next = {...next, cards: {...state.cards,
@@ -513,7 +516,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     money: state.stats.money - action.payload?.amount!
                 },
                 cards: {...state.cards,
-                    consumables: [...state.cards.consumables, action.payload?.consumable!]
+                    consumables: [...state.cards.consumables, action.payload?.consumable! as ConsumableType]
                 }
             }
             break
@@ -536,18 +539,31 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             setTimeout(() => cardSnap({cards: cards, idPrefix: prefix}))
             break
         case 'addCard':
-            next = {...next, cards: {...state.cards,
-                nextId: state.cards.nextId + 1,
-                [action.payload?.cardLocation!]: [...state.cards[action.payload?.cardLocation!] as any[], {
-                    id: state.cards.nextId,
-                    ...action.payload?.card
-                }]
-            }}
+            if(action.payload?.consumable) {
+                next = {...next, cards: {...state.cards,
+                    nextId: state.cards.nextId + 1,
+                    consumables: [...state.cards.consumables, {
+                        id: state.cards.nextId,
+                        ...action.payload.consumable
+                    }]
+                }}
+            } else {
+                next = {...next, cards: {...state.cards,
+                    nextId: state.cards.nextId + 1,
+                    [action.payload?.cardLocation!]: [...state.cards[action.payload?.cardLocation!] as any[], {
+                        id: state.cards.nextId,
+                        ...action.payload?.card
+                    }]
+                }}
+            }
             break
         case 'removeCard':
             next = {...next, cards: {...state.cards,
                 [action.payload?.cardLocation!]: (state.cards[action.payload?.cardLocation!] as any[]).filter(c => c.id !== (action.payload?.card as CardInfo).id)
             }}
+            break
+        case 'setLastUsedConsumable':
+            next.cards.lastCon = action.payload?.consumable!.name
             break
         default:
     }

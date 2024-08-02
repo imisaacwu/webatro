@@ -214,6 +214,7 @@
 
 #blind-container {
     display: flex;
+    flex-direction: column;
     background-color: var(--grey);
     border-radius: 8px;
     margin: 8px;
@@ -258,6 +259,21 @@
 
 #blind-select.run-info.false {
     background-color: var(--orange);
+}
+
+#boss-ante-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--grey);
+    font-size: 24px;
+    line-height: 24px;
+    margin-top: -8px;
+}
+
+#up-ante-label {
+    font-size: 40px;
+    line-height: 40px;
 }
 
 #post-blind-info {

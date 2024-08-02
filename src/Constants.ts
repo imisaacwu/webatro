@@ -26,7 +26,7 @@ export const enhancementInfo: {[E in keyof typeof Enhancement]: string} = {
 }
 
 export const sealInfo: {[S in keyof typeof Seal]: string} = {
-    Blue: "Creates the/{blue}Planet/card\nfor final played/{orange}poker hand\nof round if/{orange}held/in hand\n{grey}(Must have room)",
+    Blue: "Creates the/{aqua}Planet/card\nfor final played/{orange}poker hand\nof round if/{orange}held/in hand\n{grey}(Must have room)",
     Gold: "Earn/{yellow}$3/when this\ncard is played\nand scores",
     Purple: "Creates a/{purple}Tarot/card\nwhen/{orange}discarded\n{grey}(Must have room)",
     Red: "Retrigger this\ncard/{orange}1/time"
@@ -403,11 +403,11 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         type: 'Spectral'
     }, {
         name: 'Talisman',
-        description: 'Add a Gold Seal to /{orange}1/ selected card in your hand',
+        description: 'Add a /{orange}Gold Seal/ to /{orange}1/ selected card in your hand',
         type: 'Spectral'
     }, {
         name: 'Aura',
-        description: 'Add Foil, Holographic, or Polychrome effect to /{orange}1/ selected card in hand',
+        description: 'Add /{indigo}Foil/, /{indigo}Holographic/, or /{indigo}Polychrome/ effect to /{orange}1/ selected card in hand',
         type: 'Spectral'
     }, {
         name: 'Wraith',
@@ -461,5 +461,93 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         name: 'Black Hole',
         description: 'Upgrade every poker hand by /{orange}1/ level',
         type: 'Spectral'
+    }, {
+        name: 'The Fool',
+        description: 'Create the last\n{purple}Tarot/ or /{aqua}Planet/ card\nused during this run\n{small purple}The Fool /{small} excluded',
+        type: 'Tarot'
+    }, {
+        name: 'The Magician',
+        description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Lucky Card',
+        type: 'Tarot'
+    }, {
+        name: 'The High Priestess',
+        description: 'Creates up to /{orange}2\nrandom /{aqua}Planet/ cards\n{grey}(Must have room)',
+        type: 'Tarot'
+    }, {
+        name: 'The Empress',
+        description: 'Enhances /{orange}2\nselected cards to\n{orange}Mult Cards',
+        type: 'Tarot'
+    }, {
+        name: 'The Emperor',
+        description: 'Creates up to /{orange}2\nrandom /{purple}Tarot/ cards\n{grey}(Must have room)',
+        type: 'Tarot'
+    }, {
+        name: 'The Hierophant',
+        description: 'Enhances /{orange}2\nselected cards to\n{orange}Bonus Cards',
+        type: 'Tarot'
+    }, {
+        name: 'The Lovers',
+        description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Wild Card',
+        type: 'Tarot'
+    }, {
+        name: 'The Chariot',
+        description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Steel Card',
+        type: 'Tarot'
+    }, {
+        name: 'Justice',
+        description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Glass Card',
+        type: 'Tarot'
+    }, {
+        name: 'The Hermit',
+        description: 'Doubles money\n{grey}(Max of /{yellow}$20/{grey nospace})',
+        type: 'Tarot'
+    }, {
+        name: 'The Wheel of Fortune',
+        description: '{green}1 in 4/ chance to add\n{indigo}Foil/{nospace},/{indigo}Holographic/{nospace}, or\n{indigo}Polychrome/ edition\nto a random /{orange}Joker',
+        type: 'Tarot'
+    }, {
+        name: 'Strength',
+        description: 'Increases rank of\nup to /{orange}2/ selected\ncards by /{orange}1',
+        type: 'Tarot'
+    }, {
+        name: 'The Hanged Man',
+        description: 'Destroys up to\n{orange}2/ selected cards',
+        type: 'Tarot'
+    }, {
+        name: 'Death',
+        description: 'Select /{orange}2/ cards,\nconvert the /{orange}left/ card\ninto the /{orange}right/ card\n{grey}(Drag to rearrange)',
+        type: 'Tarot'
+    }, {
+        name: 'Temperance',
+        description: 'Gives the total sell\nvalue of all current\nJokers /{grey}(Max of /{yellow}$50/{grey nospace})\n{grey}(Currently /{yellow current-joker}_/{grey nospace})',
+        type: 'Tarot'
+    }, {
+        name: 'The Devil',
+        description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Gold Card',
+        type: 'Tarot'
+    }, {
+        name: 'The Tower',
+        description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Stone Card',
+        type: 'Tarot'
+    }, {
+        name: 'The Star',
+        description: 'Converts up to\n{orange}3/ selected cards\n to /{orange}Diamonds',
+        type: 'Tarot'
+    }, {
+        name: 'The Moon',
+        description: 'Converts up to\n{orange}3/ selected cards\n to /{blue}Clubs',
+        type: 'Tarot'
+    }, {
+        name: 'The Sun',
+        description: 'Converts up to\n{orange}3/ selected cards\n to /{red}Hearts',
+        type: 'Tarot'
+    }, {
+        name: 'Judgement',
+        description: 'Creates a random\n{orange}Joker/ card\n{grey}(Must have room)',
+        type: 'Tarot'
+    }, {
+        name: 'The World',
+        description: 'Converts up to\n{orange}3/ selected cards\n to /{dark-purple}Spades',
+        type: 'Tarot'
     }
 ]

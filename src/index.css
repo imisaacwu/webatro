@@ -22,7 +22,10 @@
     --orange: hsl(33, 87%, 51%);
     --dark-orange: hsl(33, 87%, 51%);
     --green: #38bd85;
+    --indigo: #6265d7;
+    --purple: #9c80b7;
     --dark-purple: #231e79;
+    --aqua: hsl(188, 63%, 52%);
     --dark-grey: #1C2729;
     --grey: #384244;
     --light-grey: #b7c2cc;
@@ -39,3 +42,8 @@
 .yellow { color: var(--yellow) }
 .orange { color: var(--orange) }
 .green { color: var(--green) }
+.indigo { color: var(--indigo) }
+.aqua { color: var(--aqua) }
+.purple { color: var(--purple) }
+.dark-purple { color: var(--dark-purple) }
+.grey { color: var(--light-grey) }

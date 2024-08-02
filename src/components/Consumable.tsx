@@ -1,8 +1,7 @@
 import { MouseEventHandler, useContext, useRef } from "react";
-import { ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "../Constants";
+import { Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "../Constants";
 import './Consumable.css';
 import { GameStateContext, levelHand } from "../GameState";
-import { cardSnap } from "../Utilities";
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
 
 const getImage = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
@@ -17,14 +16,25 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
     const { state: game, dispatch } = useContext(GameStateContext)
     const gameRef = useRef(game)
     gameRef.current = game
-    const image = getImage(props.type, props.name)
+    const image = getImage(props.type, props.type === 'Tarot' ? props.name.replace(/The /,'') : props.name)
     const consumable = game.cards.consumables.find(c => c.id === props.id)
     const sellPrice = props.type === 'Spectral' ? 2 : 1
-    const description = props.description?.split('/').map((str, i) =>
-        <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
-            {str.replace(/{.+}/g, '')}
+    const description = props.description?.split('\n').map((line, i) =>
+        <div key={i}>
+            {line.split('/').map((str, i) =>
+                <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
+                    {str.replace(/{.+}/g, '')}
+                </div>
+            )}
         </div>
     )
+    if(props.name === 'The Fool' && game.cards.lastCon !== undefined) {
+        description?.push(<div>{game.cards.lastCon}</div>)
+    }
+
+    const suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
+    const ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
+    const enhancements = Object.keys(Enhancement).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Enhancement)
 
     const sell: MouseEventHandler = () => {
         dispatch({type: 'stat', payload: {stat: 'money', amount: sellPrice}})
@@ -36,9 +46,6 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
             if(props.type === 'Planet') {
                 levelHand({hand: props.hand!})
             } else if(props.type === 'Spectral') {
-                let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
-                let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
-                let enhancements = Object.keys(Enhancement).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Enhancement)
                 switch(props.name) {
                     case 'Familiar':
                         if(game.state !== 'scoring') { return }
@@ -158,71 +165,114 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                         break
                         
                 }
-            }
-            dispatch({type: 'discard'})
-        }
-    }
+            } else if(props.type === 'Tarot') {
+                switch(props.name) {
+                    case 'The Fool':
+                        if(game.cards.lastCon === undefined || game.cards.lastCon === 'The Fool') { return }
+                        dispatch({type: 'addCard', payload: {consumable: Consumables.find(c => c.name === game.cards.lastCon)}})
+                        break
+                    case 'The Magician':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].enhancement = Enhancement.Lucky
+                        break
+                    case 'The High Priestess':
+                        let validPlanets = Consumables.slice(0, 11)
+                        validPlanets = validPlanets.filter(c => game.cards.consumables.every(con => con.name !== c.name) && (!c.name.match('Planet X|Ceres|Eris') || handLevels[c.hand!].played > 0))
+                        if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
 
-    const tolerance = 10, renderDelay = 100
-    let dragElem: HTMLElement | null = null
-    let [origX, origY, origI, startX, startY]: number[] = []
-    let lastReorder  = 0
+                        let planet: Omit<ConsumableType, 'id'>
+                        for(let i = 0; i < Math.min(2, game.stats.consumableSize - game.cards.consumables.length + 1); i++) {
+                            planet = validPlanets[Math.floor(Math.random() * validPlanets.length)]
+                            dispatch({type: 'addCard', payload: {consumable: planet}})
+                            validPlanets = validPlanets.filter(c => c.name !== planet.name)
+                            if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
+                        }
+                        break
+                    case 'The Empress':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return }
+                        game.cards.selected.forEach(c => c.enhancement = Enhancement.Mult)
+                        break
+                    case 'The Emperor':
+                        let validTarots = Consumables.slice(29, 51)
+                        validTarots = validTarots.filter(c => game.cards.consumables.every(con => con.name !== c.name))
+                        if(validTarots.length === 0) { validTarots.push(Consumables[40])}
 
-    const mouseDown = (e: React.MouseEvent<HTMLElement>) => {
-        dragElem = (e.target as HTMLElement).parentElement!
-        if(dragElem.id === 'consumable-tabs') { return }
-        origX = dragElem.offsetLeft
-        origY = dragElem.offsetTop
-        origI = [...dragElem.parentElement!.children].indexOf(dragElem)
-        startX = e.clientX - origX
-        startY = e.clientY - origY
-        
-        document.addEventListener('mousemove', mouseMove)
-        document.addEventListener('mouseup', mouseUp)
-    }
-
-    const mouseMove = (e: MouseEvent) => {
-        if(dragElem) {
-            const x = e.clientX - startX
-            const y = startY - e.clientY
-            requestAnimationFrame(() => {
-                if(dragElem) {
-                    dragElem!.style.left = `${x}px`
-                    dragElem!.style.bottom = `${y}px`
+                        let tarot: Omit<ConsumableType, 'id'>
+                        for(let i = 0; i < Math.min(2, game.stats.consumableSize - game.cards.consumables.length + 1); i++) {
+                            tarot = validTarots[Math.floor(Math.random() * validTarots.length)]
+                            dispatch({type: 'addCard', payload: {consumable: tarot}})
+                            validTarots = validTarots.filter(c => c.name !== tarot.name)
+                            if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
+                        }
+                        break
+                    case 'The Heirophant':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return }
+                        game.cards.selected.forEach(c => c.enhancement = Enhancement.Bonus)
+                        break
+                    case 'The Lovers':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].enhancement = Enhancement.Wild
+                        break
+                    case 'The Chariot':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].enhancement = Enhancement.Steel
+                        break
+                    case 'Justice':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].enhancement = Enhancement.Glass
+                        break
+                    case 'The Hermit':
+                        dispatch({type: 'stat', payload: {stat: 'money', amount: Math.min(20, game.stats.money)}})
+                        break
+                    case 'The Wheel of Fortune': // TODO (after jokers)
+                        break
+                    case 'Strength':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return }
+                        game.cards.selected.forEach(c => c.rank = Rank[ranks[(c.rank + 1) % ranks.length]])
+                        break
+                    case 'The Hanged Man':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return }
+                        game.cards.selected.forEach(c => dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: c}}))
+                        break
+                    case 'Death': // TODO (after reorder)
+                        break
+                    case 'Temperance':
+                        break
+                    case 'The Devil':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].enhancement = Enhancement.Gold
+                        break
+                    case 'The Tower':
+                        if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
+                        game.cards.selected[0].enhancement = Enhancement.Stone
+                        break
+                    case 'The Star':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 3) { return }
+                        game.cards.selected.forEach(c => c.suit = Suit.Diamonds)
+                        break
+                    case 'The Moon':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 3) { return }
+                        game.cards.selected.forEach(c => c.suit = Suit.Clubs)
+                        break
+                    case 'The Sun':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 3) { return }
+                        game.cards.selected.forEach(c => c.suit = Suit.Hearts)
+                        break
+                    case 'Judgement':
+                        break
+                    case 'The World':
+                        if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 3) { return }
+                        game.cards.selected.forEach(c => c.suit = Suit.Spades)
+                        break
                 }
-            })
-
-            const now = Date.now()
-            if(now - lastReorder < renderDelay) { return }
-
-            const container = dragElem.parentElement!
-            const w = container.clientWidth, l = container.childElementCount
-            const lStep = w / l, extra = (lStep - dragElem.clientWidth) / (l - 1)
-            let i = Math.min(l, Math.max(0, Math.round(dragElem.offsetLeft / (lStep + extra))))
-            if(Math.abs(dragElem.offsetLeft - i * (lStep + extra)) < tolerance && origI !== i) {
-                const update = [...gameRef.current.cards.consumables]
-                const [c] = update.splice(origI, 1)
-                update.splice(i, 0, c)
-                dispatch({type: 'updateCards', payload: {cardLocation: 'consumables', update: update}})
-                origI = i
-                lastReorder = now
             }
-        }
-    }
-
-    const mouseUp = () => {
-        if (dragElem) {
-            cardSnap({cards: gameRef.current.cards.consumables, r: -1, idPrefix: 'consumable'})
-            document.removeEventListener('mousemove', mouseMove)
-            document.removeEventListener('mouseup', mouseUp)
-            dragElem = null
+            dispatch({type: 'setLastUsedConsumable', payload: {consumable: consumable}})
+            dispatch({type: 'discard'})
         }
     }
     
     return (
-        <div id={`consumable ${props.id}`} className={props.name + `${selected ? ' selected' : ''}`}
-            onMouseDown={mouseDown} onMouseUp={mouseUp}
-        >
+        <div id={`consumable${props.id}`} className={props.name + `${selected ? ' selected' : ''}`}>
             <img src={image} onClick={() => {
                 dispatch({type: 'select', payload: {consumable: consumable}})
             }} draggable={false}/>
@@ -242,20 +292,28 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                     <div id='consumable-info'>
                         {props.type === 'Planet' &&
                             <>
-                                <div id='level'>[<div className='yellow'>{`lvl.${handLevels[props.hand!].level}`}</div>] Level up</div>
-                                <div id='planet-hand'>{HandType[props.hand as keyof typeof HandType]}</div>
-                                <div className='planet-upgrade'><div className='red'>+{handUpgrade[props.hand!].mult}</div>&nbsp;Mult and</div>
-                                <div className='planet-upgrade'><div className='blue'>+{handUpgrade[props.hand!].chips}</div>&nbsp;chips</div>
+                                <div>
+                                    <div>{'('}</div>
+                                    <div className='yellow nospace'>{`lvl.${handLevels[props.hand!].level}`}</div>
+                                    <div className='nospace'>{') Level up'}</div>
+                                </div>
+                                <div className='orange'>
+                                    {HandType[props.hand as keyof typeof HandType]}
+                                </div>
+                                <div>
+                                    <div className='red'>+{handUpgrade[props.hand!].mult}</div>
+                                    <div>Mult and</div>
+                                </div>
+                                <div>
+                                    <div className='blue'>+{handUpgrade[props.hand!].chips}</div>
+                                    <div>chips</div>
+                                </div>
                             </>
                         }
-                        {props.type === 'Spectral' &&
-                            <div>
-                                {description}
-                            </div>
-                        }
+                        {(props.type === 'Spectral' || props.type === 'Tarot') && <>{description}</>}
                     </div>
                     <div id='consumable-type' className={props.type}>
-                        {props.type}
+                        {props.name === 'Ceres' ? 'Dwarf Planet' : props.type}
                     </div>
                 </div>
             </div>
