@@ -55,6 +55,9 @@
 }
 
 #buying-area {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
     flex: 5;
     background-color: var(--grey);
     border-radius: 8px;

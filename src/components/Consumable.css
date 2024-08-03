@@ -1,26 +1,30 @@
-#consumables-area > div[id^='consumable'] {
+div[id^='consumable_'] {
     position: absolute;
     display: flex;
     justify-content: center;
     z-index: auto;
 }
 
-#consumables-area > div[id^='consumable']:hover {
+div[id^='consumable_'].shopping {
+    position: relative;
+}
+
+div[id^='consumable_']:hover {
     cursor: pointer;
     scale: 1.1;
 }
 
-#consumables-area > div[id^='consumable']:active {
+div[id^='consumable_']:active {
     z-index: 1;
 }
 
-#consumables-area > div[id^='consumable'].selected {
+div[id^='consumable_'].selected {
     transform: translateY(-10px);
     z-index: 2;
 }
 
 
-#consumables-area > div[id^='consumable'] img {
+div[id^='consumable_'] img {
     width: 126px;
     height: 186px;
 }
@@ -70,7 +74,7 @@
     color: var(--grey);
 }
 
-#consumables-area > div[id^='consumable']:hover > #consumable-popup {
+div[id^='consumable_']:hover > #consumable-popup {
     display: initial;
 }
 

@@ -12,6 +12,8 @@ import { gameReducer, GameStateContext, initialGameState } from './GameState'
 import { Card } from './components/Card'
 import { cardSnap } from './Utilities'
 import { CardInfo } from './components/CardInfo'
+import { Joker } from './components/Joker'
+import { Shop } from './components/Shop'
 
 export const debuffCards = (blind: BlindType, cards: CardInfo[], past: (keyof typeof HandType | CardInfo)[]) => {
     switch(blind.name) {
@@ -54,6 +56,8 @@ export default function App() {
         cardSnap({cards: gameRef.current.cards.consumables, idPrefix: 'consumable', r: -1})
     }, [gameRef.current.cards.consumables])
 
+    cardSnap({cards: game.jokers, idPrefix: 'joker', r: -1})
+
     const handleKeys = (e: KeyboardEvent) => {
         if(e.key === 'Escape') {
             gameRef.current.cards.selected.forEach(c => {
@@ -83,7 +87,11 @@ export default function App() {
                 <div id='main'>
                     <div id='top'>
                         <div id='jokers' className='card-container'>
-                            <div id='joker-area' className='card-area'></div>
+                            <div id='joker-area' className='card-area'>
+                                {game.jokers.map(j => 
+                                    <Joker {...j}/>
+                                )}
+                            </div>
                             <div id='joker-label' className='counter'>0/5</div>
                         </div>
                         <div id='consumables' className='card-container'>
@@ -142,6 +150,7 @@ export default function App() {
                                     </div>
                                 </div>
                             </>}
+                            {game.state === 'shop' && <Shop />}
                         </div>
                         <Deck />
                     </div>

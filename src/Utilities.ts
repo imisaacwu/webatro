@@ -87,8 +87,14 @@ export const cardSnap = ({cards, idPrefix, r = 6000}: {cards: any[], idPrefix: s
                 c!.style.bottom = `${y}px`
                 c!.style.rotate = `${rot}rad`
             } else {
-                c!.style.bottom = '0'
+                c!.style.bottom = '-7px'
             }
         })
     }
+}
+
+export const getImage = (url: string, images: Record<string, { default: string }>) => {
+    const module = images[url]
+    if(!module) { throw new Error(`no such image ${url}`) }
+    return module.default
 }

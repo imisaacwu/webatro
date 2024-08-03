@@ -343,6 +343,7 @@ export type ConsumableType = {
     hand?: keyof typeof HandType
     type: 'Planet' | 'Spectral'| 'Tarot'
     selected?: boolean
+    shopMode?: boolean
 }
 
 export const Consumables: Omit<ConsumableType, 'id'>[] = [
@@ -424,7 +425,7 @@ export const Consumables: Omit<ConsumableType, 'id'>[] = [
         type: 'Spectral'
     }, {
         name: 'Ectoplasm',
-        description: 'Add Negative to a random Joker. /{red}-1/ hand size',
+        description: 'Add Negative to a random Joker.\n{red}-1/ hand size',
         type: 'Spectral'
     }, {
         name: 'Immolate',

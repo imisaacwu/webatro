@@ -3,6 +3,7 @@ import { BlindType, Consumables, ConsumableType, DeckType, Edition, Enhancement,
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
 import { debuffCards } from "./App"
+import { Activation, JokerInstance } from "./components/JokerInfo"
 
 export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
     handLevels[hand].level += n
@@ -32,6 +33,8 @@ type GameState = {
         boss: BlindType
         base: number
     }
+
+    jokers: JokerInstance[]
 
     cards: {
         nextId: number
@@ -84,7 +87,7 @@ type GameAction = {
 }
 
 export const initialGameState: GameState = {
-    state: 'blind-select' as GameStates,
+    state: 'shop' as GameStates,
 
     stats: {
         handSize: 8,
@@ -104,6 +107,8 @@ export const initialGameState: GameState = {
         base: ante_base(1)
     },
 
+    jokers: [],
+
     cards: {
         nextId: 0,
         deck: [],
@@ -113,7 +118,7 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: [{id: 100, ...Consumables[42]}, {id: 101, ...Consumables[19]}],
+        consumables: [],
         lastCon: undefined
     },
 
@@ -303,12 +308,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 next = {...next, active: initialGameState.active}
             } else {
                 let hand = state.active.name
-                // Keep track of hands for relevant bosses
+                handLevels[hand].played++
+                let chips = handLevels[hand].chips, mult = handLevels[hand].mult
+
+                // Relevant boss mechanics
                 if(state.blind.curr === 'boss') {
                     if(name === 'The Arm') {
                         if(handLevels[hand].level > 1) {
                             levelHand({hand: hand, n: -1})
                         }
+                    } else if(name === 'The Flint') {
+                        chips = Math.ceil(chips / 2.0)
+                        mult = Math.ceil(mult / 2.0)
                     } else if(name.match('The\ [Eye|Mouth]')) {
                         next.cards.played.push(hand)
                     } else if(name === 'The Tooth') {
@@ -317,7 +328,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 } else if(name === 'The Pillar') {
                     next.cards.played = [...next.cards.played, ...selected]
                 }
-                handLevels[hand].played++
                 // Determine which cards score
                 let ranks: number[] = new Array(13).fill(0)
                 selected.forEach(c => {
@@ -337,12 +347,22 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     })
                 }
                 // Activation sequence
-                let chips = handLevels[hand].chips, mult = handLevels[hand].mult
+                const baseball = state.jokers.find(j => j.joker.name === 'Baseball Card') !== undefined
+
+                state.jokers.filter(j => j.joker.activation.includes(Activation.OnPlayed)).forEach(j => {
+                    switch(j.joker.name) {
+
+                    }
+                    if(baseball && j.joker.rarity === 'Uncommon') { mult *= 1.5 }
+                })
+
                 selected.forEach(c => {
                     if(!c.debuffed && c.scored) {
-                        let max = 1
-                        for(let i = 0; i < max; i++) {
+                        let triggers = 1 + (c.seal === Seal?.Red ? 1 : 0)
+                        for(let i = 0; i < triggers; i++) {
                             chips += rankChips[Rank[c.rank] as keyof typeof rankChips]
+                            if(c.enhancement !== undefined && c.enhancement === Enhancement.Bonus) { chips += 30 }
+
                             if(c.enhancement !== undefined) {
                                 switch(c.enhancement) {
                                     case Enhancement.Bonus: chips += 30; break
@@ -358,9 +378,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                     case Enhancement.Stone: chips += 50; break
                                 }
                             }
+
                             if(c.seal !== undefined && c.seal === Seal.Gold) {
                                 next.stats.money += 3
                             }
+
                             if(c.edition !== undefined) {
                                 switch(c.edition) {
                                     case Edition.Foil: chips += 50; break
@@ -368,18 +390,54 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                     case Edition.Polychrome: mult *= 1.5; break
                                 }
                             }
-                            if(c.enhancement !== undefined && c.enhancement === Enhancement.Bonus) { chips += 30 }
 
-                            if(c.seal !== undefined && c.seal === Seal.Red) { max = 2 }
+                            state.jokers.filter(j => j.joker.activation.includes(Activation.OnScored)).forEach(j => {
+                                switch(j.joker.name) {
+            
+                                }
+                                if(baseball && j.joker.rarity === 'Uncommon') { mult *= 1.5 }
+                            })
+
+                            // Retrigger jokers
                         }
                     }
                 })
+
+                state.cards.hand.filter(c => !c.selected).forEach(c => {
+                    if(!c.debuffed) {
+                        let triggers = 1 + (c.seal === Seal?.Red ? 1 : 0)
+                        for(let i = 0; i < triggers; i++) {
+                            if(c.enhancement === Enhancement?.Steel) { mult *= 1.5 }
+
+                            state.jokers.filter(j => j.joker.activation.includes(Activation.OnHeld)).forEach(j => {
+                                switch(j.joker.name) {
+            
+                                }
+                                if(baseball && j.joker.rarity === 'Uncommon') { mult *= 1.5 }
+                            })
+
+                            // Retrigger jokers
+                        }
+                    }
+                })
+
+                state.jokers.forEach(j => {
+                    if(j.edition === Edition?.Foil) { chips += 50 }
+                    if(j.edition === Edition?.Holographic) { mult += 10 }
+                })
+
+                state.jokers.filter(j => j.joker.activation.includes(Activation.Independent)).forEach(j => {
+                    switch(j.joker.name) {
+                        case 'Joker': mult += 4; break
+                    }
+                    if(baseball && j.joker.rarity === 'Uncommon') { mult *= 1.5 }
+                })
+
+                state.jokers.forEach(j => {
+                    if(j.edition === Edition?.Polychrome) { mult *= 1.5 }
+                })
+
                 chips = Math.ceil(chips), mult = Math.ceil(mult)
-                
-                if(state.blind.curr === 'boss' && name === 'The Flint') {
-                    chips = Math.ceil(chips / 2.0)
-                    mult = Math.ceil(mult / 2.0)
-                }
                 next.stats.score += (chips * mult)
                 next.active.score = {chips: chips, mult: mult}
             }

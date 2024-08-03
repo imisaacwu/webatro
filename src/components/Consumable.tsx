@@ -287,7 +287,13 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
     }
     
     return (
-        <div id={`consumable_${props.id}`} className={props.name + `${selected ? ' selected' : ''}`}>
+        <div
+            id={`consumable_${props.id}`}
+            className={props.name +
+                `${selected ? ' selected' : ''}` +
+                `${props.shopMode ? ' shopping' : ''}`
+            }
+        >
             <img src={image} onClick={() => {
                 dispatch({type: 'select', payload: {consumable: consumable}})
             }} draggable={false}/>

@@ -1,0 +1,103 @@
+div[id^='joker_'] {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    z-index: auto;
+}
+
+div[id^='joker_'].shopping {
+    position: relative;
+}
+
+div[id^='joker_']:hover {
+    cursor: pointer;
+    scale: 1.1;
+}
+
+div[id^='joker_']:active { z-index: 1; }
+
+div[id^='joker_'] > img {
+    width: 142px;
+    height: 190px;
+}
+
+#joker-description-outline {
+    display: none;
+    position: absolute;
+    top: 190px;
+    border: 4px solid var(--light-grey);
+    border-radius: 8px;
+    font-size: 20px;
+    color: var(--grey);
+}
+
+div[id^='joker_'].shopping #joker-description-outline {
+    top: 25%;
+    right: 142px;
+}
+
+div[id^='joker_']:hover #joker-description-outline { display: initial; }
+
+#joker-description {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--grey);
+    border-radius: 4px;
+}
+
+#joker-name {
+    text-align: center;
+    font-size: 32px;
+    line-height: 24px;
+    color: aliceblue;
+    margin: 4px;
+}
+
+#joker-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px;
+    background-color: aliceblue;
+    border-radius: 8px;
+    margin: 0 4px;
+    min-width: 100px;
+}
+
+#joker-info > div {
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    margin: 0 2px;
+}
+
+#joker-info > div > div {
+    width: max-content;
+    margin: 0 2px;
+}
+
+#joker-rarity {
+    font-size: 24px;
+    text-align: center;
+    border-radius: 8px;
+    margin: 4px;
+    padding: 0 4px;
+    color: aliceblue;
+}
+
+#joker-rarity.Common { background-color: var(--blue); }
+
+#joker-price-tab {
+    position: absolute;
+    background-color: var(--dark-grey);
+    top: -40px;
+    border-radius: 8px 8px 0 0;
+}
+
+#joker-price {
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 4px;
+    padding: 0 16px;
+    font-size: 32px;
+}
