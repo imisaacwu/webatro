@@ -1,5 +1,7 @@
 import { CardInfo } from "./components/CardInfo"
-import { AnteChips, Blinds, Enhancement, HandType } from "./Constants"
+import { Jokers } from "./components/JokerInfo"
+import { AnteChips, Blinds, Consumables, Enhancement, handLevels, HandType } from "./Constants"
+import { GameState } from "./GameState"
 
 // https://www.desmos.com/calculator/fsvcr75cdx
 export const ante_base = (ante: number) => {
@@ -97,4 +99,46 @@ export const getImage = (url: string, images: Record<string, { default: string }
     const module = images[url]
     if(!module) { throw new Error(`no such image ${url}`) }
     return module.default
+}
+
+export const newOffers = (slots: number, weights: {
+    Joker: number;
+    Tarot: number;
+    Planet: number;
+    Card: number;
+    Spectral: number;
+}, game: GameState) => {
+    const offers = []
+    const total = Object.values(weights).reduce((n, w) => n += w)
+    for(let i = 1; i <= slots; i++) {
+        const roll = Math.random()
+        if(roll < weights.Joker / total) {
+            const rare_roll = Math.random()
+            const rarity = rare_roll < .7 ? 'Common' : rare_roll < .95 ? 'Uncommon' : 'Rare'
+            const validJokers = Jokers.filter(j => j.rarity === rarity && !game.jokers.find(joker => joker.joker.name === j.name))
+            if(validJokers.length === 0) { validJokers.push(Jokers[0])}
+            offers.push({
+                id: -i,
+                joker: validJokers[Math.floor(Math.random() * validJokers.length)],
+                shopMode: true
+            })
+        } else if(roll < (weights.Joker + weights.Tarot) / total) {
+            const validTarots = Consumables.slice(29, 51).filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
+            if(validTarots.length === 0) { validTarots.push(Consumables[40])}
+            offers.push({
+                id: -i,
+                consumable: validTarots[Math.floor(Math.random() * validTarots.length)],
+                shopMode: true
+            })
+        } else if(roll < (weights.Joker + weights.Tarot + weights.Planet) / total) {
+            const validPlanets = Consumables.slice(0, 11).filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name) && (!c.name.match('Planet X|Ceres|Eris') || handLevels[c.hand!].played > 0))
+            if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
+            offers.push({
+                id: -i,
+                consumable: validPlanets[Math.floor(Math.random() * validPlanets.length)],
+                shopMode: true
+            })
+        }
+    }
+    return offers
 }

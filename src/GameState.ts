@@ -1,6 +1,6 @@
 import { createContext, Dispatch } from "react"
-import { BlindType, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, rankChips, Seal, Suit } from "./Constants"
-import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, shuffle } from "./Utilities"
+import { BlindType, ConsumableInstance, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, rankChips, Seal, Suit } from "./Constants"
+import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, newOffers, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
 import { debuffCards } from "./App"
 import { Activation, JokerInstance } from "./components/JokerInfo"
@@ -13,7 +13,7 @@ export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: n
 
 type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
-type GameState = {
+export type GameState = {
     state: GameStates
     
     stats: {
@@ -25,7 +25,20 @@ type GameState = {
         round: number
         score: number
         consumableSize: number
+        jokerSize: number
         deck: DeckType
+    }
+
+    shop: {
+        slots: number
+        offers: (JokerInstance | ConsumableInstance)[]
+        weights: {
+            Joker: number;
+            Tarot: number;
+            Planet: number;
+            Card: number;
+            Spectral: number;
+        }
     }
 
     blind: {
@@ -45,7 +58,7 @@ type GameState = {
         hidden: CardInfo[]      // Off-screen
         sort: 'rank' | 'suit'
         played: (keyof typeof HandType | CardInfo)[] // For boss blinds
-        consumables: ConsumableType[]
+        consumables: ConsumableInstance[]
         lastCon: string | undefined     // name of last used Consumable
     }
 
@@ -65,9 +78,9 @@ type GameAction = {
         'state' |
         'stat' |
         'select' | 'submit' | 'discard' | 'draw' |
-        'buy' | 'use' | 'sell' |
         'setSort' | 'updateCards' | 'addCard' | 'removeCard' |
-        'setLastUsedConsumable'
+        'setLastUsedConsumable' | 'addJoker' |
+        'shop-select' | 'shop-remove' | 'reroll'
     payload?: {
         deck?: DeckType,
 
@@ -80,7 +93,8 @@ type GameAction = {
         cardLocation?: keyof typeof initialGameState['cards']
         update?: (CardInfo | ConsumableType)[]
         card?: CardInfo | Omit<CardInfo, 'id'>
-        consumable?: ConsumableType | Omit<ConsumableType, 'id'>
+        consumable?: ConsumableInstance | ConsumableType
+        shopItem?: JokerInstance | ConsumableInstance | CardInfo
 
         sort?: 'rank' | 'suit'
     }
@@ -98,7 +112,20 @@ export const initialGameState: GameState = {
         round: 0,
         score: 0,
         consumableSize: 2,
+        jokerSize: 5,
         deck: DeckType.Red
+    },
+
+    shop: {
+        slots: 2,
+        offers: [],
+        weights: {
+            Joker: 20,
+            Tarot: 4,
+            Planet: 4,
+            Card: 0,
+            Spectral: 0
+        }
     },
 
     blind: {
@@ -118,7 +145,13 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: [],
+        consumables: [{
+            id: 53,
+            consumable: Consumables[3]
+        }, {
+            id: 54,
+            consumable: Consumables[43]
+        }],
         lastCon: undefined
     },
 
@@ -246,6 +279,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             money: state.stats.money + action.payload.amount!,
                             score: 0
                         },
+                        shop: {...state.shop,
+                            offers: newOffers(state.shop.slots, state.shop.weights, state)
+                        },
                         blind: {...state.blind,
                             curr: nextBlind,
                             ...(nextBlind === 'small' && {
@@ -266,7 +302,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         case 'select':
             if(action.payload?.consumable) {
                 const consumables = state.cards.consumables
-                const index = consumables.findIndex(c => c.id === (action.payload!.consumable! as ConsumableType).id)!
+                const index = consumables.findIndex(c => c.id === (action.payload!.consumable! as ConsumableInstance).id)!
                 let updated = state.cards.consumables
                 updated.forEach((c, i) => c.selected = !c.selected && i === index)
                 next = {...next, cards: {...state.cards,
@@ -472,7 +508,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     const purple = state.cards.selected.reduce((p, c) => p += c.seal !== undefined && c.seal === Seal.Purple ? 1 : 0, 0)
                     if(purple > 0) {
                         let validTarots = Consumables.slice(29, 51)
-                        validTarots = validTarots.filter(c => state.cards.consumables.every(con => con.name !== c.name))
+                        validTarots = validTarots.filter(c => state.cards.consumables.every(con => con.consumable.name !== c.name))
                         if(validTarots.length === 0) { validTarots.push(Consumables[40])}
 
                         let tarot: Omit<ConsumableType, 'id'>
@@ -481,7 +517,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             tarot = validTarots[Math.floor(Math.random() * validTarots.length)]
                             next.cards.consumables.push({
                                 id: state.cards.nextId + i,
-                                ...tarot
+                                consumable: tarot
                             })
                             validTarots = validTarots.filter(c => c.name !== tarot.name)
                             if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
@@ -541,19 +577,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 card.selected = true
             }
             break
-        case 'buy':
-            next = {...next,
-                stats: {...state.stats,
-                    money: state.stats.money - action.payload?.amount!
-                },
-                cards: {...state.cards,
-                    consumables: [...state.cards.consumables, action.payload?.consumable! as ConsumableType]
-                }
-            }
-            break
-        case 'use':
-        case 'sell':
-            break
         case 'setSort':
             next = {...next, cards: {...state.cards,
                 hand: state.cards.hand.sort(sort),
@@ -575,7 +598,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     nextId: state.cards.nextId + 1,
                     consumables: [...state.cards.consumables, {
                         id: state.cards.nextId,
-                        ...action.payload.consumable
+                        consumable: action.payload.consumable as ConsumableType
                     }]
                 }}
             } else {
@@ -594,7 +617,40 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }}
             break
         case 'setLastUsedConsumable':
-            next.cards.lastCon = action.payload?.consumable!.name
+            next.cards.lastCon = (action.payload?.consumable! as ConsumableInstance).consumable.name
+            break
+        case 'addJoker':
+            let newJoker: JokerInstance = {
+                ...action.payload?.shopItem as JokerInstance,
+                id: state.cards.nextId,
+                selected: false,
+                shopMode: false,
+            }
+            console.log(newJoker)
+            next = {...next,
+                jokers: [...state.jokers, newJoker]
+            }
+            break
+        case 'shop-select':
+            let updated = state.shop.offers
+            updated.forEach((o) => {
+                o.selected = (!o.selected && o.id === action.payload?.shopItem!.id!)
+            }
+            )
+            console.log(updated)
+            next = {...next, shop: {...state.shop,
+                offers: updated
+            }}
+            break
+        case 'shop-remove':
+            next = {...next, shop: {...state.shop,
+                offers: state.shop.offers.filter(c => c.id !== action.payload?.shopItem?.id)
+            }}
+            break
+        case 'reroll':
+            next = {...next, shop: {...state.shop,
+                offers: newOffers(state.shop.slots, state.shop.weights, state)
+            }}
             break
         default:
     }

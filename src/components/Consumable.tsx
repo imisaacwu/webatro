@@ -1,5 +1,5 @@
 import { MouseEventHandler, useContext, useRef } from "react";
-import { Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "../Constants";
+import { ConsumableInstance, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, Seal, Suit } from "../Constants";
 import './Consumable.css';
 import { GameStateContext, levelHand } from "../GameState";
 import { debuffCards } from "../App";
@@ -14,14 +14,14 @@ const getImage = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
     return module.default
 }
 
-export const Consumable = ({selected = false, ...props}: ConsumableType) => {
+export const Consumable = ({ selected = false, consumable: cons, ...props }: ConsumableInstance) => {
     const { state: game, dispatch } = useContext(GameStateContext)
     const gameRef = useRef(game)
     gameRef.current = game
-    const image = getImage(props.type, props.type === 'Tarot' ? props.name.replace(/The /,'') : props.name)
-    const consumable = game.cards.consumables.find(c => c.id === props.id)
-    const sellPrice = props.type === 'Spectral' ? 2 : 1
-    const description = props.description?.split('\n').map((line, i) =>
+    const image = getImage(cons.type, cons.type === 'Tarot' ? cons.name.replace(/The /,'') : cons.name)
+    const price = cons.type === 'Spectral' ? 4 : 3
+    const sellPrice = Math.floor(price / 2)
+    const description = cons.description?.split('\n').map((line, i) =>
         <div key={i}>
             {line.split('/').map((str, i) =>
                 <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
@@ -30,7 +30,7 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
             )}
         </div>
     )
-    if(props.name === 'The Fool' && game.cards.lastCon !== undefined) {
+    if(cons.name === 'The Fool' && game.cards.lastCon !== undefined) {
         description?.push(<div>{game.cards.lastCon}</div>)
     }
 
@@ -45,10 +45,10 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
 
     const use: MouseEventHandler = () => {
         if(game.cards.submitted.length === 0) {
-            if(props.type === 'Planet') {
-                levelHand({hand: props.hand!})
-            } else if(props.type === 'Spectral') {
-                switch(props.name) {
+            if(cons.type === 'Planet') {
+                levelHand({hand: cons.hand!})
+            } else if(cons.type === 'Spectral') {
+                switch(cons.name) {
                     case 'Familiar':
                         if(game.state !== 'scoring') { return }
                         dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Math.random() * game.cards.hand.length)]}})
@@ -167,8 +167,8 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                         break
                         
                 }
-            } else if(props.type === 'Tarot') {
-                switch(props.name) {
+            } else if(cons.type === 'Tarot') {
+                switch(cons.name) {
                     case 'The Fool':
                         if(game.cards.lastCon === undefined || game.cards.lastCon === 'The Fool') { return }
                         dispatch({type: 'addCard', payload: {consumable: Consumables.find(c => c.name === game.cards.lastCon)}})
@@ -179,7 +179,7 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                         break
                     case 'The High Priestess':
                         let validPlanets = Consumables.slice(0, 11)
-                        validPlanets = validPlanets.filter(c => game.cards.consumables.every(con => con.name !== c.name) && (!c.name.match('Planet X|Ceres|Eris') || handLevels[c.hand!].played > 0))
+                        validPlanets = validPlanets.filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name) && (!c.name.match('Planet X|Ceres|Eris') || handLevels[c.hand!].played > 0))
                         if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
 
                         let planet: Omit<ConsumableType, 'id'>
@@ -196,7 +196,7 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                         break
                     case 'The Emperor':
                         let validTarots = Consumables.slice(29, 51)
-                        validTarots = validTarots.filter(c => game.cards.consumables.every(con => con.name !== c.name))
+                        validTarots = validTarots.filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
                         if(validTarots.length === 0) { validTarots.push(Consumables[40])}
 
                         let tarot: Omit<ConsumableType, 'id'>
@@ -280,7 +280,7 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
             if(game.blind.curr === 'boss') {
                 debuffCards(game.blind.boss, game.cards.hand, game.cards.played)
             }
-            dispatch({type: 'setLastUsedConsumable', payload: {consumable: consumable}})
+            dispatch({type: 'setLastUsedConsumable', payload: {consumable: game.cards.consumables.find(c => c.id === props.id)}})
             dispatch({type: 'discard'})
             cardSnap({cards: game.cards.consumables, idPrefix: 'consumable', r: -1})
         }
@@ -289,15 +289,26 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
     return (
         <div
             id={`consumable_${props.id}`}
-            className={props.name +
+            className={cons.name +
                 `${selected ? ' selected' : ''}` +
                 `${props.shopMode ? ' shopping' : ''}`
             }
         >
             <img src={image} onClick={() => {
-                dispatch({type: 'select', payload: {consumable: consumable}})
-            }} draggable={false}/>
-            {selected &&
+                if(props.shopMode) {
+                    dispatch({type: 'shop-select', payload: {shopItem: game.shop.offers.find(c => c.id === props.id)}})
+                } else {
+                    dispatch({type: 'select', payload: {consumable: game.cards.consumables.find(c => c.id === props.id)}})
+                }
+            }} draggable={false} />
+            {props.shopMode &&
+                <div id='consumable-price-tab'>
+                    <div id='consumable-price' className='yellow'>
+                        ${price}
+                    </div>
+                </div>
+            }
+            {!props.shopMode && selected &&
                 <div id='consumable-tabs'>
                     <div id='sell-consumable' className='consumable-tab' onClick={sell}>
                         SELL<div id='consumable-sell-price'>{`$${sellPrice}`}</div>
@@ -305,36 +316,45 @@ export const Consumable = ({selected = false, ...props}: ConsumableType) => {
                     <div id='use-consumable' className='consumable-tab' onClick={use}>USE</div>
                 </div>
             }
+            {props.shopMode && selected &&
+                <div id='consumable-buy-button' onClick={() =>{
+                    if(game.stats.money >= price && game.cards.consumables.length < game.stats.consumableSize) {
+                        dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
+                        dispatch({type: 'shop-remove', payload: {shopItem: {selected, consumable: cons, ...props}}})
+                        dispatch({type: 'addCard', payload: {cardLocation: 'consumables', consumable: cons}})
+                    }
+                }}>BUY</div>
+            }
             <div id='consumable-popup'>
                 <div id='consumable-popup-inner'>
                     <div id='consumable-name'>
-                        {props.name}
+                        {cons.name}
                     </div>
                     <div id='consumable-info'>
-                        {props.type === 'Planet' &&
+                        {cons.type === 'Planet' &&
                             <>
                                 <div>
                                     <div>{'('}</div>
-                                    <div className='yellow nospace'>{`lvl.${handLevels[props.hand!].level}`}</div>
+                                    <div className='yellow nospace'>{`lvl.${handLevels[cons.hand!].level}`}</div>
                                     <div className='nospace'>{') Level up'}</div>
                                 </div>
                                 <div className='orange'>
-                                    {HandType[props.hand as keyof typeof HandType]}
+                                    {HandType[cons.hand as keyof typeof HandType]}
                                 </div>
                                 <div>
-                                    <div className='red'>+{handUpgrade[props.hand!].mult}</div>
+                                    <div className='red'>+{handUpgrade[cons.hand!].mult}</div>
                                     <div>Mult and</div>
                                 </div>
                                 <div>
-                                    <div className='blue'>+{handUpgrade[props.hand!].chips}</div>
+                                    <div className='blue'>+{handUpgrade[cons.hand!].chips}</div>
                                     <div>chips</div>
                                 </div>
                             </>
                         }
-                        {(props.type === 'Spectral' || props.type === 'Tarot') && <>{description}</>}
+                        {(cons.type === 'Spectral' || cons.type === 'Tarot') && <>{description}</>}
                     </div>
-                    <div id='consumable-type' className={props.type}>
-                        {props.name === 'Ceres' ? 'Dwarf Planet' : props.type}
+                    <div id='consumable-type' className={cons.type}>
+                        {cons.name === 'Ceres' ? 'Dwarf Planet' : cons.type}
                     </div>
                 </div>
             </div>

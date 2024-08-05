@@ -2,9 +2,11 @@ import { Edition, Sticker } from "../Constants"
 
 export type JokerInstance = {
     id: number
+    joker: JokerType
+
     edition?: Edition
     sticker?: Sticker
-    joker: JokerType
+    selected?: boolean
     shopMode?: boolean
 }
 

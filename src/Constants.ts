@@ -336,17 +336,21 @@ export const AnteChips = {
     8: 50000
 }
 
-export type ConsumableType = {
+export type ConsumableInstance = {
     id: number
-    name: string
-    description?: string
-    hand?: keyof typeof HandType
-    type: 'Planet' | 'Spectral'| 'Tarot'
+    consumable: ConsumableType
     selected?: boolean
     shopMode?: boolean
 }
 
-export const Consumables: Omit<ConsumableType, 'id'>[] = [
+export type ConsumableType = {
+    name: string
+    description?: string
+    hand?: keyof typeof HandType
+    type: 'Planet' | 'Spectral'| 'Tarot'
+}
+
+export const Consumables: ConsumableType[] = [
     {
         name: 'Pluto',
         hand: 'HIGH_CARD',

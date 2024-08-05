@@ -3,6 +3,9 @@ div[id^='consumable_'] {
     display: flex;
     justify-content: center;
     z-index: auto;
+
+    --consumable-width: 126px;
+    --consumable-height: 186px;
 }
 
 div[id^='consumable_'].shopping {
@@ -25,8 +28,23 @@ div[id^='consumable_'].selected {
 
 
 div[id^='consumable_'] img {
-    width: 126px;
-    height: 186px;
+    width: var(--consumable-width);
+    height: var(--consumable-height);
+}
+
+#consumable-price-tab {
+    position: absolute;
+    background-color: var(--dark-grey);
+    top: -40px;
+    border-radius: 8px 8px 0 0;
+}
+
+#consumable-price {
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 4px;
+    padding: 0 16px;
+    font-size: 32px;
 }
 
 #consumable-tabs {
@@ -39,7 +57,7 @@ div[id^='consumable_'] img {
     align-items: center;
     justify-content: center;
 
-    height: 186px;
+    height: var(--consumable-height);
 }
 
 .consumable-tab {
@@ -64,14 +82,37 @@ div[id^='consumable_'] img {
     font-size: 32px;
 }
 
+#consumable-buy-button {
+    position: absolute;
+    background-color: var(--orange);
+    top: var(--consumable-height);
+    border-radius: 0 0 8px 8px;
+    color: aliceblue;
+    font-size: 32px;
+    padding: 4px 16px 4px 18px;
+}
+
+#consumable-buy-button:hover {
+    filter: brightness(.75);
+    cursor: pointer;
+}
+
 #consumable-popup {
     display: none;
     position: absolute;
-    top: 190px;
+    top: var(--consumable-height);
     border: 4px solid var(--light-grey);
     border-radius: 8px;
     font-size: 20px;
     color: var(--grey);
+}
+
+div[id^='consumable_'].shopping > #consumable-popup {
+    /* top: calc((var(--consumable-height) - height) / 2); */
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    right: var(--consumable-width);
 }
 
 div[id^='consumable_']:hover > #consumable-popup {
