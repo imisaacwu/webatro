@@ -70,12 +70,15 @@ export const shuffle = (cards: any[]) => {
 }
 
 // https://www.desmos.com/calculator/1jlnwr1peo
-export const cardSnap = ({cards, idPrefix, r = 6000}: {cards: any[], idPrefix: string, r?: number}) => {
+export const cardSnap = ({cards, idPrefix, r = 6000, log = false}: {cards: any[], idPrefix: string, r?: number, log?: boolean}) => {
     if(cards.length !== 0) {
         const cardDiv = cards.map(c => document.querySelector(`[id='${idPrefix}_${c.id}']`) as HTMLElement)
-        if(!cardDiv.every(c => c !== null)) { return }
+        if(!cardDiv.every(c => c !== null)) {
+            if(log) console.log(cardDiv, 'has null elements')
+            return
+        }
         const container = cardDiv[0]!.parentElement!, w = container.clientWidth, n = cards.length
-        const lStep = w / n, extra = (lStep - cardDiv[0]!.clientWidth) / (n - 1)
+        const lStep = w / n, extra = (lStep - cardDiv[0]!.clientWidth) / (Math.max(1, n - 1))
         const h = w / 2, k = -Math.sqrt(r*r-h*h)
         
         cardDiv.forEach((c, i) => {
@@ -92,6 +95,8 @@ export const cardSnap = ({cards, idPrefix, r = 6000}: {cards: any[], idPrefix: s
                 c!.style.bottom = '-7px'
             }
         })
+    } else if(log) {
+        console.log('no cards', cards)
     }
 }
 

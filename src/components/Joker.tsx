@@ -11,6 +11,7 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
     const image = getImage(`../assets/jokers/${joker.rarity}/${joker.name.replace(/\s/g, '_')}.png`, images)
 
     const price = joker.cost
+    const sellPrice = Math.floor(price / 2)
 
     const description = joker.description.split('\n').map((line, i) =>
         <div key={i}>
@@ -32,9 +33,9 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
         >
             <img src={image} onClick={() => {
                 if(props.shopMode) {
-                    dispatch({type: 'shop-select', payload: {shopItem: {id, joker, selected, ...props}}})
+                    dispatch({type: 'shop-select', payload: {card: {id, joker, selected, ...props}}})
                 } else {
-                    // dispatch({type: 'select', payload: {consumable: consumable}})
+                    dispatch({type: 'select', payload: {card: {id, joker, selected, ...props}}})
                 }
             }} draggable={false} />
             <div id='joker-description-outline'>
@@ -61,10 +62,17 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
                 <div id='joker-buy-button' onClick={() => {
                     if(game.stats.money >= price && game.jokers.length < game.stats.jokerSize) {
                         dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
-                        dispatch({type: 'shop-remove', payload: {shopItem: {id, joker, selected, ...props}}})
-                        dispatch({type: 'addJoker', payload: {shopItem: {id, joker, selected, ...props}}})
+                        dispatch({type: 'shop-remove', payload: {card: {id, joker, selected, ...props}}})
+                        dispatch({type: 'addJoker', payload: {card: {id, joker, selected, ...props}}})
                     }
                 }}>BUY</div>
+            }
+            {!props.shopMode && selected &&
+                <div id='sell-joker' onClick={() => {
+                    dispatch({type: 'stat', payload: {stat: 'money', amount: sellPrice}})
+                    dispatch({type: 'discard'})
+                }}>
+                </div>
             }
         </div>
     )

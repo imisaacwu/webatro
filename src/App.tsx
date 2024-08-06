@@ -53,10 +53,12 @@ export default function App() {
     }, [])
 
     useEffect(() => {
-        cardSnap({cards: gameRef.current.cards.consumables, idPrefix: 'consumable', r: -1})
-    }, [gameRef.current.cards.consumables])
+        cardSnap({cards: game.cards.consumables, idPrefix: 'consumable', r: -1})
+    }, [game.cards.consumables])
 
-    cardSnap({cards: game.jokers, idPrefix: 'joker', r: -1})
+    useEffect(() => {
+        cardSnap({cards: game.jokers, idPrefix: 'joker', r: -1})
+    }, [game.jokers])
 
     const handleKeys = (e: KeyboardEvent) => {
         if(e.key === 'Escape') {

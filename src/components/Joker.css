@@ -21,7 +21,7 @@ div[id^='joker_']:hover {
 div[id^='joker_']:active { z-index: 1; }
 
 div[id^='joker_'].selected {
-    transform: translateY(-48px);
+    transform: translateY(-10px);
     z-index: 2;
 }
 

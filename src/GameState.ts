@@ -92,9 +92,7 @@ type GameAction = {
 
         cardLocation?: keyof typeof initialGameState['cards']
         update?: (CardInfo | ConsumableType)[]
-        card?: CardInfo | Omit<CardInfo, 'id'>
-        consumable?: ConsumableInstance | ConsumableType
-        shopItem?: JokerInstance | ConsumableInstance | CardInfo
+        card?: CardInfo | Omit<CardInfo, 'id'> | ConsumableType | JokerInstance | ConsumableInstance
 
         sort?: 'rank' | 'suit'
     }
@@ -107,7 +105,7 @@ export const initialGameState: GameState = {
         handSize: 8,
         hands: 4,
         discards: 4,
-        money: 4,
+        money: 400,
         ante: 1,
         round: 0,
         score: 0,
@@ -186,7 +184,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         arr.push(
                             {
                                 id: i,
-                                suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
+                                suit: Suit[suits[Math.floor(Math.random()*suits.length)*0]],
                                 rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]],
                                 edition: Math.random() > .8 ? Edition[editions[Math.floor(Math.random()*editions.length)]] : undefined,
                                 enhancement: Math.random() > .8 ? Enhancement[enhancements[Math.floor(Math.random()*enhancements.length)]]: undefined,
@@ -300,15 +298,21 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }}
             break
         case 'select':
-            if(action.payload?.consumable) {
+            if((action.payload?.card as ConsumableInstance).consumable !== undefined) {
                 const consumables = state.cards.consumables
-                const index = consumables.findIndex(c => c.id === (action.payload!.consumable! as ConsumableInstance).id)!
+                const index = consumables.findIndex(c => c.id === (action.payload!.card! as ConsumableInstance).id)!
                 let updated = state.cards.consumables
                 updated.forEach((c, i) => c.selected = !c.selected && i === index)
                 next = {...next, cards: {...state.cards,
                     consumables: updated
                 }}
-            } else {
+            } else if((action.payload?.card as JokerInstance).joker !== undefined) {
+                let updated = state.jokers
+                updated.forEach(j => {
+                    j.selected = (!j.selected && j.id === (action.payload?.card as JokerInstance).id!)
+                })
+                next = {...next, jokers: updated}
+            } else if((action.payload?.card as CardInfo).suit !== undefined) {
                 const card = state.cards.hand.find(c => c.id === (action.payload?.card! as CardInfo).id)!
                 if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
                     card.selected = !card.selected
@@ -493,6 +497,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 next = {...next, cards: {...state.cards,
                     consumables: state.cards.consumables.filter(c => !c.selected)
                 }}
+                cardSnap({cards: next.cards.consumables, idPrefix: 'consumable', r: -1})
             } else {
                 state.cards.selected.forEach(c => {
                     c.selected = false
@@ -582,23 +587,21 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 hand: state.cards.hand.sort(sort),
                 sort: action.payload?.sort!
             }}
+            console.log('game state setsort snap')
             setTimeout(() => cardSnap({cards: state.cards.hand, idPrefix: 'card'}))
             break
         case 'updateCards':
             next = {...next, cards: {...state.cards,
                 [action.payload?.cardLocation!]: action.payload?.update!
             }}
-            let cards = state.cards[`${action.payload?.cardLocation!}`] as any[]
-            let prefix = action.payload?.cardLocation === 'hand' ? 'card' : 'consumable'
-            setTimeout(() => cardSnap({cards: cards, idPrefix: prefix}))
             break
         case 'addCard':
-            if(action.payload?.consumable) {
+            if((action.payload?.card as ConsumableType).name !== undefined) {
                 next = {...next, cards: {...state.cards,
                     nextId: state.cards.nextId + 1,
                     consumables: [...state.cards.consumables, {
                         id: state.cards.nextId,
-                        consumable: action.payload.consumable as ConsumableType
+                        consumable: action.payload?.card as ConsumableType
                     }]
                 }}
             } else {
@@ -617,34 +620,35 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }}
             break
         case 'setLastUsedConsumable':
-            next.cards.lastCon = (action.payload?.consumable! as ConsumableInstance).consumable.name
+            next.cards.lastCon = (action.payload?.card! as ConsumableInstance).consumable.name
             break
         case 'addJoker':
             let newJoker: JokerInstance = {
-                ...action.payload?.shopItem as JokerInstance,
+                ...action.payload?.card as JokerInstance,
                 id: state.cards.nextId,
                 selected: false,
                 shopMode: false,
             }
             console.log(newJoker)
             next = {...next,
-                jokers: [...state.jokers, newJoker]
+                jokers: [...state.jokers, newJoker],
+                cards: {...state.cards,
+                    nextId: state.cards.nextId + 1
+                }
             }
             break
         case 'shop-select':
             let updated = state.shop.offers
             updated.forEach((o) => {
-                o.selected = (!o.selected && o.id === action.payload?.shopItem!.id!)
-            }
-            )
-            console.log(updated)
+                o.selected = (!o.selected && o.id === (action.payload?.card! as (JokerInstance | ConsumableInstance)).id!)
+            })
             next = {...next, shop: {...state.shop,
                 offers: updated
             }}
             break
         case 'shop-remove':
             next = {...next, shop: {...state.shop,
-                offers: state.shop.offers.filter(c => c.id !== action.payload?.shopItem?.id)
+                offers: state.shop.offers.filter(c => c.id !== (action.payload?.card! as (JokerInstance | ConsumableInstance)).id)
             }}
             break
         case 'reroll':

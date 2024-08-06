@@ -3,7 +3,6 @@ import { ConsumableInstance, Consumables, ConsumableType, DeckType, Edition, Enh
 import './Consumable.css';
 import { GameStateContext, levelHand } from "../GameState";
 import { debuffCards } from "../App";
-import { cardSnap } from "../Utilities";
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
 
 const getImage = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
@@ -171,7 +170,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 switch(cons.name) {
                     case 'The Fool':
                         if(game.cards.lastCon === undefined || game.cards.lastCon === 'The Fool') { return }
-                        dispatch({type: 'addCard', payload: {consumable: Consumables.find(c => c.name === game.cards.lastCon)}})
+                        dispatch({type: 'addCard', payload: {card: Consumables.find(c => c.name === game.cards.lastCon)}})
                         break
                     case 'The Magician':
                         if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
@@ -185,7 +184,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                         let planet: Omit<ConsumableType, 'id'>
                         for(let i = 0; i < Math.min(2, game.stats.consumableSize - game.cards.consumables.length + 1); i++) {
                             planet = validPlanets[Math.floor(Math.random() * validPlanets.length)]
-                            dispatch({type: 'addCard', payload: {consumable: planet}})
+                            dispatch({type: 'addCard', payload: {card: planet}})
                             validPlanets = validPlanets.filter(c => c.name !== planet.name)
                             if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
                         }
@@ -202,7 +201,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                         let tarot: Omit<ConsumableType, 'id'>
                         for(let i = 0; i < Math.min(2, game.stats.consumableSize - game.cards.consumables.length + 1); i++) {
                             tarot = validTarots[Math.floor(Math.random() * validTarots.length)]
-                            dispatch({type: 'addCard', payload: {consumable: tarot}})
+                            dispatch({type: 'addCard', payload: {card: tarot}})
                             validTarots = validTarots.filter(c => c.name !== tarot.name)
                             if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
                         }
@@ -280,9 +279,8 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
             if(game.blind.curr === 'boss') {
                 debuffCards(game.blind.boss, game.cards.hand, game.cards.played)
             }
-            dispatch({type: 'setLastUsedConsumable', payload: {consumable: game.cards.consumables.find(c => c.id === props.id)}})
+            dispatch({type: 'setLastUsedConsumable', payload: {card: game.cards.consumables.find(c => c.id === props.id)}})
             dispatch({type: 'discard'})
-            cardSnap({cards: game.cards.consumables, idPrefix: 'consumable', r: -1})
         }
     }
     
@@ -296,9 +294,9 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
         >
             <img src={image} onClick={() => {
                 if(props.shopMode) {
-                    dispatch({type: 'shop-select', payload: {shopItem: game.shop.offers.find(c => c.id === props.id)}})
+                    dispatch({type: 'shop-select', payload: {card: game.shop.offers.find(c => c.id === props.id)}})
                 } else {
-                    dispatch({type: 'select', payload: {consumable: game.cards.consumables.find(c => c.id === props.id)}})
+                    dispatch({type: 'select', payload: {card: game.cards.consumables.find(c => c.id === props.id)}})
                 }
             }} draggable={false} />
             {props.shopMode &&
@@ -320,8 +318,8 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 <div id='consumable-buy-button' onClick={() =>{
                     if(game.stats.money >= price && game.cards.consumables.length < game.stats.consumableSize) {
                         dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
-                        dispatch({type: 'shop-remove', payload: {shopItem: {selected, consumable: cons, ...props}}})
-                        dispatch({type: 'addCard', payload: {cardLocation: 'consumables', consumable: cons}})
+                        dispatch({type: 'shop-remove', payload: {card: {selected, consumable: cons, ...props}}})
+                        dispatch({type: 'addCard', payload: {cardLocation: 'consumables', card: cons}})
                     }
                 }}>BUY</div>
             }
