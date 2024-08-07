@@ -125,3 +125,26 @@ div[id^='joker_']:hover #joker-description-outline { display: initial; }
     filter: brightness(.75);
     cursor: pointer;
 }
+
+#sell-joker {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: -56px;
+    width: 48px;
+    text-align: right;
+    margin: 4px 0;
+    padding: 4px;
+    border-radius: 0 8px 8px 0;
+    background-color: var(--green);
+    font-size: 24px;
+}
+
+#sell-joker:hover {
+    filter: brightness(.75);
+    cursor: pointer;
+}
+
+#joker-sell-price {
+    font-size: 36px;
+}

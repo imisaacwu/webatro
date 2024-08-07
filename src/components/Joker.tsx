@@ -9,6 +9,7 @@ const images: Record<string, { default: string }> = import.meta.glob('../assets/
 export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) => {
     const { state: game, dispatch } = useContext(GameStateContext)
     const image = getImage(`../assets/jokers/${joker.rarity}/${joker.name.replace(/\s/g, '_')}.png`, images)
+    const self: JokerInstance = {id, joker, selected, ...props}
 
     const price = joker.cost
     const sellPrice = Math.floor(price / 2)
@@ -33,9 +34,9 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
         >
             <img src={image} onClick={() => {
                 if(props.shopMode) {
-                    dispatch({type: 'shop-select', payload: {card: {id, joker, selected, ...props}}})
+                    dispatch({type: 'shop-select', payload: {card: self}})
                 } else {
-                    dispatch({type: 'select', payload: {card: {id, joker, selected, ...props}}})
+                    dispatch({type: 'select', payload: {card: self}})
                 }
             }} draggable={false} />
             <div id='joker-description-outline'>
@@ -62,16 +63,18 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
                 <div id='joker-buy-button' onClick={() => {
                     if(game.stats.money >= price && game.jokers.length < game.stats.jokerSize) {
                         dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
-                        dispatch({type: 'shop-remove', payload: {card: {id, joker, selected, ...props}}})
-                        dispatch({type: 'addJoker', payload: {card: {id, joker, selected, ...props}}})
+                        dispatch({type: 'shop-remove', payload: {card: self}})
+                        dispatch({type: 'addJoker', payload: {card: self}})
                     }
                 }}>BUY</div>
             }
             {!props.shopMode && selected &&
                 <div id='sell-joker' onClick={() => {
                     dispatch({type: 'stat', payload: {stat: 'money', amount: sellPrice}})
-                    dispatch({type: 'discard'})
+                    dispatch({type: 'removeJoker', payload: {card: self}})
                 }}>
+                    SELL
+                    <div id='joker-sell-price'>{`$${sellPrice}`}</div>
                 </div>
             }
         </div>

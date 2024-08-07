@@ -165,7 +165,6 @@ export const Card = ({
 
     const mouseUp = () => {
         if (dragElem) {
-            console.log('after drag card snap')
             cardSnap({cards: gameRef.current.cards.hand, idPrefix: 'card'})
             document.removeEventListener('mousemove', mouseMove)
             document.removeEventListener('mouseup', mouseUp)

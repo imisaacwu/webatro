@@ -68,6 +68,11 @@ div[id^='consumable_'] img {
     border-radius: 0 8px 8px 0;
 }
 
+.consumable-tab:hover {
+    cursor: pointer;
+    filter: brightness(.75);
+}
+
 #sell-consumable {
     background-color: var(--green);
     font-size: 24px;
@@ -160,10 +165,6 @@ div[id^='consumable_']:hover > #consumable-popup {
 .small { font-size: 16px; }
 
 #consumable-info > div > div.nospace { margin: 0 0 0 -2px; }
-
-.planet-upgrade {
-    display: flex;
-}
 
 #consumable-type {
     font-size: 24px;

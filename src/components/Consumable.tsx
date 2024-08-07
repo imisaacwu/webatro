@@ -119,8 +119,13 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                         game.cards.hand.forEach(c => c.rank = Rank[rank])
                         dispatch({type: 'stat', payload: {stat: 'handSize'}})
                         break
-                    case 'Ectoplasm': // TODO (after jokers)
-                        dispatch({type: 'stat', payload: {stat: 'handSize'}})
+                    case 'Ectoplasm':
+                        let nonEditionJokers = game.jokers.filter(j => j.edition === undefined)
+                        if(nonEditionJokers.length > 0) {
+                            nonEditionJokers[Math.floor(Math.random() * nonEditionJokers.length)].edition = Edition.Negative
+                            dispatch({type: 'stat', payload: {stat: 'handSize'}})
+                            dispatch({type: 'stat', payload: {stat: 'jokerSize', amount: 1}})
+                        }
                         break
                     case 'Immolate':
                         if(game.state !== 'scoring') { return }
@@ -131,13 +136,34 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                         dispatch({type: 'updateCards', payload: {cardLocation: 'hand', update: update}})
                         dispatch({type: 'stat', payload: {stat: 'money', amount: 20}})
                         break
-                    case 'Ankh': // TODO (after jokers)
+                    case 'Ankh':
+                        if(game.jokers.length > 0) {
+                            let toCopy = game.jokers[Math.floor(Math.random() * game.jokers.length)]
+                            game.jokers.forEach(j => {
+                                if(j.id !== toCopy.id) {
+                                    dispatch({type: 'removeJoker', payload: {card: j}})
+                                }
+                            })
+                            dispatch({type: 'addJoker', payload: {card: {...toCopy, edition: (toCopy.edition === Edition?.Negative ? undefined : toCopy.edition)}}})
+                        }
                         break
                     case 'Deja Vu':
                         if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }
                         game.cards.selected[0].seal = Seal.Red
                         break
-                    case 'Hex': // TODO (after jokers)
+                    case 'Hex':
+                        if(game.jokers.length > 0) {
+                            let nonEditionJokers = game.jokers.filter(j => j.edition === undefined)
+                            if(nonEditionJokers.length > 0) {
+                                let toPoly = nonEditionJokers[Math.floor(Math.random() * nonEditionJokers.length)]
+                                game.jokers.forEach(j => {
+                                    if(j.id !== toPoly.id) {
+                                        dispatch({type: 'removeJoker', payload: {card: j}})
+                                    }
+                                })
+                                toPoly.edition = Edition.Polychrome
+                            }
+                        }
                         break
                     case 'Trance':
                         if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return }

@@ -94,7 +94,7 @@ export default function App() {
                                     <Joker {...j}/>
                                 )}
                             </div>
-                            <div id='joker-label' className='counter'>0/5</div>
+                            <div id='joker-label' className='counter'>{`${game.jokers.length}/${game.stats.jokerSize}`}</div>
                         </div>
                         <div id='consumables' className='card-container'>
                             <div id='consumables-area' className='card-area'>

@@ -429,7 +429,7 @@ export const Consumables: ConsumableType[] = [
         type: 'Spectral'
     }, {
         name: 'Ectoplasm',
-        description: 'Add Negative to a random Joker.\n{red}-1/ hand size',
+        description: 'Add /{indigo}Negative/ to\na random Joker.\n{red}-1/ hand size',
         type: 'Spectral'
     }, {
         name: 'Immolate',
@@ -437,7 +437,7 @@ export const Consumables: ConsumableType[] = [
         type: 'Spectral'
     }, {
         name: 'Ankh',
-        description: 'Create a copy of a random Joker, destroy all other Jokers (Removes Negative from copy)',
+        description: 'Create a copy of\na random Joker,\ndestroy all other Jokers\n/{small grey}(Removes Negative from copy)',
         type: 'Spectral'
     }, {
         name: 'Deja Vu',

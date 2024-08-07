@@ -79,14 +79,14 @@ type GameAction = {
         'stat' |
         'select' | 'submit' | 'discard' | 'draw' |
         'setSort' | 'updateCards' | 'addCard' | 'removeCard' |
-        'setLastUsedConsumable' | 'addJoker' |
+        'setLastUsedConsumable' | 'addJoker' | 'removeJoker' |
         'shop-select' | 'shop-remove' | 'reroll'
     payload?: {
         deck?: DeckType,
 
         state?: GameStates
 
-        stat?: 'handSize' | 'hands' | 'discards' | 'money' | 'ante' | 'score'
+        stat?: keyof typeof initialGameState['stats']
         previous?: 'played' | 'discarded'   // To know during a draw which came previously
         amount?: number
 
@@ -145,10 +145,10 @@ export const initialGameState: GameState = {
         played: [],
         consumables: [{
             id: 53,
-            consumable: Consumables[3]
+            consumable: Consumables[19]
         }, {
             id: 54,
-            consumable: Consumables[43]
+            consumable: Consumables[21]
         }],
         lastCon: undefined
     },
@@ -587,7 +587,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 hand: state.cards.hand.sort(sort),
                 sort: action.payload?.sort!
             }}
-            console.log('game state setsort snap')
             setTimeout(() => cardSnap({cards: state.cards.hand, idPrefix: 'card'}))
             break
         case 'updateCards':
@@ -629,12 +628,27 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 selected: false,
                 shopMode: false,
             }
-            console.log(newJoker)
             next = {...next,
+                ...(newJoker.edition === Edition?.Negative && {
+                    stats: {...state.stats,
+                        jokerSize: state.stats.jokerSize + 1
+                    }
+                }),
                 jokers: [...state.jokers, newJoker],
                 cards: {...state.cards,
                     nextId: state.cards.nextId + 1
                 }
+            }
+            break
+        case 'removeJoker':
+            let joker = action.payload?.card as JokerInstance
+            next = {...next,
+                ...(joker.edition === Edition?.Negative && {
+                    stats: {...state.stats,
+                        jokerSize: state.stats.jokerSize - 1
+                    }
+                }),
+                jokers: state.jokers.filter(j => j.id !== joker.id)
             }
             break
         case 'shop-select':
