@@ -66,7 +66,7 @@ export default function App() {
                         <div id='jokers' className='card-container'>
                             <div id='joker-area' className='card-area'>
                                 {game.jokers.map(j => 
-                                    <Joker {...j}/>
+                                    <Joker key={j.id} {...j}/>
                                 )}
                             </div>
                             <div id='joker-label' className='counter'>{`${game.jokers.length}/${game.stats.jokerSize}`}</div>

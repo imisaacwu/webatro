@@ -78,7 +78,7 @@ export type GameAction = {
         'stat' |
         'select' | 'submit' | 'discard' | 'draw' |
         'setSort' | 'updateCards' | 'addCard' | 'removeCard' |
-        'setLastUsedConsumable' | 'addJoker' | 'removeJoker' |
+        'setLastUsedConsumable' | 'updateJokers' | 'addJoker' | 'removeJoker' |
         'shop-select' | 'shop-remove' | 'reroll'
     payload?: {
         deck?: DeckType,
@@ -90,7 +90,7 @@ export type GameAction = {
         amount?: number
 
         cardLocation?: keyof typeof initialGameState['cards']
-        update?: (CardInfo | ConsumableType)[]
+        update?: (CardInfo | ConsumableInstance | JokerInstance)[]
         card?: CardInfo | Omit<CardInfo, 'id'> | ConsumableType | JokerType | JokerInstance | ConsumableInstance
 
         sort?: 'rank' | 'suit'
@@ -98,14 +98,14 @@ export type GameAction = {
 }
 
 export const initialGameState: GameState = {
-    state: 'shop' as GameStates,
+    state: 'blind-select' as GameStates,
 
     stats: {
         handSize: 8,
         hands: 4,
         discards: 4,
         money: 400,
-        ante: 1,
+        ante: 8,
         round: 0,
         score: 0,
         consumableSize: 2,
@@ -239,6 +239,13 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             next.stats.hands = 1
                         } else if(name === 'The Water') {
                             next.stats.discards = 0
+                        } else if(name === 'Crimson Heart') {
+                            next.jokers[Math.floor(Math.random() * next.jokers.length)].debuffed = true
+                        } else if(name === 'Amber Acorn') {
+                            next.jokers.forEach(j => j.flipped = true)
+                            next = {...next,
+                                jokers: shuffle(next.jokers)
+                            }
                         }
                     }
                     break
@@ -254,6 +261,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
                         }
                     })
+                    next.jokers.forEach(j => {j.debuffed = false; j.flipped = false})
                     next = {...next,
                         ...(getNextBlind(state.blind.curr) === 'small' && {...state.stats,
                             ante: state.stats.ante + 1
@@ -564,6 +572,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                         })
                         break
+                    case 'Crimson Heart':
+                        if(action.payload?.previous === 'played') {
+                            next.jokers.forEach(j => j.debuffed = false)
+                            next.jokers[Math.floor(Math.random() * next.jokers.length)].debuffed = true
+                        }
+                        break
                 }
             }
             next = {...next, cards: {...state.cards,
@@ -614,6 +628,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             break
         case 'setLastUsedConsumable':
             next.cards.lastCon = (action.payload?.card! as ConsumableType).name
+            break
+        case 'updateJokers':
+            next = {...next, jokers: action.payload?.update as JokerInstance[]}
             break
         case 'addJoker':
             let newJoker: JokerInstance

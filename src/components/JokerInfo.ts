@@ -7,6 +7,8 @@ export type JokerInstance = {
     edition?: Edition
     sticker?: Sticker
     selected?: boolean
+    debuffed?: boolean
+    flipped?: boolean
     shopMode?: boolean
 }
 

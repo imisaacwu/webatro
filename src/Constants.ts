@@ -289,15 +289,15 @@ export const Blinds: BlindType[] = [
     }, {
         img: 'amber_acorn',
         name: 'Amber Acorn',
-        descrip: 'Flips and shuffles all Joker cards', // TODO
-        ante: 81,
+        descrip: 'Flips and shuffles all Joker cards',
+        ante: 8,
         mult: 2,
         reward: 8
     }, {
         img: 'verdant_leaf',
         name: 'Verdant Leaf',
-        descrip: 'All cards debuffed until 1 Joker sold', // TODO
-        ante: 81,
+        descrip: 'All cards debuffed until 1 Joker sold',
+        ante: 8,
         mult: 2,
         reward: 8
     }, {
@@ -310,8 +310,8 @@ export const Blinds: BlindType[] = [
     }, {
         img: 'crimson_heart',
         name: 'Crimson Heart',
-        descrip: 'One random Joker disabled every hand', // TODO
-        ante: 81,
+        descrip: 'One random Joker disabled every hand',
+        ante: 8,
         mult: 2,
         reward: 8
     }, {

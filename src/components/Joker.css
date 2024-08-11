@@ -6,6 +6,9 @@ div[id^='joker_'] {
 
     --joker-width: 138px;
     --joker-height: 186px;
+
+    width: var(--joker-width);
+    height: var(--joker-height);
 }
 
 div[id^='joker_'].shopping {
@@ -22,12 +25,19 @@ div[id^='joker_']:active { z-index: 1; }
 
 div[id^='joker_'].selected {
     transform: translateY(-10px);
-    z-index: 2;
+    z-index: 3;
 }
 
 div[id^='joker_'] img {
     width: var(--joker-width);
     height: var(--joker-height);
+}
+
+div[id^='joker_'] img.debuff {
+    position: absolute;
+    background-color: rgb(56, 66, 68, 0.3);
+    border-radius: 7px;
+    z-index: 5;
 }
 
 #joker-description-outline {
@@ -86,8 +96,18 @@ div[id^='joker_']:hover #joker-description-outline { display: initial; }
 }
 
 #joker-tags {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin: 4px;
+}
+
+#joker-debuffed {
+    width: fit-content;
+    background-color: var(--red);
+    border-radius: 8px;
+    padding: 0 16px;
+    color: aliceblue;
 }
 
 #joker-rarity {

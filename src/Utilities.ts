@@ -120,7 +120,7 @@ export const cardSnap = ({cards, idPrefix, r = 6000, log = false}: {cards: any[]
     }
 }
 
-export const debuffCards = (blind: BlindType, cards: CardInfo[], past: (keyof typeof HandType | CardInfo)[]) => {
+export const debuffCards = (blind: BlindType, cards: CardInfo[], past?: (keyof typeof HandType | CardInfo)[], sold?: boolean) => {
     switch(blind.name) {
         case 'The Goad':
             cards.forEach(c => c.debuffed = (c.suit === Suit.Spades || c.enhancement === Enhancement?.Wild))
@@ -138,7 +138,10 @@ export const debuffCards = (blind: BlindType, cards: CardInfo[], past: (keyof ty
             cards.forEach(c => c.debuffed = ([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)))
             break
         case 'The Pillar':
-            cards.forEach(c => c.debuffed = (past.includes(c)))
+            cards.forEach(c => c.debuffed = (past!.includes(c)))
+            break
+        case 'Verdant Leaf':
+            cards.forEach(c => c.debuffed = !sold)
             break
         default:
     }

@@ -6,6 +6,9 @@ div[id^='consumable_'] {
 
     --consumable-width: 126px;
     --consumable-height: 186px;
+    
+    width: var(--consumable-width);
+    height: var(--consumable-height);
 }
 
 div[id^='consumable_'].shopping {

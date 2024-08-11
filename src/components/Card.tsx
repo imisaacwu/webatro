@@ -149,8 +149,8 @@ export const Card = ({
             if(now - lastReorder < renderDelay) { return }
 
             const container = dragElem.parentElement!
-            const w = container.clientWidth, l = container.childElementCount
-            const lStep = w / l, extra = (lStep - dragElem.clientWidth) / (l - 1)
+            const w = container.clientWidth, l = container.childElementCount - 1
+            const lStep = w / (l + 1), extra = (lStep - dragElem.clientWidth) / l
             let i = Math.min(l, Math.max(0, Math.round(dragElem.offsetLeft / (lStep + extra))))
             if(Math.abs(dragElem.offsetLeft - i * (lStep + extra)) < tolerance && origI !== i) {
                 const update = [...gameRef.current.cards.hand]
@@ -182,7 +182,7 @@ export const Card = ({
                 `${mode === 'standard' && scored && !debuffed ? '' : ' unscored'}` +
                 `${debuffed ? ' debuffed' : ''}` +
                 `${mode === 'deck-view' && drawn && !flipped ? ' drawn' : ''}` +
-                ` ${edition !== undefined ? Edition[edition] : ''}`
+                ` ${edition !== undefined && !flipped ? Edition[edition] : ''}`
             }
             onClick={() => {
                 const card = game.cards.hand.find(c => c.id === id)!
@@ -191,9 +191,8 @@ export const Card = ({
                 }
             }}
             onMouseDown={mouseDown}
-            onMouseUp={mouseUp}
         >
-            {(enhancement === undefined || enhancement !== Enhancement.Stone) && <img src={flipped ? back : image} />}
+            {(enhancement !== Enhancement?.Stone) && <img src={flipped ? back : image} />}
             {!flipped && <img id='card-bkg' src={bkg} />}
             {game.state === 'scoring' && debuffed && <img className='debuff' src={debuff} />}
             {seal !== undefined && <img id='seal-icon' src={getImage(`../assets/cards/modifiers/seals/${Seal[seal]}.png`)} />}

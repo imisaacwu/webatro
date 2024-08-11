@@ -3,7 +3,7 @@ import { ConsumableInstance, Consumables, ConsumableType, editionInfo, enhanceme
 import './Consumable.css';
 import { GameStateContext } from "../GameState";
 import { useConsumable } from "./UseConsumable";
-import { calcPrice } from "../Utilities";
+import { calcPrice, cardSnap } from "../Utilities";
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
 
 const getImage = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
@@ -91,6 +91,63 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
     const use: MouseEventHandler = () => {
         useConsumable(game, dispatch, cons)
     }
+
+    const tolerance = 10, renderDelay = 100
+    let dragElem: HTMLElement | null = null
+    let [origX, origY, origI, startX, startY]: number[] = []
+    let lastReorder  = 0
+
+    const mouseDown = (e: React.MouseEvent<HTMLElement>) => {
+        e.preventDefault()
+        dragElem = (e.target as HTMLElement).parentElement!
+        origX = dragElem.offsetLeft
+        origY = dragElem.offsetTop
+        origI = [...dragElem.parentElement!.children].indexOf(dragElem)
+        startX = e.clientX - origX
+        startY = e.clientY - origY
+        
+        document.addEventListener('mousemove', mouseMove)
+        document.addEventListener('mouseup', mouseUp)
+    }
+
+    const mouseMove = (e: MouseEvent) => {
+        if(dragElem) {
+            const x = e.clientX - startX
+            const y = startY - e.clientY
+            requestAnimationFrame(() => {
+                if(dragElem) {
+                    dragElem!.style.left = `${x}px`
+                    dragElem!.style.bottom = `${y}px`
+                }
+            })
+
+            const now = Date.now()
+            if(now - lastReorder < renderDelay) { return }
+
+            const container = dragElem.parentElement!
+            const w = container.clientWidth, l = container.childElementCount - 1
+            const lStep = w / (l + 1), extra = (lStep - dragElem.clientWidth) / l
+            let i = Math.min(l, Math.max(0, Math.round(dragElem.offsetLeft / (lStep + extra))))
+            if(Math.abs(dragElem.offsetLeft - i * (lStep + extra)) < tolerance && origI !== i) {
+                const update = [...gameRef.current.cards.consumables]
+                const [c] = update.splice(origI, 1)
+                update.splice(i, 0, c)
+                console.log(update, c, origI)
+                dispatch({type: 'updateCards', payload: {cardLocation: 'consumables', update: update}})
+                origI = i
+                lastReorder = now
+            }
+        }
+    }
+
+    const mouseUp = () => {
+        if (dragElem) {
+            cardSnap({cards: gameRef.current.cards.consumables, idPrefix: 'consumable', r: -1})
+            document.removeEventListener('mousemove', mouseMove)
+            document.removeEventListener('mouseup', mouseUp)
+            dragElem = null
+        }
+    }
     
     return (
         <div
@@ -99,6 +156,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 `${selected ? ' selected' : ''}` +
                 `${props.shopMode ? ' shopping' : ''}`
             }
+            
         >
             <img src={image} onClick={() => {
                 if(props.shopMode) {
@@ -106,7 +164,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 } else {
                     dispatch({type: 'select', payload: {card: game.cards.consumables.find(c => c.id === props.id)}})
                 }
-            }} draggable={false} />
+            }} onMouseDown={mouseDown} />
             {props.shopMode &&
                 <div id='consumable-price-tab'>
                     <div id='consumable-price' className='yellow'>
