@@ -169,7 +169,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     game.cards.selected[0].enhancement = Enhancement.Lucky
                     break
                 case 'The High Priestess':
-                    let validPlanets = Consumables.slice(0, 11)
+                    let validPlanets = Consumables.slice(0, 12)
                     validPlanets = validPlanets.filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name) && (!c.name.match('Planet X|Ceres|Eris') || handLevels[c.hand!].played > 0))
                     if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
 
@@ -186,7 +186,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     game.cards.selected.forEach(c => c.enhancement = Enhancement.Mult)
                     break
                 case 'The Emperor':
-                    let validTarots = Consumables.slice(29, 51)
+                    let validTarots = Consumables.slice(30, 52)
                     validTarots = validTarots.filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
                     if(validTarots.length === 0) { validTarots.push(Consumables[40])}
 

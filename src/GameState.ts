@@ -144,10 +144,13 @@ export const initialGameState: GameState = {
         played: [],
         consumables: [{
             id: 53,
-            consumable: Consumables[27]
+            consumable: Consumables[33]
         }, {
             id: 54,
-            consumable: Consumables[49]
+            consumable: Consumables[34]
+        }, {
+            id: 55,
+            consumable: Consumables[36]
         }],
         lastCon: undefined
     },
@@ -520,25 +523,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         hidden: [...state.cards.hidden, ...state.cards.submitted]
                     }}
                 } else {
-                    const purple = state.cards.selected.reduce((p, c) => p += c.seal !== undefined && c.seal === Seal.Purple ? 1 : 0, 0)
-                    if(purple > 0) {
-                        let validTarots = Consumables.slice(29, 51)
-                        validTarots = validTarots.filter(c => state.cards.consumables.every(con => con.consumable.name !== c.name))
-                        if(validTarots.length === 0) { validTarots.push(Consumables[40])}
-
-                        let tarot: Omit<ConsumableType, 'id'>
-                        const n = Math.min(purple, state.stats.consumableSize - state.cards.consumables.length)
-                        for(let i = 0; i < n; i++) {
-                            tarot = validTarots[Math.floor(Math.random() * validTarots.length)]
-                            next.cards.consumables.push({
-                                id: state.cards.nextId + i,
-                                consumable: tarot
-                            })
-                            validTarots = validTarots.filter(c => c.name !== tarot.name)
-                            if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
-                        }
-                        next.cards.nextId += n
-                    }
                     state.cards.selected.forEach(c => c.selected = false)
                     next = {...next,
                         stats: {...state.stats,

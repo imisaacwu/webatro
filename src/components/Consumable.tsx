@@ -1,5 +1,5 @@
 import { MouseEventHandler, useContext, useRef } from "react";
-import { ConsumableInstance, handLevels, HandType, handUpgrade } from "../Constants";
+import { ConsumableInstance, Consumables, ConsumableType, editionInfo, enhancementInfo, handLevels, HandType, handUpgrade, modifierInfo, sealInfo } from "../Constants";
 import './Consumable.css';
 import { GameStateContext } from "../GameState";
 import { useConsumable } from "./UseConsumable";
@@ -33,8 +33,55 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
         </div>
     )
     if(cons.name === 'The Fool' && game.cards.lastCon !== undefined) {
-        description?.push(<div>{game.cards.lastCon}</div>)
+        description?.push(<div id='last-used-tag' className='small'>{game.cards.lastCon}</div>)
+        cons.tags = [Consumables.find(c => c.name === game.cards.lastCon)!]
     }
+
+    const getTagName = (tag: ConsumableType | modifierInfo) => {
+        if((tag as ConsumableType).name) {
+            return (tag as ConsumableType).name
+        } else if((tag as keyof typeof enhancementInfo) in enhancementInfo) {
+            return tag + ' Card'
+        } else if((tag as keyof typeof sealInfo) in sealInfo) {
+            return tag + ' Seal'
+        }
+        return tag as modifierInfo
+    }
+
+    const getTagDescription = (tag: ConsumableType | modifierInfo) => {
+        if((tag as ConsumableType).type) {
+            return (tag as ConsumableType).description
+        } else if((tag as keyof typeof editionInfo) in editionInfo) {
+            return editionInfo[tag as keyof typeof editionInfo]
+        } else if((tag as keyof typeof enhancementInfo) in enhancementInfo) {
+            return enhancementInfo[tag as keyof typeof enhancementInfo]
+        } else if((tag as keyof typeof sealInfo) in sealInfo) {
+            return sealInfo[tag as keyof typeof sealInfo]
+        }
+    }
+
+    const popupTags = <>
+        <div id='tags-side'>
+            {cons.tags?.map((tag, i) =>
+                <div className='tag-info' key={i}>
+                    <div className='tag-info-inner'>
+                        <div className='tag-name'>{getTagName(tag)}</div>
+                        <div className='tag-description'>
+                            {getTagDescription(tag)!.split('\n').map((line, i) => 
+                                <div key={i}>
+                                    {line.split('/').map((str, i) =>
+                                        <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
+                                            {str.replace(/{.+}/g, '')}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    </>
 
     const sell: MouseEventHandler = () => {
         dispatch({type: 'stat', payload: {stat: 'money', amount: sellPrice}})
@@ -123,6 +170,9 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                             </>
                         }
                         {(cons.type === 'Spectral' || cons.type === 'Tarot') && <>{description}</>}
+                        <div id='consumable-tags'>
+                            {popupTags}
+                        </div>
                     </div>
                     <div id='consumable-type' className={cons.type}>
                         {cons.name === 'Ceres' ? 'Dwarf Planet' : cons.type}

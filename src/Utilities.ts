@@ -172,7 +172,7 @@ export const newOffers = (slots: number, weights: {
                 shopMode: true
             })
         } else if(roll < (weights.Joker + weights.Tarot) / total) {
-            const validTarots = Consumables.slice(29, 51).filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
+            const validTarots = Consumables.slice(30, 52).filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
             if(validTarots.length === 0) { validTarots.push(Consumables[40])}
             offers.push({
                 id: -i,
@@ -180,7 +180,7 @@ export const newOffers = (slots: number, weights: {
                 shopMode: true
             })
         } else if(roll < (weights.Joker + weights.Tarot + weights.Planet) / total) {
-            const validPlanets = Consumables.slice(0, 11).filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name) && (!c.name.match('Planet X|Ceres|Eris') || handLevels[c.hand!].played > 0))
+            const validPlanets = Consumables.slice(0, 12).filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name) && (!c.name.match('Planet X|Ceres|Eris') || handLevels[c.hand!].played > 0))
             if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
             offers.push({
                 id: -i,

@@ -36,17 +36,22 @@ export default function Hand() {
                         setTimeout(() => {
                             const lastHand = game.active.name
                             dispatch({type: 'discard'})
-                            let req = (game.blind.base * (game.blind.curr === 'small' ? 1 : game.blind.curr === 'big' ? 1.5 : game.blind.boss.mult))
+                            let req = game.blind.base
+                            switch(game.blind.curr) {
+                                case 'big': req *= 1.5; break
+                                case 'boss': req *= game.blind.boss.mult; break
+                            }
                             if(gameRef.current.stats.score >= req) {
                                 dispatch({type: 'state', payload: {state: 'post-scoring'}})
+                                let money = 0, planets = 0
                                 game.cards.hand.forEach(c => {
-                                    if(c.enhancement === Enhancement?.Gold) {
-                                        dispatch({type: 'stat', payload: {stat: 'money', amount: 3}})
-                                    }
-                                    if(c.seal === Seal?.Blue && game.cards.consumables.length < game.stats.consumableSize) {
-                                        dispatch({type: 'addCard', payload: {card: Consumables.find(c => c.hand === lastHand)}})
-                                    }
+                                    if(c.enhancement === Enhancement?.Gold) { money += 3 }
+                                    if(c.seal === Seal?.Blue) { planets++ }
                                 })
+                                dispatch({type: 'stat', payload: {stat: 'money', amount: money}})
+                                for(let i = 0; i < Math.min(game.stats.consumableSize - game.cards.consumables.length, planets); i++) {
+                                    dispatch({type: 'addCard', payload: {card: Consumables.find(c => c.hand === lastHand)}});
+                                }
                             } else {
                                 dispatch({type: 'draw', payload: {amount: len, previous: 'played'}})
                             }
@@ -62,8 +67,19 @@ export default function Hand() {
                 </div>
                 <div id='discard' className={`button ${game.cards.selected.length > 0}`} onClick={() => {
                     if(game.cards.selected.length > 0 && gameRef.current.stats.discards > 0) {
-                        let amount = Math.max(gameRef.current.stats.handSize - (gameRef.current.cards.hand.length - gameRef.current.cards.selected.length), 0)
+                        let amount = Math.max(gameRef.current.stats.handSize - (gameRef.current.cards.hand.length - gameRef.current.cards.selected.length), 0), purple = 0
                         dispatch({type: 'discard'})
+
+                        game.cards.hand.forEach(c => {
+                            if(c.seal === Seal?.Purple) { purple++ }
+                        })
+                        let validTarots = Consumables.slice(30, 52)
+                        validTarots = validTarots.filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
+                        if(validTarots.length === 0) { validTarots.push(Consumables[40])}
+                        for(let i = 0; i < Math.min(game.stats.consumableSize - game.cards.consumables.length, purple); i++) {
+                            dispatch({type: 'addCard', payload: {card: validTarots[Math.floor(Math.random() * validTarots.length)]}});
+                        }
+
                         setTimeout(() => {
                             dispatch({type: 'draw', payload: {amount: amount, previous: 'discarded'}})
                         }, 500)

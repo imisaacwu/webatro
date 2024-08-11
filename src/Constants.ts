@@ -10,7 +10,7 @@ export enum Sticker { Eternal, Perishable, Rental }
 export const editionInfo: {[E in keyof typeof Edition]: string} = {
     Foil: '{blue}+50/ Chips',
     Holographic: '{red}+10/ Mult',
-    Negative: '+1 Joker slot',
+    Negative: '{purple}+1/ Joker slot',
     Polychrome: '{red-invert}X1.5/ Mult'
 }
 
@@ -343,9 +343,12 @@ export type ConsumableInstance = {
     shopMode?: boolean
 }
 
+export type modifierInfo = keyof typeof editionInfo | keyof typeof enhancementInfo | keyof typeof sealInfo
+
 export type ConsumableType = {
     name: string
     description?: string
+    tags?: (modifierInfo | ConsumableType)[]
     hand?: keyof typeof HandType
     type: 'Planet' | 'Spectral'| 'Tarot'
     handRequired?: boolean
@@ -385,6 +388,10 @@ export const Consumables: ConsumableType[] = [
         hand: 'FOUR',
         type: 'Planet'
     }, {
+        name: 'Neptune',
+        hand: 'STRAIGHT_FLUSH',
+        type: 'Planet'
+    }, {
         name: 'Planet X',
         hand: 'FIVE',
         type: 'Planet'
@@ -396,89 +403,96 @@ export const Consumables: ConsumableType[] = [
         name: 'Eris',
         hand: 'FLUSH_FIVE',
         type: 'Planet'
-    }, { // TODO: add the rest of the text formatting
+    }, {
         name: 'Familiar',
-        description: 'Destroy /{orange}1/ random card in your hand, add /{orange}3/ random /{orange}Enhanced face cards/ to your hand',
+        description: 'Destroy /{orange}1/ random\ncard in your hand, add /{orange}3\nrandom /{orange}Enhanced\n{orange}face cards/ to your hand',
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Grim',
-        description: 'Destroy /{orange}1/ random card in your hand, add /{orange}2/ random /{orange}Enhanced Aces/ to your hand',
+        description: 'Destroy /{orange}1/ random\ncard in your hand, add /{orange}2\nrandom /{orange}Enhanced\n{orange}Aces/ to your hand',
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Incantation',
-        description: 'Destroy /{orange}1/ random card in your hand, add /{orange}4/ random /{orange}Enhanced numbered cards/ to your hand',
+        description: 'Destroy /{orange}1/ random\ncard in your hand, add /{orange}4\nrandom /{orange}Enhanced numbered\n{orange}cards/ to your hand',
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Talisman',
-        description: 'Add a /{orange}Gold Seal/ to /{orange}1/ selected card in your hand',
+        description: 'Add a /{orange}Gold Seal/ to\n{orange}1/ selected card\nin your hand',
+        tags: ['Gold'],
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Aura',
-        description: 'Add /{indigo}Foil/, /{indigo}Holographic/, or /{indigo}Polychrome/ effect to /{orange}1/ selected card in hand',
+        description: 'Add /{indigo}Foil/{nospace}, /{indigo}Holographic/{nospace}, or\n{indigo}Polychrome/ effect to\n{orange}1/ selected card in hand',
+        tags: ['Foil', 'Holographic', 'Polychrome'],
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Wraith',
-        description: 'Creates a random /{red}Rare/{orange}Joker/{nospace},\nsets money to /{yellow}$0',
+        description: 'Creates a random\n{red}Rare/{orange}Joker/{nospace},\nsets money to /{yellow}$0',
         type: 'Spectral'
     }, {
         name: 'Sigil',
-        description: 'Converts all cards in hand to a single random suit',
+        description: 'Converts all cards\nin hand to a single\nrandom suit',
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Ouija',
-        description: 'Converts all cards in hand to a single random Rank. /{red}-1/ hand size',
+        description: 'Converts all cards\nin hand to a single\nrandom Rank.\n{red}-1/ hand size',
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Ectoplasm',
         description: 'Add /{indigo}Negative/ to\na random Joker.\n{red}-1/ hand size',
+        tags: ['Negative'],
         type: 'Spectral'
     }, {
         name: 'Immolate',
-        description: 'Destroys /{orange}5/ random cards in hand, gain /{yellow}$20/',
+        description: 'Destroys /{orange}5/ random\ncards in hand,\ngain /{yellow}$20/',
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Ankh',
-        description: 'Create a copy of\na random Joker,\ndestroy all other Jokers\n/{small grey}(Removes Negative from copy)',
+        description: 'Create a copy of\na random /{orange}Joker/{nospace},\ndestroy all other /{orange}Jokers\n/{small grey}(Removes /{small purple}Negative/{small grey} from copy)',
         type: 'Spectral'
     }, {
         name: 'Deja Vu',
-        description: 'Add a Red Seal to /{orange}1/ selected card in your hand',
+        description: 'Add a /{red}Red Seal\nto /{orange}1/selected\ncard in your hand',
+        tags: ['Red'],
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Hex',
-        description: 'Add Polychrome to a random Joker, destroy all other Jokers',
+        description: 'Add/{indigo}Polychrome/to\na random /{orange}Joker/{nospace},\ndestroy all other /{orange}Jokers',
+        tags: ['Polychrome'],
         type: 'Spectral'
     }, {
         name: 'Trance',
-        description: 'Add a Blue Seal to /{orange}1/ selected card in your hand',
+        description: 'Add a /{blue}Blue Seal\nto /{orange}1/ selected\ncard in your hand',
+        tags: ['Blue'],
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Medium',
-        description: 'Add a Purple Seal to /{orange}1/ selected card in your hand',
+        description: 'Add a /{purple}Purple Seal\nto /{orange}1/ selected\ncard in your hand',
+        tags: ['Purple'],
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'Cryptid',
-        description: 'Creates 2 copies of /{orange}1/ selected card in your hand',
+        description: 'Creates /{orange}2/ copies\nof /{orange}1/ selected\ncard in your hand',
         type: 'Spectral',
         handRequired: true
     }, {
         name: 'The Soul',
-        description: 'Creates a Legendary Joker\n{small grey}(Must have room)',
+        description: 'Creates a\n{indigo}Legendary/ Joker\n{small grey}(Must have room)',
         type: 'Spectral'
     }, {
         name: 'Black Hole',
-        description: 'Upgrade every poker hand by /{orange}1/ level',
+        description: 'Upgrade every poker\nhand by /{orange}1/ level',
         type: 'Spectral'
     }, {
         name: 'The Fool',
@@ -487,6 +501,7 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Magician',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Lucky Card',
+        tags: ['Lucky'],
         type: 'Tarot',
         handRequired: true
     }, {
@@ -496,6 +511,7 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Empress',
         description: 'Enhances /{orange}2\nselected cards to\n{orange}Mult Cards',
+        tags: ['Mult'],
         type: 'Tarot',
         handRequired: true
     }, {
@@ -505,21 +521,25 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Hierophant',
         description: 'Enhances /{orange}2\nselected cards to\n{orange}Bonus Cards',
+        tags: ['Bonus'],
         type: 'Tarot',
         handRequired: true
     }, {
         name: 'The Lovers',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Wild Card',
+        tags: ['Wild'],
         type: 'Tarot',
         handRequired: true
     }, {
         name: 'The Chariot',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Steel Card',
+        tags: ['Steel'],
         type: 'Tarot',
         handRequired: true
     }, {
         name: 'Justice',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Glass Card',
+        tags: ['Glass'],
         type: 'Tarot',
         handRequired: true
     }, {
@@ -529,6 +549,7 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Wheel of Fortune',
         description: '{green}1 in 4/ chance to add\n{indigo}Foil/{nospace},/{indigo}Holographic/{nospace}, or\n{indigo}Polychrome/ edition\nto a random /{orange}Joker',
+        tags: ['Foil', 'Holographic', 'Polychrome'],
         type: 'Tarot'
     }, {
         name: 'Strength',
@@ -552,11 +573,13 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Devil',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Gold Card',
+        tags: ['Gold'],
         type: 'Tarot',
         handRequired: true
     }, {
         name: 'The Tower',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Stone Card',
+        tags: ['Stone'],
         type: 'Tarot',
         handRequired: true
     }, {
