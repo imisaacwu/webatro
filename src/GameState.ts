@@ -1,9 +1,8 @@
 import { createContext, Dispatch } from "react"
 import { BlindType, ConsumableInstance, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, rankChips, Seal, Suit } from "./Constants"
-import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, getNextBlind, newOffers, shuffle } from "./Utilities"
+import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, debuffCards, getNextBlind, newOffers, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
-import { debuffCards } from "./App"
-import { Activation, JokerInstance } from "./components/JokerInfo"
+import { Activation, JokerInstance, JokerType } from "./components/JokerInfo"
 
 export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
     handLevels[hand].level += n
@@ -72,7 +71,7 @@ export type GameState = {
     }
 }
 
-type GameAction = {
+export type GameAction = {
     type:
         'init' |
         'state' |
@@ -92,7 +91,7 @@ type GameAction = {
 
         cardLocation?: keyof typeof initialGameState['cards']
         update?: (CardInfo | ConsumableType)[]
-        card?: CardInfo | Omit<CardInfo, 'id'> | ConsumableType | JokerInstance | ConsumableInstance
+        card?: CardInfo | Omit<CardInfo, 'id'> | ConsumableType | JokerType | JokerInstance | ConsumableInstance
 
         sort?: 'rank' | 'suit'
     }
@@ -145,10 +144,10 @@ export const initialGameState: GameState = {
         played: [],
         consumables: [{
             id: 53,
-            consumable: Consumables[19]
+            consumable: Consumables[27]
         }, {
             id: 54,
-            consumable: Consumables[21]
+            consumable: Consumables[49]
         }],
         lastCon: undefined
     },
@@ -184,7 +183,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         arr.push(
                             {
                                 id: i,
-                                suit: Suit[suits[Math.floor(Math.random()*suits.length)*0]],
+                                suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
                                 rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]],
                                 edition: Math.random() > .8 ? Edition[editions[Math.floor(Math.random()*editions.length)]] : undefined,
                                 enhancement: Math.random() > .8 ? Enhancement[enhancements[Math.floor(Math.random()*enhancements.length)]]: undefined,
@@ -247,6 +246,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             c.debuffed = false
                         }
                     )
+                    state.jokers.filter(j => j.joker.activation.includes(Activation.EndOfRound)).forEach(j => {
+                        switch(j.joker.name) {
+
+                        }
+                    })
                     next = {...next,
                         ...(getNextBlind(state.blind.curr) === 'small' && {...state.stats,
                             ante: state.stats.ante + 1
@@ -294,7 +298,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             break
         case 'stat':
             next = {...next, stats: {...state.stats,
-                [action.payload?.stat!]: state.stats[action.payload?.stat!] + (action.payload?.amount === undefined ? -1 : action.payload.amount)
+                [action.payload?.stat!]: state.stats[action.payload?.stat!] + (action.payload?.amount ?? -1)
             }}
             break
         case 'select':
@@ -368,6 +372,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 } else if(name === 'The Pillar') {
                     next.cards.played = [...next.cards.played, ...selected]
                 }
+
                 // Determine which cards score
                 let ranks: number[] = new Array(13).fill(0)
                 selected.forEach(c => {
@@ -386,6 +391,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         if(i > 0) { c.scored = false }
                     })
                 }
+                selected.forEach(c => {
+                    if(c.enhancement === Enhancement?.Stone) { c.scored = true }
+                })
                 // Activation sequence
                 const baseball = state.jokers.find(j => j.joker.name === 'Baseball Card') !== undefined
 
@@ -433,7 +441,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
                             state.jokers.filter(j => j.joker.activation.includes(Activation.OnScored)).forEach(j => {
                                 switch(j.joker.name) {
-            
+                                    case 'Triboulet':
+                                        if([Rank.King, Rank.Queen].includes(c.rank)) { mult *= 2 }
+                                        break
                                 }
                                 if(baseball && j.joker.rarity === 'Uncommon') { mult *= 1.5 }
                             })
@@ -619,15 +629,24 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }}
             break
         case 'setLastUsedConsumable':
-            next.cards.lastCon = (action.payload?.card! as ConsumableInstance).consumable.name
+            next.cards.lastCon = (action.payload?.card! as ConsumableType).name
             break
         case 'addJoker':
-            let newJoker: JokerInstance = {
-                ...action.payload?.card as JokerInstance,
-                id: state.cards.nextId,
-                selected: false,
-                shopMode: false,
+            let newJoker: JokerInstance
+            if((action.payload?.card as JokerInstance).id !== undefined) {
+                newJoker = {
+                    ...action.payload?.card as JokerInstance,
+                    id: state.cards.nextId,
+                    selected: false,
+                    shopMode: false,
+                }
+            } else {
+                newJoker = {
+                    id: state.cards.nextId,
+                    joker: action.payload?.card as JokerType
+                }
             }
+            
             next = {...next,
                 ...(newJoker.edition === Edition?.Negative && {
                     stats: {...state.stats,

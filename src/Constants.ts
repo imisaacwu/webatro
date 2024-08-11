@@ -348,6 +348,7 @@ export type ConsumableType = {
     description?: string
     hand?: keyof typeof HandType
     type: 'Planet' | 'Spectral'| 'Tarot'
+    handRequired?: boolean
 }
 
 export const Consumables: ConsumableType[] = [
@@ -398,35 +399,42 @@ export const Consumables: ConsumableType[] = [
     }, { // TODO: add the rest of the text formatting
         name: 'Familiar',
         description: 'Destroy /{orange}1/ random card in your hand, add /{orange}3/ random /{orange}Enhanced face cards/ to your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Grim',
         description: 'Destroy /{orange}1/ random card in your hand, add /{orange}2/ random /{orange}Enhanced Aces/ to your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Incantation',
         description: 'Destroy /{orange}1/ random card in your hand, add /{orange}4/ random /{orange}Enhanced numbered cards/ to your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Talisman',
         description: 'Add a /{orange}Gold Seal/ to /{orange}1/ selected card in your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Aura',
         description: 'Add /{indigo}Foil/, /{indigo}Holographic/, or /{indigo}Polychrome/ effect to /{orange}1/ selected card in hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Wraith',
-        description: 'Creates a random /{red}Rare/ /{orange}Joker/, sets money to /{yellow}$0/',
+        description: 'Creates a random /{red}Rare/{orange}Joker/{nospace},\nsets money to /{yellow}$0',
         type: 'Spectral'
     }, {
         name: 'Sigil',
         description: 'Converts all cards in hand to a single random suit',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Ouija',
         description: 'Converts all cards in hand to a single random Rank. /{red}-1/ hand size',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Ectoplasm',
         description: 'Add /{indigo}Negative/ to\na random Joker.\n{red}-1/ hand size',
@@ -434,7 +442,8 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'Immolate',
         description: 'Destroys /{orange}5/ random cards in hand, gain /{yellow}$20/',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Ankh',
         description: 'Create a copy of\na random Joker,\ndestroy all other Jokers\n/{small grey}(Removes Negative from copy)',
@@ -442,7 +451,8 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'Deja Vu',
         description: 'Add a Red Seal to /{orange}1/ selected card in your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Hex',
         description: 'Add Polychrome to a random Joker, destroy all other Jokers',
@@ -450,18 +460,21 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'Trance',
         description: 'Add a Blue Seal to /{orange}1/ selected card in your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Medium',
         description: 'Add a Purple Seal to /{orange}1/ selected card in your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'Cryptid',
         description: 'Creates 2 copies of /{orange}1/ selected card in your hand',
-        type: 'Spectral'
+        type: 'Spectral',
+        handRequired: true
     }, {
         name: 'The Soul',
-        description: 'Creates a Legendary Joker (Must have room)',
+        description: 'Creates a Legendary Joker\n{small grey}(Must have room)',
         type: 'Spectral'
     }, {
         name: 'Black Hole',
@@ -474,7 +487,8 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Magician',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Lucky Card',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The High Priestess',
         description: 'Creates up to /{orange}2\nrandom /{aqua}Planet/ cards\n{grey}(Must have room)',
@@ -482,7 +496,8 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Empress',
         description: 'Enhances /{orange}2\nselected cards to\n{orange}Mult Cards',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Emperor',
         description: 'Creates up to /{orange}2\nrandom /{purple}Tarot/ cards\n{grey}(Must have room)',
@@ -490,19 +505,23 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The Hierophant',
         description: 'Enhances /{orange}2\nselected cards to\n{orange}Bonus Cards',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Lovers',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Wild Card',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Chariot',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Steel Card',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'Justice',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Glass Card',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Hermit',
         description: 'Doubles money\n{grey}(Max of /{yellow}$20/{grey nospace})',
@@ -514,39 +533,47 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'Strength',
         description: 'Increases rank of\nup to /{orange}2/ selected\ncards by /{orange}1',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Hanged Man',
         description: 'Destroys up to\n{orange}2/ selected cards',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'Death',
         description: 'Select /{orange}2/ cards,\nconvert the /{orange}left/ card\ninto the /{orange}right/ card\n{grey}(Drag to rearrange)',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'Temperance',
-        description: 'Gives the total sell\nvalue of all current\nJokers /{grey}(Max of /{yellow}$50/{grey nospace})\n{grey}(Currently /{yellow current-joker}_/{grey nospace})',
+        description: 'Gives the total sell\nvalue of all current\nJokers /{grey}(Max of /{yellow}$50/{grey nospace})\n{grey}(Currently /{yellow current-joker}${totalJokerSellPrice}/{grey nospace})',
         type: 'Tarot'
     }, {
         name: 'The Devil',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Gold Card',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Tower',
         description: 'Enhances /{orange}1/ selected\ncard into a\n{orange}Stone Card',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Star',
         description: 'Converts up to\n{orange}3/ selected cards\n to /{orange}Diamonds',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Moon',
         description: 'Converts up to\n{orange}3/ selected cards\n to /{blue}Clubs',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'The Sun',
         description: 'Converts up to\n{orange}3/ selected cards\n to /{red}Hearts',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }, {
         name: 'Judgement',
         description: 'Creates a random\n{orange}Joker/ card\n{grey}(Must have room)',
@@ -554,6 +581,7 @@ export const Consumables: ConsumableType[] = [
     }, {
         name: 'The World',
         description: 'Converts up to\n{orange}3/ selected cards\n to /{dark-purple}Spades',
-        type: 'Tarot'
+        type: 'Tarot',
+        handRequired: true
     }
 ]

@@ -85,16 +85,23 @@ div[id^='joker_']:hover #joker-description-outline { display: initial; }
     margin: 0 2px;
 }
 
+#joker-tags {
+    text-align: center;
+    margin: 4px;
+}
+
 #joker-rarity {
     font-size: 24px;
     text-align: center;
     border-radius: 8px;
-    margin: 4px;
+    margin: 2px 0;
     padding: 0 4px;
     color: aliceblue;
 }
 
 #joker-rarity.Common { background-color: var(--blue); }
+#joker-rarity.Uncommon { background-color: var(--green); }
+#joker-rarity.Rare { background-color: var(--red); }
 
 #joker-price-tab {
     position: absolute;

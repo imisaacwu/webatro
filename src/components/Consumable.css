@@ -102,6 +102,24 @@ div[id^='consumable_'] img {
     cursor: pointer;
 }
 
+#consumable-buy-and-use-button {
+    position: absolute;
+    background-color: var(--red);
+    left: var(--consumable-width);
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 4px 8px 6px;
+    border-radius: 0 8px 8px 0;
+}
+
+#consumable-buy-and-use-button:hover {
+    filter: brightness(.75);
+    cursor: pointer;
+}
+
+#consumable-buy-and-use-buy { font-size: 32px; }
+#consumable-buy-and-use-use { font-size: 18px; }
+
 #consumable-popup {
     display: none;
     position: absolute;

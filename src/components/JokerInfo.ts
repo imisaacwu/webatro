@@ -10,7 +10,7 @@ export type JokerInstance = {
     shopMode?: boolean
 }
 
-export enum Activation { OnPlayed, OnScored, OnHeld, Independent, OnOther, OnDiscard, PostScoring, Passive }
+export enum Activation { OnPlayed, OnScored, OnHeld, Independent, OnOther, OnDiscard, EndOfRound, Passive }
 
 export type JokerType = {
     name: string
@@ -30,5 +30,19 @@ export const Jokers: JokerType[] = [
         cost: 2,
         rarity: 'Common',
         activation: [Activation.Independent]
+    },
+    {
+        name: 'Baseball Card',
+        description: '{green}Uncommon/Jokers each\ngive/{red-invert}X1.5/Mult',
+        cost: 8,
+        rarity: 'Rare',
+        activation: []
+    },
+    {
+        name: 'Triboulet',
+        description: 'Played Kings and\nQueens each give/{red-invert}X2/Mult\nwhen scored',
+        cost: 20,
+        rarity: 'Legendary',
+        activation: [Activation.OnScored]
     }
 ]

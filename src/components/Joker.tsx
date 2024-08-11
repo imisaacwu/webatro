@@ -1,18 +1,16 @@
 import { useContext } from "react"
-import { Edition } from "../Constants"
-import { getImage } from "../Utilities"
+import { Edition, editionInfo } from "../Constants"
+import { calcPrice, getImage } from "../Utilities"
 import './Joker.css'
 import { JokerInstance } from "./JokerInfo"
 import { GameStateContext } from "../GameState"
 const images: Record<string, { default: string }> = import.meta.glob('../assets/jokers/*/*.png', { eager: true })
 
-export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) => {
+export const Joker = ({id, joker, edition, selected = false, ...props}: JokerInstance) => {
     const { state: game, dispatch } = useContext(GameStateContext)
     const image = getImage(`../assets/jokers/${joker.rarity}/${joker.name.replace(/\s/g, '_')}.png`, images)
-    const self: JokerInstance = {id, joker, selected, ...props}
-
-    const price = joker.cost
-    const sellPrice = Math.floor(price / 2)
+    const self: JokerInstance = {id, joker, edition, selected, ...props}
+    const { price, sell } = calcPrice(self)
 
     const description = joker.description.split('\n').map((line, i) =>
         <div key={i}>
@@ -23,13 +21,40 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
             )}
         </div>
     )
+    
+    const popupTags =
+        <>
+            {edition !== undefined &&
+                <div className={`tag ${edition}`}>{Edition[edition]}</div>
+            }
+            <div id='tags-side'>
+                {edition !== undefined &&
+                    <div className='tag-info'>
+                        <div className='tag-info-inner'>
+                            <div className='tag-name'>{Edition[edition]}</div>
+                            <div className='tag-description'>
+                                {editionInfo[Edition[edition] as keyof typeof editionInfo].split('\n').map((line, i) => 
+                                    <div key={i}>
+                                        {line.split('/').map((str, i) =>
+                                            <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
+                                                {str.replace(/{.+}/g, '')}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </>
 
     return (
         <div
             id={`joker_${id}`}
             className={`${props.shopMode ? 'shopping' : ''}` +
                 `${selected ? ' selected' : ''}` +
-                ` ${props.edition !== undefined ? Edition[props.edition] : ''}`
+                ` ${edition !== undefined ? Edition[edition] : ''}`
             }
         >
             <img src={image} onClick={() => {
@@ -47,8 +72,11 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
                     <div id='joker-info'>
                         {description}
                     </div>
-                    <div id='joker-rarity' className={joker.rarity}>
-                        {joker.rarity}
+                    <div id='joker-tags'>
+                        <div id='joker-rarity' className={joker.rarity}>
+                            {joker.rarity}
+                        </div>
+                        {popupTags}
                     </div>
                 </div>
             </div>
@@ -70,11 +98,11 @@ export const Joker = ({id, joker, selected = false, ...props}: JokerInstance) =>
             }
             {!props.shopMode && selected &&
                 <div id='sell-joker' onClick={() => {
-                    dispatch({type: 'stat', payload: {stat: 'money', amount: sellPrice}})
+                    dispatch({type: 'stat', payload: {stat: 'money', amount: sell}})
                     dispatch({type: 'removeJoker', payload: {card: self}})
                 }}>
                     SELL
-                    <div id='joker-sell-price'>{`$${sellPrice}`}</div>
+                    <div id='joker-sell-price'>{`$${sell}`}</div>
                 </div>
             }
         </div>

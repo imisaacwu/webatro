@@ -28,17 +28,17 @@ export const Blind = ({ type, blind }: BlindProps) => {
         most = (most[1].played < hand[1].played || most[1].chips * most[1].mult < hand[1].chips * hand[1].mult) ? hand : most
     ), Object.entries(handLevels)[12])
 
-    if(blind.name === 'The Ox') {
-        blind.descrip = blind.descrip.replace('_', HandType[mostPlayed[0] as keyof typeof HandType])
-    }
-
     return (
         <>
             {type === 'sidebar' && <>
                 <div id='blind'>
                     <div id='blind-name' className='sidebar'>{blind.name}</div>
                     <div id='blind-info' className='sidebar'>
-                        <div id='blind-bio'>{blind.descrip}</div>
+                        <div id='blind-bio'>{
+                            blind.name === 'The Ox' ?
+                            blind.descrip.replace('_', HandType[mostPlayed[0] as keyof typeof HandType]) :
+                            blind.descrip
+                        }</div>
                         <div id='blind-display'>
                             <img id='blind-icon' src={url} />
                             <div id='blind-status'>

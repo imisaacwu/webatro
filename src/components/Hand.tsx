@@ -3,6 +3,7 @@ import { cardSnap, shuffle } from '../Utilities'
 import './Hand.css'
 import { GameStateContext } from '../GameState'
 import { Card } from './Card'
+import { Consumables, Enhancement, Seal } from '../Constants'
 
 export default function Hand() {
     const { state: game, dispatch } = useContext(GameStateContext)
@@ -26,16 +27,26 @@ export default function Hand() {
                         let len = Math.max(gameRef.current.stats.handSize - (gameRef.current.cards.hand.length - gameRef.current.cards.selected.length), 0)
                         dispatch({type: 'submit'})
                         if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Hook') {
-                            let discard = shuffle(game.cards.hand.filter(c => !game.cards.selected.includes(c))).slice(2)
-                            discard.forEach(c => dispatch({type: 'select', payload: {card: c}}))
-                            dispatch({type: 'discard'})
-                            len += (game.cards.hand.length - game.cards.selected.length) - discard.length
+                            let discard = shuffle(game.cards.hand.filter(c => !game.cards.selected.includes(c))).slice(-2)
+                            dispatch({type: 'updateCards', payload: {cardLocation: 'hand', update: game.cards.hand.filter(c => !discard.includes(c) && !c.selected)}})
+                            // weird timing issue
+                            dispatch({type: 'updateCards', payload: {cardLocation: 'hidden', update: [...game.cards.hidden, ...discard]}})
+                            len += discard.length
                         }
                         setTimeout(() => {
+                            const lastHand = game.active.name
                             dispatch({type: 'discard'})
                             let req = (game.blind.base * (game.blind.curr === 'small' ? 1 : game.blind.curr === 'big' ? 1.5 : game.blind.boss.mult))
                             if(gameRef.current.stats.score >= req) {
                                 dispatch({type: 'state', payload: {state: 'post-scoring'}})
+                                game.cards.hand.forEach(c => {
+                                    if(c.enhancement === Enhancement?.Gold) {
+                                        dispatch({type: 'stat', payload: {stat: 'money', amount: 3}})
+                                    }
+                                    if(c.seal === Seal?.Blue && game.cards.consumables.length < game.stats.consumableSize) {
+                                        dispatch({type: 'addCard', payload: {card: Consumables.find(c => c.hand === lastHand)}})
+                                    }
+                                })
                             } else {
                                 dispatch({type: 'draw', payload: {amount: len, previous: 'played'}})
                             }

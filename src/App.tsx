@@ -7,37 +7,12 @@ import { Deck } from './components/Deck'
 import Hand from './components/Hand'
 import { InfoPanel } from './components/InfoPanel'
 import { Round } from './components/Round'
-import { Blinds, BlindType, DeckType, HandType, Rank, Suit } from './Constants'
+import { Blinds, DeckType } from './Constants'
 import { gameReducer, GameStateContext, initialGameState } from './GameState'
 import { Card } from './components/Card'
 import { cardSnap } from './Utilities'
-import { CardInfo } from './components/CardInfo'
 import { Joker } from './components/Joker'
 import { Shop } from './components/Shop'
-
-export const debuffCards = (blind: BlindType, cards: CardInfo[], past: (keyof typeof HandType | CardInfo)[]) => {
-    switch(blind.name) {
-        case 'The Goad':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Spades))
-            break
-        case 'The Head':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Hearts))
-            break
-        case 'The Club':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Clubs))
-            break
-        case 'The Window':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Diamonds))
-            break
-        case 'The Plant':
-            cards.forEach(c => c.debuffed = ([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)))
-            break
-        case 'The Pillar':
-            cards.forEach(c => c.debuffed = (past.includes(c)))
-            break
-        default:
-    }
-}
 
 export default function App() {
     const [ game, dispatch ] = useReducer(gameReducer, initialGameState)

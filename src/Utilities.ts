@@ -1,6 +1,6 @@
 import { CardInfo } from "./components/CardInfo"
-import { Jokers } from "./components/JokerInfo"
-import { AnteChips, Blinds, Consumables, Enhancement, handLevels, HandType } from "./Constants"
+import { JokerInstance, Jokers } from "./components/JokerInfo"
+import { AnteChips, Blinds, BlindType, ConsumableInstance, Consumables, Edition, Enhancement, handLevels, HandType, Rank, Suit } from "./Constants"
 import { GameState } from "./GameState"
 
 // https://www.desmos.com/calculator/fsvcr75cdx
@@ -24,11 +24,27 @@ export const getNextBlind = (ante: AnteBlinds): AnteBlinds => {
 }
 
 export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
-    // xxxAKQJT 98765432
+    const wilds = cards.filter(c => c.enhancement === Enhancement.Wild && !c.debuffed)
+    if(wilds.length === 0) { return getPokerHand(cards) }
+
+    const hands: (keyof typeof HandType)[] = [], suits: Suit[] = []
+    Object.keys(Suit).filter(s => isNaN(Number(s))).forEach(s => {
+        wilds.forEach((c, i) => {
+            suits[i] = c.suit
+            c.suit = Suit[s as keyof typeof Suit]
+        })
+        hands.push(getPokerHand(cards))
+        wilds.forEach((c, i) => c.suit = suits[i])
+    })
+    hands.sort((a, b) => handLevels[b].chips * handLevels[b].mult - handLevels[a].chips * handLevels[a].mult)
+    return hands[0]
+}
+
+const getPokerHand = (cards: CardInfo[]): keyof typeof HandType => {
+    // xxSAKQJT 98765432
     const straights = [0x100F, 0x1F, 0x3E, 0x7C, 0xF8, 0x1F0, 0x3E0, 0x7C0, 0xF80, 0x1F00]
     const hand = cards.reduce((total, c) => total | (1 << c.rank), 0)
 
-    // TODO: Stone
     // [2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A, Stone]
     let ranks: number[] = new Array(14).fill(0), suits: number[] = new Array(4).fill(0)
     cards.forEach(c => {
@@ -41,6 +57,10 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
     })
     ranks = ranks.filter(r => r !== 0).sort((a, b) => b - a)
     suits = suits.filter(s => s !== 0).sort((a, b) => b - a)
+
+    if(ranks.length === 1 && hand === 0x3000) {
+        return 'HIGH_CARD'
+    }
 
     if(suits[0] === 5) {
         if(ranks[0] === 5) return 'FLUSH_FIVE'
@@ -100,6 +120,30 @@ export const cardSnap = ({cards, idPrefix, r = 6000, log = false}: {cards: any[]
     }
 }
 
+export const debuffCards = (blind: BlindType, cards: CardInfo[], past: (keyof typeof HandType | CardInfo)[]) => {
+    switch(blind.name) {
+        case 'The Goad':
+            cards.forEach(c => c.debuffed = (c.suit === Suit.Spades || c.enhancement === Enhancement?.Wild))
+            break
+        case 'The Head':
+            cards.forEach(c => c.debuffed = (c.suit === Suit.Hearts || c.enhancement === Enhancement?.Wild))
+            break
+        case 'The Club':
+            cards.forEach(c => c.debuffed = (c.suit === Suit.Clubs || c.enhancement === Enhancement?.Wild))
+            break
+        case 'The Window':
+            cards.forEach(c => c.debuffed = (c.suit === Suit.Diamonds || c.enhancement === Enhancement?.Wild))
+            break
+        case 'The Plant':
+            cards.forEach(c => c.debuffed = ([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)))
+            break
+        case 'The Pillar':
+            cards.forEach(c => c.debuffed = (past.includes(c)))
+            break
+        default:
+    }
+}
+
 export const getImage = (url: string, images: Record<string, { default: string }>) => {
     const module = images[url]
     if(!module) { throw new Error(`no such image ${url}`) }
@@ -146,4 +190,23 @@ export const newOffers = (slots: number, weights: {
         }
     }
     return offers
+}
+
+export const calcPrice = (card: JokerInstance | ConsumableInstance) => {
+    let price
+    if((card as ConsumableInstance).consumable !== undefined) {
+        price = (card as ConsumableInstance).consumable.type === 'Spectral' ? 4 : 3
+    } else {
+        const joker = card as JokerInstance
+        price = joker.joker.cost
+        if(joker.edition !== undefined) {
+            switch(joker.edition) {
+                case Edition.Foil: price += 2; break
+                case Edition.Holographic: price += 3; break
+                case Edition.Negative:
+                case Edition.Polychrome: price += 5; break
+            }
+        }
+    }
+    return {price: price, sell: Math.max(1, Math.floor(price / 2))}
 }
