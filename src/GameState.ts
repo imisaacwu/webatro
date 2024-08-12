@@ -164,6 +164,7 @@ export const initialGameState: GameState = {
     }
 }
 
+let cerulean_bell_card: CardInfo
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
     const sort = (a: CardInfo, b: CardInfo) => (
         ((!!action.payload?.sort) ? action.payload.sort : state.cards.sort) === 'rank' ?
@@ -329,7 +330,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 next = {...next, jokers: updated}
             } else if((action.payload?.card as CardInfo).suit !== undefined) {
                 const card = state.cards.hand.find(c => c.id === (action.payload?.card! as CardInfo).id)!
-                if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || state.cards.selected.indexOf(card) !== 0) {
+                if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || card.id !== cerulean_bell_card.id) {
                     card.selected = !card.selected
                     const hand = bestHand(state.cards.hand.filter(c => c.selected))
                     next = {...next,
@@ -588,6 +589,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 let card = next.cards.hand[Math.floor(Math.random() * next.cards.hand.length)]
                 next.cards.selected.push(card)
                 card.selected = true
+                cerulean_bell_card = card
             }
             break
         case 'setSort':
