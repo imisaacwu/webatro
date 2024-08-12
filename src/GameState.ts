@@ -3,6 +3,10 @@ import { BlindType, ConsumableInstance, Consumables, ConsumableType, DeckType, E
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, debuffCards, getNextBlind, newOffers, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
 import { Activation, JokerInstance, JokerType } from "./components/JokerInfo"
+import Rand from "rand-seed"
+
+export const seed = (Math.random() + 1).toString(36).toUpperCase().slice(2)
+export const Random = new Rand(seed)
 
 export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
     handLevels[hand].level += n
@@ -187,11 +191,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         arr.push(
                             {
                                 id: i,
-                                suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
-                                rank: Rank[ranks[Math.floor(Math.random()*ranks.length)]],
-                                edition: Math.random() > .8 ? Edition[editions[Math.floor(Math.random()*editions.length)]] : undefined,
-                                enhancement: Math.random() > .8 ? Enhancement[enhancements[Math.floor(Math.random()*enhancements.length)]]: undefined,
-                                seal: Math.random() > .8 ? Seal[seals[Math.floor(Math.random()*seals.length)]]: undefined,
+                                suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
+                                rank: Rank[ranks[Math.floor(Random.next()*ranks.length)]],
+                                edition: Random.next() > .8 ? Edition[editions[Math.floor(Random.next()*editions.length)]] : undefined,
+                                enhancement: Random.next() > .8 ? Enhancement[enhancements[Math.floor(Random.next()*enhancements.length)]]: undefined,
+                                seal: Random.next() > .8 ? Seal[seals[Math.floor(Random.next()*seals.length)]]: undefined,
                                 deck: DeckType.Erratic
                             }
                         )
@@ -241,7 +245,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         } else if(name === 'The Water') {
                             next.stats.discards = 0
                         } else if(name === 'Crimson Heart') {
-                            next.jokers[Math.floor(Math.random() * next.jokers.length)].debuffed = true
+                            next.jokers[Math.floor(Random.next() * next.jokers.length)].debuffed = true
                         } else if(name === 'Amber Acorn') {
                             next.jokers.forEach(j => j.flipped = true)
                             next = {...next,
@@ -428,11 +432,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                     case Enhancement.Bonus: chips += 30; break
                                     case Enhancement.Glass:
                                         mult *= 2;
-                                        if(Math.random() < .25) { glassToBreak.push(c) }
+                                        if(Random.next() < .25) { glassToBreak.push(c) }
                                         break
                                     case Enhancement.Lucky:
-                                        if(Math.random() < .2) { mult += 20 }
-                                        if(Math.random() < .07) { next.stats.money += 20 }
+                                        if(Random.next() < .2) { mult += 20 }
+                                        if(Random.next() < .07) { next.stats.money += 20 }
                                         break
                                     case Enhancement.Mult: mult += 4; break
                                     case Enhancement.Stone: chips += 50; break
@@ -559,7 +563,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         }
                         break
                     case 'The Wheel':
-                        nextHand.forEach(c => c.flipped = Math.random() <= (1 / 7))
+                        nextHand.forEach(c => c.flipped = Random.next() <= (1 / 7))
                         break
                     case 'The Fish':
                         if(action.payload?.previous === 'played') {
@@ -576,7 +580,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     case 'Crimson Heart':
                         if(action.payload?.previous === 'played') {
                             next.jokers.forEach(j => j.debuffed = false)
-                            next.jokers[Math.floor(Math.random() * next.jokers.length)].debuffed = true
+                            next.jokers[Math.floor(Random.next() * next.jokers.length)].debuffed = true
                         }
                         break
                 }
@@ -586,7 +590,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 deck: state.cards.deck.slice(draw)
             }}
             if(state.blind.curr === 'boss' && name === 'Cerulean Bell') {
-                let card = next.cards.hand[Math.floor(Math.random() * next.cards.hand.length)]
+                let card = next.cards.hand[Math.floor(Random.next() * next.cards.hand.length)]
                 next.cards.selected.push(card)
                 card.selected = true
                 cerulean_bell_card = card

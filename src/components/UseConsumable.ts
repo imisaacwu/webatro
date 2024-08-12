@@ -1,5 +1,5 @@
 import { Suit, Rank, Enhancement, DeckType, Seal, Edition, handLevels, Consumables, ConsumableType } from "../Constants"
-import { GameAction, GameState, levelHand } from "../GameState"
+import { GameAction, GameState, levelHand, Random } from "../GameState"
 import { calcPrice, debuffCards } from "../Utilities"
 import { Jokers } from "./JokerInfo"
 
@@ -15,39 +15,39 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
             switch(consumable.name) {
                 case 'Familiar':
                     if(game.state !== 'scoring') { return false }
-                    dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Math.random() * game.cards.hand.length)]}})
+                    dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Random.next() * game.cards.hand.length)]}})
 
                     for(let i = 0; i < 3; i++) {
                         dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
-                            suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
-                            rank: Rank[ranks[Math.floor(Math.random()*3)+9]],
-                            enhancement: Enhancement[enhancements[Math.floor(Math.random()*(enhancements.length-1))+1]],
+                            suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
+                            rank: Rank[ranks[Math.floor(Random.next()*3)+9]],
+                            enhancement: Enhancement[enhancements[Math.floor(Random.next()*(enhancements.length-1))+1]],
                             deck: DeckType.Red
                         }}})
                     }
                     break
                 case 'Grim':
                     if(game.state !== 'scoring') { return false }
-                    dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Math.random() * game.cards.hand.length)]}})
+                    dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Random.next() * game.cards.hand.length)]}})
 
                     for(let i = 0; i < 2; i++) {
                         dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
-                            suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
+                            suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
                             rank: Rank.Ace,
-                            enhancement: Enhancement[enhancements[Math.floor(Math.random()*(enhancements.length-1))+1]],
+                            enhancement: Enhancement[enhancements[Math.floor(Random.next()*(enhancements.length-1))+1]],
                             deck: DeckType.Red
                         }}})
                     }
                     break
                 case 'Incantation':
                     if(game.state !== 'scoring') { return false }
-                    dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Math.random() * game.cards.hand.length)]}})
+                    dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Random.next() * game.cards.hand.length)]}})
 
                     for(let i = 0; i < 4; i++) {
                         dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
-                            suit: Suit[suits[Math.floor(Math.random()*suits.length)]],
-                            rank: Rank[ranks[Math.floor(Math.random()*9)]],
-                            enhancement: Enhancement[enhancements[Math.floor(Math.random()*(enhancements.length-1))+1]],
+                            suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
+                            rank: Rank[ranks[Math.floor(Random.next()*9)]],
+                            enhancement: Enhancement[enhancements[Math.floor(Random.next()*(enhancements.length-1))+1]],
                             deck: DeckType.Red
                         }}})
                     }
@@ -58,7 +58,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     break
                 case 'Aura':
                     if(game.state !== 'scoring' || game.cards.selected.length !== 1) { return false }
-                    switch(Math.floor(Math.random() * 3)) {
+                    switch(Math.floor(Random.next() * 3)) {
                         case 0:
                             game.cards.selected[0].edition = Edition.Foil
                             break
@@ -73,24 +73,24 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                 case 'Wraith':
                     const rareJokers = Jokers.filter(j => j.rarity === 'Rare' && !game.jokers.some(joker => joker.joker === j))
                     if(rareJokers.length === 0 || game.jokers.length === game.stats.jokerSize) { return false }
-                    dispatch({type: 'addJoker', payload: {card: rareJokers[Math.floor(Math.random() * rareJokers.length)]}})
+                    dispatch({type: 'addJoker', payload: {card: rareJokers[Math.floor(Random.next() * rareJokers.length)]}})
                     dispatch({type: 'stat', payload: {stat: 'money', amount: -game.stats.money}})
                     break
                 case 'Sigil':
                     if(game.state !== 'scoring') { return false }
-                    const suit = suits[Math.floor(Math.random()*suits.length)]
+                    const suit = suits[Math.floor(Random.next()*suits.length)]
                     game.cards.hand.forEach(c => c.suit = Suit[suit])
                     break
                 case 'Ouija':
                     if(game.state !== 'scoring') { return false }
-                    let rank = ranks[Math.floor(Math.random()*ranks.length)]
+                    let rank = ranks[Math.floor(Random.next()*ranks.length)]
                     game.cards.hand.forEach(c => c.rank = Rank[rank])
                     dispatch({type: 'stat', payload: {stat: 'handSize'}})
                     break
                 case 'Ectoplasm':
                     let ectoplasmJokers = game.jokers.filter(j => j.edition === undefined)
                     if(ectoplasmJokers.length === 0) { return false }
-                    ectoplasmJokers[Math.floor(Math.random() * ectoplasmJokers.length)].edition = Edition.Negative
+                    ectoplasmJokers[Math.floor(Random.next() * ectoplasmJokers.length)].edition = Edition.Negative
                     dispatch({type: 'stat', payload: {stat: 'handSize'}})
                     dispatch({type: 'stat', payload: {stat: 'jokerSize', amount: 1}})
                     break
@@ -98,14 +98,14 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     if(game.state !== 'scoring') { return false }
                     let update = game.cards.hand;
                     for(let i = 0; i < 5; i++) {
-                        update.splice(Math.floor(Math.random()*update.length), 1)
+                        update.splice(Math.floor(Random.next()*update.length), 1)
                     }
                     dispatch({type: 'updateCards', payload: {cardLocation: 'hand', update: update}})
                     dispatch({type: 'stat', payload: {stat: 'money', amount: 20}})
                     break
                 case 'Ankh':
                     if(game.jokers.length === 0) { return false }
-                    let toCopy = game.jokers[Math.floor(Math.random() * game.jokers.length)]
+                    let toCopy = game.jokers[Math.floor(Random.next() * game.jokers.length)]
                     game.jokers.forEach(j => {
                         if(j.id !== toCopy.id) {
                             dispatch({type: 'removeJoker', payload: {card: j}})
@@ -120,7 +120,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                 case 'Hex':
                     let hexJokers = game.jokers.filter(j => j.edition === undefined)
                     if(hexJokers.length === 0) { return false }
-                    let toPoly = hexJokers[Math.floor(Math.random() * hexJokers.length)]
+                    let toPoly = hexJokers[Math.floor(Random.next() * hexJokers.length)]
                     game.jokers.forEach(j => {
                         if(j.id !== toPoly.id) {
                             dispatch({type: 'removeJoker', payload: {card: j}})
@@ -149,7 +149,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                 case 'The Soul':
                     const legendaryJokers = Jokers.filter(j => j.rarity === 'Legendary' && !game.jokers.some(joker => joker.joker === j))
                     if(legendaryJokers.length === 0 || game.jokers.length === game.stats.jokerSize) { return false }
-                    dispatch({type: 'addJoker', payload: {card: legendaryJokers[Math.floor(Math.random() * legendaryJokers.length)]}})
+                    dispatch({type: 'addJoker', payload: {card: legendaryJokers[Math.floor(Random.next() * legendaryJokers.length)]}})
                     break
                 case 'Black Hole':
                     Object.keys(handLevels).filter(k => isNaN(Number(k))).map(h => h as keyof typeof handLevels).forEach(h => {
@@ -175,7 +175,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
 
                     let planet: Omit<ConsumableType, 'id'>
                     for(let i = 0; i < Math.min(2, game.stats.consumableSize - game.cards.consumables.length + 1); i++) {
-                        planet = validPlanets[Math.floor(Math.random() * validPlanets.length)]
+                        planet = validPlanets[Math.floor(Random.next() * validPlanets.length)]
                         dispatch({type: 'addCard', payload: {card: planet}})
                         validPlanets = validPlanets.filter(c => c.name !== planet.name)
                         if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
@@ -192,7 +192,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
 
                     let tarot: Omit<ConsumableType, 'id'>
                     for(let i = 0; i < Math.min(2, game.stats.consumableSize - game.cards.consumables.length + 1); i++) {
-                        tarot = validTarots[Math.floor(Math.random() * validTarots.length)]
+                        tarot = validTarots[Math.floor(Random.next() * validTarots.length)]
                         dispatch({type: 'addCard', payload: {card: tarot}})
                         validTarots = validTarots.filter(c => c.name !== tarot.name)
                         if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
@@ -220,9 +220,9 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                 case 'The Wheel of Fortune':
                     const WoFJokers = game.jokers.filter(j => j.edition === undefined)
                     if(WoFJokers.length === 0) { return false }
-                    if(Math.random() < 2.25) {
-                        const joker = WoFJokers[Math.floor(Math.random() * WoFJokers.length)]
-                        switch(Math.floor(Math.random() * 3)) {
+                    if(Random.next() < 2.25) {
+                        const joker = WoFJokers[Math.floor(Random.next() * WoFJokers.length)]
+                        switch(Math.floor(Random.next() * 3)) {
                             case 0: joker.edition = Edition.Foil; break
                             case 1: joker.edition = Edition.Holographic; break
                             case 2: joker.edition = Edition.Polychrome; break
@@ -274,11 +274,11 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     break
                 case 'Judgement':
                     if(game.jokers.length === game.stats.jokerSize) { return false }
-                    const rare_roll = Math.random()
+                    const rare_roll = Random.next()
                     const rarity = rare_roll < .7 ? 'Common' : rare_roll < .95 ? 'Uncommon' : 'Rare'
                     const validJokers = Jokers.filter(j => j.rarity === rarity && !game.jokers.find(joker => joker.joker.name === j.name))
                     if(validJokers.length === 0) { validJokers.push(Jokers[0])}
-                    dispatch({type: 'addJoker', payload: {card: validJokers[Math.floor(Math.random() * validJokers.length)]}})
+                    dispatch({type: 'addJoker', payload: {card: validJokers[Math.floor(Random.next() * validJokers.length)]}})
                     break
                 case 'The World':
                     if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 3) { return false }

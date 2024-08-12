@@ -2,10 +2,12 @@ import { useContext, useState } from 'react'
 import './InfoPanel.css'
 import RunInfo from './RunInfo'
 import { GameStateContext } from '../GameState'
+import { Options } from './Options'
 
 export const InfoPanel = () => {
     const { state: game } = useContext(GameStateContext)
     const [ runMenu, setRunMenu ] = useState(false)
+    const [ optionsMenu, setOptionsMenu ] = useState(true)
 
     return (
         <div id='info'>
@@ -14,7 +16,8 @@ export const InfoPanel = () => {
                     <b style={{fontSize: '36px'}}>Run</b><br />Info
                 </div>
                 {runMenu && <RunInfo setMenu={setRunMenu} />}
-                <div id='options' className='info-button'>Options</div>
+                <div id='options' className='info-button' onClick={() => setOptionsMenu(true)}>Options</div>
+                {optionsMenu && <Options setMenu={setOptionsMenu} />}
             </div>
             <div id='stats'>
                 <div id='hands-discards'>

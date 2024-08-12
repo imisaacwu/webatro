@@ -1,7 +1,7 @@
 import { CardInfo } from "./components/CardInfo"
 import { JokerInstance, Jokers } from "./components/JokerInfo"
 import { AnteChips, Blinds, BlindType, ConsumableInstance, Consumables, Edition, Enhancement, handLevels, HandType, Rank, Suit } from "./Constants"
-import { GameState } from "./GameState"
+import { GameState, Random } from "./GameState"
 
 // https://www.desmos.com/calculator/fsvcr75cdx
 export const ante_base = (ante: number) => {
@@ -15,7 +15,7 @@ export const ante_base = (ante: number) => {
 
 export const boss_roll = (ante: number) => {
     let arr = Blinds.filter((b, i) => i > 1 && (ante % 8 === 0 ? b.ante % 8 === 0 : (b.ante <= ante && b.ante % 8 !== 0)))
-    return arr[Math.floor(Math.random() * arr.length)]
+    return arr[Math.floor(Random.next() * arr.length)]
 }
 
 export type AnteBlinds = 'small' | 'big' | 'boss'
@@ -83,7 +83,7 @@ const getPokerHand = (cards: CardInfo[]): keyof typeof HandType => {
 export const shuffle = (cards: any[]) => {
     let arr = [...cards], i = cards.length
     while(i > 0) {
-        let rand = Math.floor(Math.random() * i--);
+        let rand = Math.floor(Random.next() * i--);
         [arr[i], arr[rand]] = [arr[rand], arr[i]]
     }
     return arr
@@ -163,15 +163,15 @@ export const newOffers = (slots: number, weights: {
     const offers = []
     const total = Object.values(weights).reduce((n, w) => n += w)
     for(let i = 1; i <= slots; i++) {
-        const roll = Math.random()
+        const roll = Random.next()
         if(roll < weights.Joker / total) {
-            const rare_roll = Math.random()
+            const rare_roll = Random.next()
             const rarity = rare_roll < .7 ? 'Common' : rare_roll < .95 ? 'Uncommon' : 'Rare'
             const validJokers = Jokers.filter(j => j.rarity === rarity && !game.jokers.find(joker => joker.joker.name === j.name))
             if(validJokers.length === 0) { validJokers.push(Jokers[0])}
             offers.push({
                 id: -i,
-                joker: validJokers[Math.floor(Math.random() * validJokers.length)],
+                joker: validJokers[Math.floor(Random.next() * validJokers.length)],
                 shopMode: true
             })
         } else if(roll < (weights.Joker + weights.Tarot) / total) {
@@ -179,7 +179,7 @@ export const newOffers = (slots: number, weights: {
             if(validTarots.length === 0) { validTarots.push(Consumables[40])}
             offers.push({
                 id: -i,
-                consumable: validTarots[Math.floor(Math.random() * validTarots.length)],
+                consumable: validTarots[Math.floor(Random.next() * validTarots.length)],
                 shopMode: true
             })
         } else if(roll < (weights.Joker + weights.Tarot + weights.Planet) / total) {
@@ -187,7 +187,7 @@ export const newOffers = (slots: number, weights: {
             if(validPlanets.length === 0) { validPlanets.push(Consumables[0]) }
             offers.push({
                 id: -i,
-                consumable: validPlanets[Math.floor(Math.random() * validPlanets.length)],
+                consumable: validPlanets[Math.floor(Random.next() * validPlanets.length)],
                 shopMode: true
             })
         }

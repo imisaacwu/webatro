@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react'
 import { cardSnap, shuffle } from '../Utilities'
 import './Hand.css'
-import { GameStateContext } from '../GameState'
+import { GameStateContext, Random } from '../GameState'
 import { Card } from './Card'
 import { Consumables, Enhancement, Seal } from '../Constants'
 
@@ -77,7 +77,7 @@ export default function Hand() {
                         validTarots = validTarots.filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
                         if(validTarots.length === 0) { validTarots.push(Consumables[40])}
                         for(let i = 0; i < Math.min(game.stats.consumableSize - game.cards.consumables.length, purple); i++) {
-                            dispatch({type: 'addCard', payload: {card: validTarots[Math.floor(Math.random() * validTarots.length)]}});
+                            dispatch({type: 'addCard', payload: {card: validTarots[Math.floor(Random.next() * validTarots.length)]}});
                         }
 
                         setTimeout(() => {
