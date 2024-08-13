@@ -7,7 +7,7 @@ const suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyo
 const ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
 const enhancements = Object.keys(Enhancement).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Enhancement)
 
-export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameAction>, consumable: ConsumableType) => {
+export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameAction>, consumable: ConsumableType, instant?: boolean) => {
     if(game.cards.submitted.length === 0) {
         if(consumable.type === 'Planet') {
             levelHand({hand: consumable.hand!})
@@ -191,7 +191,9 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     if(validTarots.length === 0) { validTarots.push(Consumables[40])}
 
                     let tarot: Omit<ConsumableType, 'id'>
-                    for(let i = 0; i < Math.min(2, game.stats.consumableSize - game.cards.consumables.length + 1); i++) {
+                    let n = Math.min(2, game.stats.consumableSize - game.cards.consumables.length)
+                    if(game.cards.consumables.find(c => c.consumable.name === 'The Emperor')) { n++ }
+                    for(let i = 0; i < n; i++) {
                         tarot = validTarots[Math.floor(Random.next() * validTarots.length)]
                         dispatch({type: 'addCard', payload: {card: tarot}})
                         validTarots = validTarots.filter(c => c.name !== tarot.name)
@@ -290,6 +292,6 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
             debuffCards(game.blind.boss, game.cards.hand, game.cards.played)
         }
         dispatch({type: 'setLastUsedConsumable', payload: {card: consumable}})
-        dispatch({type: 'discard'})
+        if(!instant) { dispatch({type: 'discard'}) }
     }
 }

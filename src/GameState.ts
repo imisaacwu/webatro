@@ -137,7 +137,7 @@ export const initialGameState: GameState = {
     },
 
     blind: {
-        curr: 'boss',
+        curr: 'small',
         boss: boss_roll(1),
         base: ante_base(1)
     },
@@ -501,6 +501,30 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
                             state.jokers.filter(j => j.joker.activation.includes(Activation.OnScored) && !j.debuffed).forEach(j => {
                                 switch(j.joker.name) {
+                                    case 'Greedy Joker':
+                                        if(c.suit === Suit.Diamonds) {
+                                            mult += 3
+                                            next.scoreLog.push({name: 'Greedy Joker', mult: 3, mult_type: '+'})
+                                        }
+                                        break
+                                    case 'Lusty Joker':
+                                        if(c.suit === Suit.Hearts) {
+                                            mult += 3
+                                            next.scoreLog.push({name: 'Lusty Joker', mult: 3, mult_type: '+'})
+                                        }
+                                        break
+                                    case 'Wrathful Joker':
+                                        if(c.suit === Suit.Spades) {
+                                            mult += 3
+                                            next.scoreLog.push({name: 'Wrathful Joker', mult: 3, mult_type: '+'})
+                                        }
+                                        break
+                                    case 'Gluttonous Joker':
+                                        if(c.suit === Suit.Clubs) {
+                                            mult += 3
+                                            next.scoreLog.push({name: 'Gluttonous Joker', mult: 3, mult_type: '+'})
+                                        }
+                                        break
                                     case 'Triboulet':
                                         if([Rank.King, Rank.Queen].includes(c.rank)) {
                                             mult *= 2
@@ -573,11 +597,78 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     }
                 })
 
+                ranks = ranks.sort((a, b) => b - a)
                 state.jokers.filter(j => j.joker.activation.includes(Activation.Independent) && !j.debuffed).forEach(j => {
                     switch(j.joker.name) {
                         case 'Joker':
                             mult += 4;
                             next.scoreLog.push({name: 'Joker', mult: 4, mult_type: '+'})
+                            break
+                        case 'Jolly Joker':
+                            if(ranks[0] >= 2) {
+                                mult += 8;
+                                next.scoreLog.push({name: 'Jolly Joker', mult: 8, mult_type: '+'})
+                            }
+                            break
+                        case 'Zany Joker':
+                            if(ranks[0] >= 3) {
+                                mult += 12;
+                                next.scoreLog.push({name: 'Zany Joker', mult: 12, mult_type: '+'})
+                            }
+                            break
+                        case 'Mad Joker':
+                            if(ranks[0] >= 2 && ranks[1] >= 2) {
+                                mult += 10;
+                                next.scoreLog.push({name: 'Mad Joker', mult: 10, mult_type: '+'})
+                            }
+                            break
+                        case 'Crazy Joker':
+                            if(hand.match(/.*STRAIGHT.*/)) {
+                                mult += 12;
+                                next.scoreLog.push({name: 'Crazy Joker', mult: 12, mult_type: '+'})
+                            }
+                            break
+                        case 'Droll Joker':
+                            if(hand.match(/.*FLUSH.*/)) {
+                                mult += 10;
+                                next.scoreLog.push({name: 'Droll Joker', mult: 10, mult_type: '+'})
+                            }
+                            break
+                        case 'Sly Joker':
+                            if(ranks[0] >= 2) {
+                                chips += 50;
+                                next.scoreLog.push({name: 'Sly Joker', chips: 50})
+                            }
+                            break
+                        case 'Wily Joker':
+                            if(ranks[0] >= 3) {
+                                chips += 100;
+                                next.scoreLog.push({name: 'Wily Joker', chips: 100})
+                            }
+                            break
+                        case 'Clever Joker':
+                            if(ranks[0] >= 2 && ranks[1] >= 2) {
+                                chips += 80;
+                                next.scoreLog.push({name: 'Clever Joker', chips: 80})
+                            }
+                            break
+                        case 'Devious Joker':
+                            if(hand.match(/.*STRAIGHT.*/)) {
+                                chips += 100;
+                                next.scoreLog.push({name: 'Devious Joker', chips: 100})
+                            }
+                            break
+                        case 'Crafty Joker':
+                            if(hand.match(/.*FLUSH.*/)) {
+                                chips += 80;
+                                next.scoreLog.push({name: 'Crafty Joker', chips: 80})
+                            }
+                            break
+                        case 'Half Joker':
+                            if(state.cards.selected.length <= 3) {
+                                mult += 20;
+                                next.scoreLog.push({name: 'Half Joker', mult: 20, mult_type: '+'})
+                            }
                             break
                     }
                     if(baseball && j.joker.rarity === 'Uncommon') {

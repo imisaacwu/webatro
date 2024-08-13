@@ -156,7 +156,6 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 `${selected ? ' selected' : ''}` +
                 `${props.shopMode ? ' shopping' : ''}`
             }
-            
         >
             <img src={image} onClick={() => {
                 if(props.shopMode) {
@@ -164,7 +163,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 } else {
                     dispatch({type: 'select', payload: {card: game.cards.consumables.find(c => c.id === props.id)}})
                 }
-            }} onMouseDown={mouseDown} />
+            }} onMouseDown={props.shopMode ? () => {} : mouseDown} />
             {props.shopMode &&
                 <div id='consumable-price-tab'>
                     <div id='consumable-price' className='yellow'>
@@ -193,7 +192,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                         if(game.stats.money >= price) {
                             dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
                             dispatch({type: 'shop-remove', payload: {card: {selected, consumable: cons, ...props}}})
-                            useConsumable(game, dispatch, cons)
+                            useConsumable(game, dispatch, cons, true)
                         }
                     }}>
                         <div id='consumable-buy-and-use-buy'>BUY</div>

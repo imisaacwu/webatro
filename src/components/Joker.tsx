@@ -124,7 +124,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
                 } else {
                     dispatch({type: 'select', payload: {card: self}})
                 }
-            }} onMouseDown={mouseDown} />
+            }} onMouseDown={props.shopMode ? () => {} : mouseDown} />
             {props.debuffed && <img className='debuff' src={debuff} />}
             {!props.flipped && <div id='joker-description-outline'>
                 <div id='joker-description'>

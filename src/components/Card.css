@@ -243,9 +243,3 @@
 .tag-description div div {
     width: max-content;
 }
-
-#playing-card-scored-popup {
-    position: absolute;
-    top: -48px;
-    background-color: var(--blue);
-}

@@ -44,23 +44,21 @@ const getPokerHand = (cards: CardInfo[]): keyof typeof HandType => {
     // xxSAKQJT 98765432
     const straights = [0x100F, 0x1F, 0x3E, 0x7C, 0xF8, 0x1F0, 0x3E0, 0x7C0, 0xF80, 0x1F00]
     const hand = cards.reduce((total, c) => total | (1 << c.rank), 0)
+    let min_rank: keyof typeof HandType = 'NONE'
 
-    // [2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A, Stone]
-    let ranks: number[] = new Array(14).fill(0), suits: number[] = new Array(4).fill(0)
+    // [2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A]
+    let ranks: number[] = new Array(13).fill(0), suits: number[] = new Array(4).fill(0)
     cards.forEach(c => {
         if(c.enhancement !== undefined && c.enhancement === Enhancement.Stone) {
-            ranks[13]++;
+            min_rank = 'HIGH_CARD'
         } else {
             ranks[c.rank]++
             suits[c.suit]++
         }
     })
+
     ranks = ranks.filter(r => r !== 0).sort((a, b) => b - a)
     suits = suits.filter(s => s !== 0).sort((a, b) => b - a)
-
-    if(ranks.length === 1 && hand === 0x3000) {
-        return 'HIGH_CARD'
-    }
 
     if(suits[0] === 5) {
         if(ranks[0] === 5) return 'FLUSH_FIVE'
@@ -77,7 +75,7 @@ const getPokerHand = (cards: CardInfo[]): keyof typeof HandType => {
         case 1: return straights.includes(hand) ? 'STRAIGHT' : 'HIGH_CARD'
     }
 
-    return 'NONE'
+    return min_rank
 }
 
 export const shuffle = (cards: any[]) => {

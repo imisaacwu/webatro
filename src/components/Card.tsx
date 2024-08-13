@@ -211,11 +211,6 @@ export const Card = ({
                     </div>
                 </div>
             </div>}
-            {submitted && scored && !debuffed &&
-                <div id='playing-card-scored-popup'>
-                    {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
-                </div>
-            }
         </div>
     )
 }
