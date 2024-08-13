@@ -64,11 +64,11 @@ export const Card = ({
     const popupTags = game.state === 'scoring' && debuffed ?
         <div id='debuffed-tag' className='tag'>Debuffed</div> :
         <>
-            {enhancement !== undefined && enhancement !== Enhancement.Base &&
-                <div id='enhancement' className={`tag ${enhancement}`}>{`${Enhancement[enhancement]} Card`}</div>
-            }
             {edition !== undefined &&
                 <div id='edition' className={`tag ${edition}`}>{Edition[edition]}</div>
+            }
+            {enhancement !== undefined && enhancement !== Enhancement.Base &&
+                <div id='enhancement' className={`tag ${enhancement}`}>{`${Enhancement[enhancement]} Card`}</div>
             }
             {seal !== undefined &&
                 <div id='seal' className={`tag ${seal}`}>{`${Seal[seal]} Seal`}</div>

@@ -141,7 +141,7 @@
     margin: 4px;
 }
 
-tr {
+#suits tr {
     display: flex;
     flex-direction: row;
 }

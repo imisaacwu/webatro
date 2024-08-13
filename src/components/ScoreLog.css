@@ -1,0 +1,41 @@
+#score-log-outline {
+    position: absolute;
+    z-index: 1;
+    background-color: var(--light-grey);
+    border-radius: 8px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#score-log {
+    background-color: var(--grey);
+    border-radius: 8px;
+    margin: 4px;
+    width: 512px;
+    max-height: 640px;
+    overflow: scroll;
+}
+
+#score-log > table {
+    font-size: 20px;
+    border-collapse: collapse;
+}
+
+#score-log > table > tr {
+    border-bottom: 1px solid aliceblue;
+}
+
+#score-log > table > tr:last-child { border: none }
+
+#score-log > table > #headings {
+    font-size: 32px;
+}
+
+#score-log-back {
+    text-align: center;
+    font-size: 32px;
+    background-color: var(--orange);
+    border-radius: 8px;
+    margin: 2px;
+}

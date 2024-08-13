@@ -7,7 +7,7 @@ import { Options } from './Options'
 export const InfoPanel = () => {
     const { state: game } = useContext(GameStateContext)
     const [ runMenu, setRunMenu ] = useState(false)
-    const [ optionsMenu, setOptionsMenu ] = useState(true)
+    const [ optionsMenu, setOptionsMenu ] = useState(false)
 
     return (
         <div id='info'>

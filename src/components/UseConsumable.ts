@@ -220,7 +220,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                 case 'The Wheel of Fortune':
                     const WoFJokers = game.jokers.filter(j => j.edition === undefined)
                     if(WoFJokers.length === 0) { return false }
-                    if(Random.next() < 2.25) {
+                    if(Random.next() < .25) {
                         const joker = WoFJokers[Math.floor(Random.next() * WoFJokers.length)]
                         switch(Math.floor(Random.next() * 3)) {
                             case 0: joker.edition = Edition.Foil; break

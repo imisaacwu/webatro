@@ -35,6 +35,10 @@
     margin: 0 8px;
 }
 
+#score-display:hover {
+    cursor: pointer;
+}
+
 #stake-icon {
     width: 24px;
     height: 24px;
