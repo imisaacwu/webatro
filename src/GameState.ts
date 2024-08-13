@@ -190,9 +190,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             let arr: CardInfo[] = []
             let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
             let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
-            let editions = Object.keys(Edition).filter(e => (isNaN(Number(e)) && e !== 'Negative')).map(e => e as keyof typeof Edition)
-            let enhancements = Object.keys(Enhancement).filter(e => isNaN(Number(e))).map(e => e as keyof typeof Enhancement)
-            let seals = Object.keys(Seal).filter(s => isNaN(Number(s))).map(s => s as keyof typeof Seal)
             switch(action.payload?.deck!) {
                 case DeckType.Erratic:
                     next.stats.deck = DeckType.Erratic
@@ -202,9 +199,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                 id: i,
                                 suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
                                 rank: Rank[ranks[Math.floor(Random.next()*ranks.length)]],
-                                edition: Random.next() > .18 ? Edition[editions[Math.floor(Random.next()*editions.length)]] : undefined,
-                                enhancement: Random.next() > .18 ? Enhancement[enhancements[Math.floor(Random.next()*enhancements.length)]]: undefined,
-                                seal: Random.next() > .18 ? Seal[seals[Math.floor(Random.next()*seals.length)]]: undefined,
                                 deck: DeckType.Erratic
                             }
                         )
