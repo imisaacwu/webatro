@@ -7,6 +7,8 @@ export const Calculator = () => {
     const { state: game } = useContext(GameStateContext)
     const handStats = handLevels[game.active.name], selected = game.cards.selected
     const anyFlipped = game.cards.submitted.length === 0 && !(selected.every(c => !c.flipped))
+
+    const mult = game.active.score.mult.toLocaleString().length > 9 ? game.active.score.mult.toExponential(2) : game.active.score.mult.toLocaleString()
     
     let handName: string = HandType[game.active.name]
     if(handName === 'Straight Flush' && [Rank.Ace, Rank.King].every(r => selected.some(c => c.rank == r))) {
@@ -23,7 +25,7 @@ export const Calculator = () => {
             <div id='calculator'>
                 <div id='chips'>{anyFlipped ? '?' : game.active.score.chips}</div>
                 <div id='X'>X</div>
-                <div id='mult'>{anyFlipped ? '?' : game.active.score.mult}</div>
+                <div id='mult'>{anyFlipped ? '?' : mult}</div>
             </div>
         </div>
     )

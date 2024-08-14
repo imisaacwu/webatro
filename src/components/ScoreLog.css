@@ -12,7 +12,7 @@
     background-color: var(--grey);
     border-radius: 8px;
     margin: 4px;
-    width: 512px;
+    width: 640px;
     max-height: 640px;
     overflow: scroll;
 }

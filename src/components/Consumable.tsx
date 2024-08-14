@@ -6,6 +6,29 @@ import { useConsumable } from "./UseConsumable";
 import { calcPrice, cardSnap } from "../Utilities";
 const images: Record<string, { default: string }> = import.meta.glob('../assets/consumables/*/*.png', { eager: true })
 
+const getPlanetDescrip = (hand: keyof typeof handLevels) => {
+    return (
+        <>
+            <div>
+                <div>{'('}</div>
+                <div className='yellow nospace'>{`lvl.${handLevels[hand].level}`}</div>
+                <div className='nospace'>{') Level up'}</div>
+            </div>
+            <div className='orange'>
+                {HandType[hand as keyof typeof HandType]}
+            </div>
+            <div>
+                <div className='red'>+{handUpgrade[hand].mult}</div>
+                <div>Mult and</div>
+            </div>
+            <div>
+                <div className='blue'>+{handUpgrade[hand].chips}</div>
+                <div>chips</div>
+            </div>
+        </>
+    )
+}
+
 const getImage = (type: 'Tarot' | 'Planet' | 'Spectral', name: string) => {
     const imagePath = `../assets/consumables/${type.toLowerCase()}s/${name.toLowerCase()}.png`
 
@@ -49,15 +72,28 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
     }
 
     const getTagDescription = (tag: ConsumableType | modifierInfo) => {
+        let description = ''
         if((tag as ConsumableType).type) {
-            return (tag as ConsumableType).description
+            if((tag as ConsumableType).type === 'Planet') {
+                return getPlanetDescrip((tag as ConsumableType).hand!)
+            }
+            description = (tag as ConsumableType).description!
         } else if((tag as keyof typeof editionInfo) in editionInfo) {
-            return editionInfo[tag as keyof typeof editionInfo]
+            description = editionInfo[tag as keyof typeof editionInfo]
         } else if((tag as keyof typeof enhancementInfo) in enhancementInfo) {
-            return enhancementInfo[tag as keyof typeof enhancementInfo]
+            description = enhancementInfo[tag as keyof typeof enhancementInfo]
         } else if((tag as keyof typeof sealInfo) in sealInfo) {
-            return sealInfo[tag as keyof typeof sealInfo]
+            description = sealInfo[tag as keyof typeof sealInfo]
         }
+        return description.split('\n').map((line, i) => 
+            <div key={i}>
+                {line.split('/').map((str, i) =>
+                    <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
+                        {str.replace(/{.+}/g, '')}
+                    </div>
+                )}
+            </div>
+        )
     }
 
     const popupTags = <>
@@ -67,15 +103,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                     <div className='tag-info-inner'>
                         <div className='tag-name'>{getTagName(tag)}</div>
                         <div className='tag-description'>
-                            {getTagDescription(tag)!.split('\n').map((line, i) => 
-                                <div key={i}>
-                                    {line.split('/').map((str, i) =>
-                                        <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
-                                            {str.replace(/{.+}/g, '')}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                            {getTagDescription(tag)}
                         </div>
                     </div>
                 </div>
@@ -132,7 +160,6 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 const update = [...gameRef.current.cards.consumables]
                 const [c] = update.splice(origI, 1)
                 update.splice(i, 0, c)
-                console.log(update, c, origI)
                 dispatch({type: 'updateCards', payload: {cardLocation: 'consumables', update: update}})
                 origI = i
                 lastReorder = now
@@ -181,7 +208,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
             }
             {props.shopMode && selected && <>
                 <div id='consumable-buy-button' onClick={() => {
-                    if(game.stats.money >= price && game.cards.consumables.length < game.stats.consumableSize) {
+                    if((game.stats.money >= price || (game.jokers.find(j => j.joker.name === 'Credit Card') !== undefined && (game.stats.money - price) >= -20)) && game.cards.consumables.length < game.stats.consumableSize) {
                         dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
                         dispatch({type: 'shop-remove', payload: {card: {selected, consumable: cons, ...props}}})
                         dispatch({type: 'addCard', payload: {cardLocation: 'consumables', card: cons}})
@@ -189,10 +216,11 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                 }}>BUY</div>
                 {!cons.handRequired &&
                     <div id='consumable-buy-and-use-button' onClick={() => {
-                        if(game.stats.money >= price) {
-                            dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
-                            dispatch({type: 'shop-remove', payload: {card: {selected, consumable: cons, ...props}}})
-                            useConsumable(game, dispatch, cons, true)
+                        if(game.stats.money >= price || (game.jokers.find(j => j.joker.name === 'Credit Card') !== undefined && (game.stats.money - price) >= -20)) {
+                            if(useConsumable(game, dispatch, cons, true)) {
+                                dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
+                                dispatch({type: 'shop-remove', payload: {card: {selected, consumable: cons, ...props}}})
+                            }
                         }
                     }}>
                         <div id='consumable-buy-and-use-buy'>BUY</div>
@@ -206,26 +234,7 @@ export const Consumable = ({ selected = false, consumable: cons, ...props }: Con
                         {cons.name}
                     </div>
                     <div id='consumable-info'>
-                        {cons.type === 'Planet' &&
-                            <>
-                                <div>
-                                    <div>{'('}</div>
-                                    <div className='yellow nospace'>{`lvl.${handLevels[cons.hand!].level}`}</div>
-                                    <div className='nospace'>{') Level up'}</div>
-                                </div>
-                                <div className='orange'>
-                                    {HandType[cons.hand as keyof typeof HandType]}
-                                </div>
-                                <div>
-                                    <div className='red'>+{handUpgrade[cons.hand!].mult}</div>
-                                    <div>Mult and</div>
-                                </div>
-                                <div>
-                                    <div className='blue'>+{handUpgrade[cons.hand!].chips}</div>
-                                    <div>chips</div>
-                                </div>
-                            </>
-                        }
+                        {cons.type === 'Planet' && getPlanetDescrip(cons.hand!)}
                         {(cons.type === 'Spectral' || cons.type === 'Tarot') && <>{description}</>}
                         <div id='consumable-tags'>
                             {popupTags}

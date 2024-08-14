@@ -23,9 +23,9 @@ export const getNextBlind = (ante: AnteBlinds): AnteBlinds => {
     return (ante === 'small') ? 'big' : (ante === 'big') ? 'boss' : 'small'
 }
 
-export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
+export const bestHand = (cards: CardInfo[], jokers: JokerInstance[]): keyof typeof HandType => {
     const wilds = cards.filter(c => c.enhancement === Enhancement.Wild && !c.debuffed)
-    if(wilds.length === 0) { return getPokerHand(cards) }
+    if(wilds.length === 0) { return getPokerHand(cards, jokers) }
 
     const hands: (keyof typeof HandType)[] = [], suits: Suit[] = []
     Object.keys(Suit).filter(s => isNaN(Number(s))).forEach(s => {
@@ -33,16 +33,21 @@ export const bestHand = (cards: CardInfo[]): keyof typeof HandType => {
             suits[i] = c.suit
             c.suit = Suit[s as keyof typeof Suit]
         })
-        hands.push(getPokerHand(cards))
+        hands.push(getPokerHand(cards, jokers))
         wilds.forEach((c, i) => c.suit = suits[i])
     })
     hands.sort((a, b) => handLevels[b].chips * handLevels[b].mult - handLevels[a].chips * handLevels[a].mult)
     return hands[0]
 }
 
-const getPokerHand = (cards: CardInfo[]): keyof typeof HandType => {
-    // xxSAKQJT 98765432
+const getPokerHand = (cards: CardInfo[], jokers: JokerInstance[]): keyof typeof HandType => {
+    const fourFingers = jokers.find(j => j.joker.name === 'Four Fingers') !== undefined
+
+    // xxSA KQJT 9876 5432
     const straights = [0x100F, 0x1F, 0x3E, 0x7C, 0xF8, 0x1F0, 0x3E0, 0x7C0, 0xF80, 0x1F00]
+    if(fourFingers) {
+        straights.push(...[0x1007, 0xF, 0x1E, 0x3C, 0x78, 0xF0, 0x1E0, 0x3C0, 0x780, 0xF00, 0x1E00])
+    }
     const hand = cards.reduce((total, c) => total | (1 << c.rank), 0)
     let min_rank: keyof typeof HandType = 'NONE'
 
@@ -60,11 +65,24 @@ const getPokerHand = (cards: CardInfo[]): keyof typeof HandType => {
     ranks = ranks.filter(r => r !== 0).sort((a, b) => b - a)
     suits = suits.filter(s => s !== 0).sort((a, b) => b - a)
 
-    if(suits[0] === 5) {
+    if(suits[0] >= (fourFingers ? 4 : 5)) {
         if(ranks[0] === 5) return 'FLUSH_FIVE'
+        if(fourFingers) {
+            for(let i = 0; i < cards.length; i++) {
+                let fourHand = cards.filter((_, idx) => idx !== i).reduce((total, c) => total | (1 << c.rank), 0)
+                if(straights.includes(fourHand)) return 'STRAIGHT_FLUSH'
+            }
+        }
         if(straights.includes(hand)) return 'STRAIGHT_FLUSH'
         if(ranks[0] === 3 && ranks[1] === 2) return 'FLUSH_HOUSE'
         return 'FLUSH'
+    }
+
+    if(fourFingers) {
+        for(let i = 0; i < cards.length; i++) {
+            let fourHand = cards.filter((_, idx) => idx !== i).reduce((total, c) => total | (1 << c.rank), 0)
+            if(straights.includes(fourHand)) return 'STRAIGHT'
+        }
     }
 
     switch(ranks[0]) {
@@ -186,6 +204,15 @@ export const newOffers = (slots: number, weights: {
             offers.push({
                 id: -i,
                 consumable: validPlanets[Math.floor(Random.next() * validPlanets.length)],
+                shopMode: true
+            })
+        } else if(roll < (weights.Joker + weights.Tarot + weights.Planet + weights.Card) / total) {
+            // TODO: Playing cards in shop
+        } else {
+            const validSpectrals = Consumables.slice(13, 30).filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
+            offers.push({
+                id: -i,
+                consumable: validSpectrals[Math.floor(Random.next() * validSpectrals.length)],
                 shopMode: true
             })
         }

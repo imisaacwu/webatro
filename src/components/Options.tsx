@@ -16,7 +16,9 @@ export const Options = (props: OptionsProps) => {
                         navigator.clipboard.writeText(seed)
                     }}>Copy</div>
                 </div>
-                <div id='new-run' className='options-button'>New Run</div>
+                <div id='new-run' className='options-button' onClick={() => {
+                    window.location.reload()
+                }}>New Run</div>
                 <div id='options-back' onClick={() => props.setMenu(false)}>Back</div>
             </div>
         </div>

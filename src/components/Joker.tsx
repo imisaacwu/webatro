@@ -17,7 +17,21 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
     const self: JokerInstance = {id, joker, edition, selected, ...props}
     const { price, sell } = calcPrice(self)
 
-    const description = joker.description.split('\n').map((line, i) =>
+    let description = joker.description
+    switch(joker.name) {
+        case 'Joker Stencil':
+            description = description.replace('_', (game.stats.jokerSize - game.jokers.length) + '')
+            break
+        case 'Loyalty Card':
+        case 'Ride the Bus':
+            description = description.replace('_', joker.counter! + '')
+            break
+        case 'Abstract Joker':
+            description = description.replace('_',(3 * game.jokers.length) + '')
+            break
+    }
+
+    const descriptionElement = description.split('\n').map((line, i) =>
         <div key={i}>
             {line.split('/').map((str, i) =>
                 <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1)} style={{display: 'inline'}}>
@@ -93,7 +107,6 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
                 const update = [...gameRef.current.jokers]
                 const [c] = update.splice(origI, 1)
                 update.splice(i, 0, c)
-                console.log(update, c, origI)
                 dispatch({type: 'updateJokers', payload: {update: update}})
                 origI = i
                 lastReorder = now
@@ -137,7 +150,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
                                 <div><div>All abilities</div></div>
                                 <div><div>are disabled</div></div>
                             </> :
-                        description}
+                        descriptionElement}
                     </div>
                     <div id='joker-tags'>
                         {props.debuffed ?
@@ -161,7 +174,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
             }
             {props.shopMode && selected &&
                 <div id='joker-buy-button' onClick={() => {
-                    if(game.stats.money >= price && game.jokers.length < game.stats.jokerSize) {
+                    if((game.stats.money >= price || (game.jokers.find(j => j.joker.name === 'Credit Card') !== undefined && (game.stats.money - price) >= -20)) && game.jokers.length < game.stats.jokerSize) {
                         dispatch({type: 'stat', payload: {stat: 'money', amount: -price}})
                         dispatch({type: 'shop-remove', payload: {card: self}})
                         dispatch({type: 'addJoker', payload: {card: self}})

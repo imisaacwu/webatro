@@ -27,9 +27,14 @@ export const Shop = () => {
                                 <div>Next</div>
                                 <div>Round</div>
                             </div>
-                            <div id='reroll' className='shop-button' onClick={() => { dispatch({type: 'reroll'}) }}>
+                            <div id='reroll' className='shop-button' onClick={() => {
+                                if(game.stats.money >= game.shop.rerollCost || game.jokers.find(j => j.joker.name === 'Credit Card') !== undefined && (game.stats.money - game.shop.rerollCost) >= -20) {
+                                    dispatch({type: 'stat', payload: {stat: 'money', amount: -game.shop.rerollCost}})
+                                    dispatch({type: 'reroll'})
+                                }
+                            }}>
                                 <div>Reroll</div>
-                                <div id='reroll-price'>$5</div>
+                                <div id='reroll-price'>{`$${game.shop.rerollCost}`}</div>
                             </div>
                         </div>
                         <div id='buying-area'>

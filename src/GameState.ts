@@ -34,6 +34,7 @@ export type GameState = {
 
     shop: {
         slots: number
+        rerollCost: number
         offers: (JokerInstance | ConsumableInstance)[]
         weights: {
             Joker: number;
@@ -75,11 +76,13 @@ export type GameState = {
     }
 
     scoreLog: {
-        name: string,
-        chips?: number,
-        mult?: number,
+        name: string
+        chips?: number
+        mult?: number
         mult_type?: '+' | 'x'
+        notes?: string
     }[]
+    moneyTotalLog: number
 }
 
 export type GameAction = {
@@ -114,8 +117,8 @@ export const initialGameState: GameState = {
     stats: {
         handSize: 8,
         hands: 4,
-        discards: 40,
-        money: 400,
+        discards: 4,
+        money: 0,
         ante: 1,
         round: 0,
         score: 0,
@@ -126,6 +129,7 @@ export const initialGameState: GameState = {
 
     shop: {
         slots: 2,
+        rerollCost: 5,
         offers: [],
         weights: {
             Joker: 20,
@@ -153,16 +157,7 @@ export const initialGameState: GameState = {
         hidden: [],
         sort: 'rank',
         played: [],
-        consumables: [{
-            id: 53,
-            consumable: Consumables[33]
-        }, {
-            id: 54,
-            consumable: Consumables[34]
-        }, {
-            id: 55,
-            consumable: Consumables[36]
-        }],
+        consumables: [],
         lastCon: undefined
     },
 
@@ -174,7 +169,8 @@ export const initialGameState: GameState = {
         }
     },
 
-    scoreLog: []
+    scoreLog: [],
+    moneyTotalLog: 0
 }
 
 let cerulean_bell_card: CardInfo
@@ -184,12 +180,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         (a.rank !== b.rank? b.rank - a.rank : a.suit - b.suit) :
         (a.suit !== b.suit ? a.suit - b.suit : b.rank - a.rank)
     )
+    let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
+        let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
     let next = state, name = state.blind.boss.name
     switch(action.type) {
         case 'init':
             let arr: CardInfo[] = []
-            let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
-            let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
             switch(action.payload?.deck!) {
                 case DeckType.Erratic:
                     next.stats.deck = DeckType.Erratic
@@ -197,8 +193,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         arr.push(
                             {
                                 id: i,
-                                suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
-                                rank: Rank[ranks[Math.floor(Random.next()*ranks.length)]],
+                                suit: Suit[suits[Math.floor(Random.next()*suits.length)*0+2]],
+                                rank: Rank[ranks[Math.floor(Random.next()*ranks.length)*0+6]],
+                                edition: Edition.Polychrome,
+                                enhancement: (Random.next() < .9 ? Enhancement.Steel : Enhancement.Glass),
+                                seal: Seal.Red,
                                 deck: DeckType.Erratic
                             }
                         )
@@ -256,6 +255,24 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                         }
                     }
+                    state.jokers.filter(j => j.joker.activation.includes(Activation.OnBlind)).forEach(j => {
+                        switch(j.joker.name) {
+                            case 'Marble Joker':
+                                next = {...next,
+                                    cards: {...next.cards,
+                                        nextId: next.cards.nextId + 1,
+                                        deck: [...next.cards.deck, {
+                                            id: next.cards.nextId,
+                                            suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
+                                            rank: Rank[ranks[Math.floor(Random.next()*ranks.length)]],
+                                            enhancement: Enhancement.Stone,
+                                            deck: DeckType.Red
+                                        }]
+                                    }
+                                }
+                                break
+                        }
+                    })
                     break
                 case 'post-scoring':
                     let deck = [...state.cards.deck, ...state.cards.hand, ...state.cards.hidden, ...state.cards.submitted]
@@ -271,9 +288,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     })
                     next.jokers.forEach(j => {j.debuffed = false; j.flipped = false})
                     next = {...next,
-                        ...(getNextBlind(state.blind.curr) === 'small' && {...state.stats,
-                            ante: state.stats.ante + 1
-                        }),
+                        stats: {...next.stats,
+                            ante: next.stats.ante + (state.blind.curr === 'boss' ? 1 : 0)
+                        },
                         cards: {...state.cards,
                             deck: deck,
                             hand: [],
@@ -301,7 +318,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             score: 0
                         },
                         shop: {...state.shop,
-                            offers: newOffers(state.shop.slots, state.shop.weights, state)
+                            offers: newOffers(state.shop.slots, state.shop.weights, state),
+                            rerollCost: initialGameState.shop.rerollCost
                         },
                         blind: {...state.blind,
                             curr: nextBlind,
@@ -339,7 +357,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 const card = state.cards.hand.find(c => c.id === (action.payload?.card! as CardInfo).id)!
                 if(state.blind.curr !== 'boss' || state.blind.boss.name !== 'Cerulean Bell' || card.id !== cerulean_bell_card.id) {
                     card.selected = !card.selected
-                    const hand = bestHand(state.cards.hand.filter(c => c.selected))
+                    const hand = bestHand(state.cards.hand.filter(c => c.selected), state.jokers)
                     next = {...next,
                         cards: {...state.cards,
                             selected: state.cards.hand.filter(c => c.selected)
@@ -420,15 +438,28 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 })
                 // Activation sequence
                 const baseballCard = state.jokers.find(j => j.joker.name === 'Baseball Card')
-                const baseball = baseballCard !== undefined && !baseballCard.debuffed
+                const baseball = baseballCard !== undefined && !baseballCard.debuffed && false
 
                 state.jokers.filter(j => j.joker.activation.includes(Activation.OnPlayed) && !j.debuffed).forEach(j => {
                     switch(j.joker.name) {
-
+                        case 'Loyalty Card':
+                            j.joker.counter!--
+                            break
+                        case 'Ride the Bus':
+                            if(selected.filter(c => [Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)).some(c => c.scored)) {
+                                j.joker.counter = 0
+                            } else {
+                                j.joker.counter!++
+                            }
+                            break
+                        case 'Space Joker':
+                            if(Random.next() < .25) {
+                                levelHand({hand})
+                            }
                     }
                     if(baseball && j.joker.rarity === 'Uncommon') {
                         mult *= 1.5
-                        next.scoreLog.push({name: 'Baseball Card', mult: 1.5, mult_type: 'x'})
+                        next.scoreLog.push({name: `${j.joker.name}->Baseball Card`, mult: 1.5, mult_type: 'x'})
                     }
                 })
 
@@ -436,8 +467,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     if(!c.debuffed && c.scored) {
                         const cardName = `${c.edition !== undefined ? Edition[c.edition] + ' ' : ''}${c.enhancement !== undefined ? Enhancement[c.enhancement] + ' ' : ''}${c.seal !== undefined ? Seal[c.seal] + ' Seal ': ''}${c.enhancement === Enhancement?.Stone ? 'Card' : `${Rank[c.rank]} of ${Suit[c.suit]}`}`
                         next.scoreLog.push({name: cardName})
-                        let triggers = 1 + (c.seal === Seal?.Red ? 1 : 0)
-                        for(let i = 0; i < triggers; i++) {
+
+                        const onCardScore = () => {
                             if(c.enhancement !== Enhancement?.Stone) {
                                 const rankChip = rankChips[Rank[c.rank] as keyof typeof rankChips]
                                 chips += rankChip
@@ -452,19 +483,24 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                 switch(c.enhancement) {
                                     case Enhancement.Glass:
                                         mult *= 2;
-                                        next.scoreLog.push({name: 'Glass Card', mult: 2, mult_type: 'x'})
+                                        const glassLog: GameState['scoreLog'][0] = {name: 'Glass Card', mult: 2, mult_type: 'x'}
+                                        next.scoreLog.push()
                                         if(Random.next() < .25) {
                                             glassToBreak.push(c)
-                                            // TODO: Log broken glass?
+                                            glassLog.notes = 'Broke'
                                         }
+                                        next.scoreLog.push(glassLog)
                                         break
                                     case Enhancement.Lucky:
                                         if(Random.next() < .2) {
                                             mult += 20
                                             next.scoreLog.push({name: 'Lucky Card', mult: 20, mult_type: '+'})
                                         }
-                                        if(Random.next() < .07) { next.stats.money += 20 }
-                                        // TODO: Log money?
+                                        if(Random.next() < .07) {
+                                            next.stats.money += 20
+                                            next.scoreLog.push({name: 'Lucky Card', notes: '+$20'})
+                                            next.moneyTotalLog += 20
+                                        }
                                         break
                                     case Enhancement.Mult:
                                         mult += 4;
@@ -479,7 +515,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
                             if(c.seal !== undefined && c.seal === Seal.Gold) {
                                 next.stats.money += 3
-                                // TODO: Log money?
+                                next.scoreLog.push({name: 'Gold Seal', notes: '+$3'})
+                                next.moneyTotalLog += 3
                             }
 
                             if(c.edition !== undefined) {
@@ -525,6 +562,61 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                             next.scoreLog.push({name: 'Gluttonous Joker', mult: 3, mult_type: '+'})
                                         }
                                         break
+                                    case '8 Ball':
+                                        if(c.rank === Rank.Eight && Random.next() < .25 && next.cards.consumables.length < next.stats.consumableSize) {
+                                            let validTarots = Consumables.slice(30, 52)
+                                            validTarots = validTarots.filter(c => next.cards.consumables.every(con => con.consumable.name !== c.name))
+                                            if(validTarots.length === 0) { validTarots.push(Consumables[41]) }
+                                            next = {...next,
+                                                cards: {...next.cards,
+                                                    nextId: next.cards.nextId + 1,
+                                                    consumables: [...next.cards.consumables, {
+                                                        id: next.cards.nextId,
+                                                        consumable: validTarots[Math.floor(Random.next() * validTarots.length)]
+                                                    }]
+                                                }
+                                            }
+                                            next.scoreLog.push({name: '8 Ball', notes: 'Generated Tarot'})
+                                        }
+                                        break
+                                    case 'Fibonacci':
+                                        if([Rank.Ace, Rank.Two, Rank.Three, Rank.Five, Rank.Eight].includes(c.rank)) {
+                                            mult += 8
+                                            next.scoreLog.push({name: 'Fibonacci', mult: 8, mult_type: '+'})
+                                        }
+                                        break
+                                    case 'Scary Face':
+                                        if([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)) {
+                                            chips += 30
+                                            next.scoreLog.push({name: 'Scary Face', chips: 30})
+                                        }
+                                        break
+                                    case 'Even Steven':
+                                        if([Rank.Two, Rank.Four, Rank.Six, Rank.Eight, Rank.Ten].includes(c.rank)) {
+                                            mult += 4
+                                            next.scoreLog.push({name: 'Even Steven', mult: 4, mult_type: '+'})
+                                        }
+                                        break
+                                    case 'Odd Todd':
+                                        if([Rank.Ace, Rank.Three, Rank.Five, Rank.Seven, Rank.Nine].includes(c.rank)) {
+                                            chips += 31
+                                            next.scoreLog.push({name: 'Odd Todd', chips: 31})
+                                        }
+                                        break
+                                    case 'Scholar':
+                                        if(c.rank === Rank.Ace) {
+                                            chips += 20
+                                            mult += 4
+                                            next.scoreLog.push({name: 'Scholar', chips: 20, mult: 4, mult_type: '+'})
+                                        }
+                                        break
+                                    case 'Business Card':
+                                        if([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank) && Random.next() < .5) {
+                                            next.stats.money += 2
+                                            next.scoreLog.push({name: 'Business Card', notes: '+$2'})
+                                            next.moneyTotalLog += 2
+                                        }
+                                        break
                                     case 'Triboulet':
                                         if([Rank.King, Rank.Queen].includes(c.rank)) {
                                             mult *= 2
@@ -534,22 +626,33 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                 }
                                 if(baseball && j.joker.rarity === 'Uncommon') {
                                     mult *= 1.5
-                                    next.scoreLog.push({name: 'Baseball Card', mult: 1.5, mult_type: 'x'})
+                                    next.scoreLog.push({name: `${j.joker.name}->Baseball Card`, mult: 1.5, mult_type: 'x'})
                                 }
                             })
-
-                            if(c.seal === Seal?.Red && i < 1) {
-                                next.scoreLog.push({name: 'Red Seal'})
-                            }
-
-                            // Retrigger jokers
                         }
+
+                        onCardScore()
+                        if(c.seal === Seal?.Red) {
+                            next.scoreLog.push({name: 'Red Seal', notes: 'Retrigger'})
+                            onCardScore()
+                        }
+                        if(state.jokers.find(j => j.joker.name === 'Dusk') !== undefined && state.stats.hands === 1) {
+                            next.scoreLog.push({name: 'Dusk', notes: 'Retrigger'})
+                            onCardScore()
+                        }
+                        if(c.rank < 5) {
+                            state.jokers.filter(j => j.joker.name === 'Hack').forEach(() => {
+                                next.scoreLog.push({name: 'Hack', notes: 'Retrigger'})
+                                onCardScore()
+                            })
+                        }
+                        // Retrigger jokers
                     }
                 })
 
                 state.cards.hand.filter(c => !c.selected && !c.submitted).forEach(c => {
                     if(!c.debuffed) {
-                        let will_trigger = c.enhancement === Enhancement?.Steel
+                        let will_trigger = c.enhancement === Enhancement?.Steel || c.enhancement === Enhancement?.Gold
                         state.jokers.filter(j => j.joker.activation.includes(Activation.OnHeld) && !j.debuffed).forEach(j => {
                             switch(j.joker.name) {
                                 
@@ -559,30 +662,46 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         if(will_trigger) {
                             const cardName = `(Held in hand) ${c.edition ? Edition[c.edition] + ' ' : ''}${c.enhancement ? Enhancement[c.enhancement] + ' ' : ''}${c.seal ? Seal[c.seal] + ' Seal ': ''}${c.enhancement === Enhancement?.Stone ? 'Card' : Rank[c.rank]} of ${Suit[c.suit]}`
                             next.scoreLog.push({name: cardName})
-                            let triggers = 1 + (c.seal === Seal?.Red ? 1 : 0)
-                            for(let i = 0; i < triggers; i++) {
+
+                            const mime = state.jokers.find(j => j.joker.name === 'Mime') !== undefined
+
+                            const heldInHand = () => {
                                 if(c.enhancement === Enhancement?.Steel) {
                                     mult *= 1.5
                                     next.scoreLog.push({name: 'Steel Card', mult: 1.5, mult_type: 'x'})
+                                } else if(c.enhancement === Enhancement?.Gold) {
+                                    next.stats.money += 3
+                                    next.scoreLog.push({name: 'Gold Card', notes: '+$3'})
+                                    next.moneyTotalLog += 3
                                 }
+                            }
 
-                                state.jokers.filter(j => j.joker.activation.includes(Activation.OnHeld) && !j.debuffed).forEach(j => {
-                                    switch(j.joker.name) {
-                
-                                    }
-                                    if(baseball && j.joker.rarity === 'Uncommon') {
-                                        mult *= 1.5
-                                        next.scoreLog.push({name: 'Baseball Card', mult: 1.5, mult_type: 'x'})
-                                    }
+                            heldInHand()
+                            if(c.seal === Seal?.Red) {
+                                next.scoreLog.push({name: 'Red Seal', notes: 'Retrigger'})
+                                heldInHand()
+                            }
+                            if(mime) {
+                                state.jokers.filter(j => j.joker.name === 'Mime').forEach(() => {
+                                    next.scoreLog.push({name: 'Mime', notes: 'Retrigger'})
+                                    heldInHand()
                                 })
-
-                                if(c.seal === Seal?.Red && i < 1) {
-                                    next.scoreLog.push({name: 'Red Seal'})
-                                }
-
-                                // Retrigger jokers
                             }
                         }
+                    }
+                })
+
+                state.jokers.filter(j => j.joker.activation.includes(Activation.OnHeld) && !j.debuffed).forEach(j => {
+                    switch(j.joker.name) {
+                        case 'Raised Fist':
+                            let raisedFistMult = 2 * rankChips[Rank[state.cards.hand.filter(c => !c.selected && !c.submitted).reduce((low, c) => low = Math.min(low, c.rank), 12)] as keyof typeof rankChips]
+                            mult += raisedFistMult
+                            next.scoreLog.push({name: 'Raised Fist', mult: raisedFistMult, mult_type: '+'})
+                            break
+                    }
+                    if(baseball && j.joker.rarity === 'Uncommon') {
+                        mult *= 1.5
+                        next.scoreLog.push({name: `${j.joker.name}->Baseball Card`, mult: 1.5, mult_type: 'x'})
                     }
                 })
 
@@ -601,79 +720,121 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 state.jokers.filter(j => j.joker.activation.includes(Activation.Independent) && !j.debuffed).forEach(j => {
                     switch(j.joker.name) {
                         case 'Joker':
-                            mult += 4;
+                            mult += 4
                             next.scoreLog.push({name: 'Joker', mult: 4, mult_type: '+'})
                             break
                         case 'Jolly Joker':
                             if(ranks[0] >= 2) {
-                                mult += 8;
+                                mult += 8
                                 next.scoreLog.push({name: 'Jolly Joker', mult: 8, mult_type: '+'})
                             }
                             break
                         case 'Zany Joker':
                             if(ranks[0] >= 3) {
-                                mult += 12;
+                                mult += 12
                                 next.scoreLog.push({name: 'Zany Joker', mult: 12, mult_type: '+'})
                             }
                             break
                         case 'Mad Joker':
                             if(ranks[0] >= 2 && ranks[1] >= 2) {
-                                mult += 10;
+                                mult += 10
                                 next.scoreLog.push({name: 'Mad Joker', mult: 10, mult_type: '+'})
                             }
                             break
                         case 'Crazy Joker':
                             if(hand.match(/.*STRAIGHT.*/)) {
-                                mult += 12;
+                                mult += 12
                                 next.scoreLog.push({name: 'Crazy Joker', mult: 12, mult_type: '+'})
                             }
                             break
                         case 'Droll Joker':
                             if(hand.match(/.*FLUSH.*/)) {
-                                mult += 10;
+                                mult += 10
                                 next.scoreLog.push({name: 'Droll Joker', mult: 10, mult_type: '+'})
                             }
                             break
                         case 'Sly Joker':
                             if(ranks[0] >= 2) {
-                                chips += 50;
+                                chips += 50
                                 next.scoreLog.push({name: 'Sly Joker', chips: 50})
                             }
                             break
                         case 'Wily Joker':
                             if(ranks[0] >= 3) {
-                                chips += 100;
+                                chips += 100
                                 next.scoreLog.push({name: 'Wily Joker', chips: 100})
                             }
                             break
                         case 'Clever Joker':
                             if(ranks[0] >= 2 && ranks[1] >= 2) {
-                                chips += 80;
+                                chips += 80
                                 next.scoreLog.push({name: 'Clever Joker', chips: 80})
                             }
                             break
                         case 'Devious Joker':
                             if(hand.match(/.*STRAIGHT.*/)) {
-                                chips += 100;
+                                chips += 100
                                 next.scoreLog.push({name: 'Devious Joker', chips: 100})
                             }
                             break
                         case 'Crafty Joker':
                             if(hand.match(/.*FLUSH.*/)) {
-                                chips += 80;
+                                chips += 80
                                 next.scoreLog.push({name: 'Crafty Joker', chips: 80})
                             }
                             break
                         case 'Half Joker':
                             if(state.cards.selected.length <= 3) {
-                                mult += 20;
+                                mult += 20
                                 next.scoreLog.push({name: 'Half Joker', mult: 20, mult_type: '+'})
                             }
+                            break
+                        case 'Joker Stencil':
+                            let jokerStencilMult = Math.max(1, state.stats.jokerSize - state.jokers.length)
+                            mult *= jokerStencilMult
+                            next.scoreLog.push({name: 'Joker Stencil', mult: jokerStencilMult, mult_type: 'x'})
+                            break
+                        case 'Banner':
+                            let bannerChips = 30 * state.stats.discards
+                            chips += bannerChips
+                            next.scoreLog.push({name: 'Banner', chips: bannerChips})
+                            break
+                        case 'Mystic Summit':
+                            if(state.stats.discards === 0) {
+                                mult += 15
+                                next.scoreLog.push({name: 'Mystic Summit', mult: 15, mult_type: '+'})
+                            }
+                            break
+                        case 'Loyalty Card':
+                            if(j.joker.counter! <= 0) {
+                                mult *= 4
+                                next.scoreLog.push({name: 'Loyalty Card', mult: 4, mult_type: 'x'})
+                                j.joker.counter = 6
+                            }
+                            break
+                        case 'Misprint':
+                            let misprintMult = Math.floor(Random.next() * 24)
+                            mult += misprintMult
+                            next.scoreLog.push({name: 'Misprint', mult: misprintMult, mult_type: '+'})
+                            break
+                        case 'Abstract Joker':
+                            let abstractMult = 3 * state.jokers.length
+                            mult += abstractMult
+                            next.scoreLog.push({name: 'Abstract Joker', mult: abstractMult, mult_type: '+'})
+                            break
+                        case 'Supernova':
+                            let supernovaMult = handLevels[hand].played
+                            mult += supernovaMult
+                            next.scoreLog.push({name: 'Supernova', mult: supernovaMult, mult_type: '+'})
+                            break
+                        case 'Ride the Bus':
+                            mult += j.joker.counter!
+                            next.scoreLog.push({name: 'Ride the Bus', mult: j.joker.counter!, mult_type: '+'})
                             break
                     }
                     if(baseball && j.joker.rarity === 'Uncommon') {
                         mult *= 1.5
-                        next.scoreLog.push({name: 'Baseball Card', mult: 1.5, mult_type: 'x'})
+                        next.scoreLog.push({name: `${j.joker.name}->Baseball Card`, mult: 1.5, mult_type: 'x'})
                     }
                 })
 
@@ -685,11 +846,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 })
 
                 chips = Math.ceil(chips), mult = Math.ceil(mult)
-                next.scoreLog.push({name: 'Final Score', chips: chips, mult: mult})
+                next.scoreLog.push({name: 'Final Score', chips: chips, mult: mult, notes: `+$${state.moneyTotalLog}`})
                 next.stats.score += (chips * mult)
                 next.active.score = {chips: chips, mult: mult}
             }
-            console.log(next.scoreLog)
             next = {...next,
                 stats: {...next.stats,
                     hands: state.stats.hands - 1
@@ -876,7 +1036,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             break
         case 'reroll':
             next = {...next, shop: {...state.shop,
-                offers: newOffers(state.shop.slots, state.shop.weights, state)
+                offers: newOffers(state.shop.slots, state.shop.weights, state),
+                rerollCost: state.shop.rerollCost + 1
             }}
             break
         default:

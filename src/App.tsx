@@ -19,7 +19,9 @@ export default function App() {
     const gameRef = useRef(game)
     gameRef.current = game
     
-    useEffect(() => dispatch({type: 'init', payload: {deck: DeckType.Red }}), [])
+    useEffect(() => {
+        dispatch({type: 'init', payload: {deck: DeckType.Red }})
+    }, [])
     
     useEffect(() => {
         document.addEventListener('keydown', handleKeys)

@@ -3,7 +3,7 @@ import { cardSnap, shuffle } from '../Utilities'
 import './Hand.css'
 import { GameStateContext, Random } from '../GameState'
 import { Card } from './Card'
-import { Consumables, Enhancement, Seal } from '../Constants'
+import { Consumables, Seal } from '../Constants'
 
 export default function Hand() {
     const { state: game, dispatch } = useContext(GameStateContext)
@@ -43,12 +43,10 @@ export default function Hand() {
                             }
                             if(gameRef.current.stats.score >= req) {
                                 dispatch({type: 'state', payload: {state: 'post-scoring'}})
-                                let money = 0, planets = 0
+                                let planets = 0
                                 game.cards.hand.forEach(c => {
-                                    if(c.enhancement === Enhancement?.Gold) { money += 3 }
                                     if(c.seal === Seal?.Blue) { planets++ }
                                 })
-                                dispatch({type: 'stat', payload: {stat: 'money', amount: money}})
                                 for(let i = 0; i < Math.min(game.stats.consumableSize - game.cards.consumables.length, planets); i++) {
                                     dispatch({type: 'addCard', payload: {card: Consumables.find(c => c.hand === lastHand)}});
                                 }

@@ -69,18 +69,6 @@
     height: 225px;
 }
 
-#buying-area > div {
-    animation: wiggle .2s forwards;
-}
-
-@keyframes wiggle {
-    0% { rotate: -5deg; }
-    25% { rotate: 5deg; }
-    50% { rotate: -5deg; }
-    75% { rotate: 5deg; }
-    100% { rotate: 0; }
-}
-
 #shop-bottom {
     display: flex;
     flex-direction: row;

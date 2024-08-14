@@ -188,7 +188,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                 case 'The Emperor':
                     let validTarots = Consumables.slice(30, 52)
                     validTarots = validTarots.filter(c => game.cards.consumables.every(con => con.consumable.name !== c.name))
-                    if(validTarots.length === 0) { validTarots.push(Consumables[40])}
+                    if(validTarots.length === 0) { validTarots.push(Consumables[41])}
 
                     let tarot: Omit<ConsumableType, 'id'>
                     let n = Math.min(2, game.stats.consumableSize - game.cards.consumables.length)
@@ -200,7 +200,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                         if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
                     }
                     break
-                case 'The Heirophant':
+                case 'The Hierophant':
                     if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return false }
                     game.cards.selected.forEach(c => c.enhancement = Enhancement.Bonus)
                     break
@@ -217,6 +217,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     game.cards.selected[0].enhancement = Enhancement.Glass
                     break
                 case 'The Hermit':
+                    if(game.stats.money < 0) { return false }
                     dispatch({type: 'stat', payload: {stat: 'money', amount: Math.min(20, game.stats.money)}})
                     break
                 case 'The Wheel of Fortune':
@@ -232,7 +233,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     }
                     break
                 case 'Strength':
-                    if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return }
+                    if(game.state !== 'scoring' || game.cards.selected.length < 1 || game.cards.selected.length > 2) { return false }
                     game.cards.selected.forEach(c => c.rank = Rank[ranks[(c.rank + 1) % ranks.length]])
                     break
                 case 'The Hanged Man':
@@ -293,5 +294,6 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
         }
         dispatch({type: 'setLastUsedConsumable', payload: {card: consumable}})
         if(!instant) { dispatch({type: 'discard'}) }
+        return true
     }
 }

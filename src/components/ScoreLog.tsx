@@ -35,14 +35,16 @@ export const ScoreLog = (props: ScoreLogProps) => {
                         <th style={{width: '60%'}}>Name</th>
                         <th>Chips</th>
                         <th>Mult</th>
+                        <th>Notes</th>
                     </tr>
                     {game.scoreLog.map((entry, i) => (
-                        entry.chips === undefined && entry.mult === undefined ?
-                            <tr key={i} style={{fontSize: '24px', backgroundColor: 'var(--dark-grey)'}}><td colSpan={3}>{entry.name}</td></tr> :
+                        entry.chips === undefined && entry.mult === undefined && entry.notes === undefined ?
+                            <tr key={i} style={{fontSize: '24px', backgroundColor: 'var(--dark-grey)'}}><td colSpan={4}>{entry.name}</td></tr> :
                             <tr key={i}>
                                 <td>{entry.name}</td>
                                 {chipFormat(entry.chips, entry.mult, entry.mult_type)}
                                 {multFormat(entry.mult, entry.mult_type)}
+                                <td className={entry.notes?.match(/.*\$.*/) ? 'yellow' : ''}>{entry.notes}</td>
                             </tr>
                         )
                     )}

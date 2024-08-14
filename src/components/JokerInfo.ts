@@ -12,7 +12,7 @@ export type JokerInstance = {
     shopMode?: boolean
 }
 
-export enum Activation { OnPlayed, OnScored, OnHeld, Independent, OnOther, OnDiscard, EndOfRound, Passive }
+export enum Activation { OnPlayed, OnScored, OnHeld, Independent, OnOther, OnDiscard, EndOfRound, Passive, OnBlind }
 
 export type JokerType = {
     name: string
@@ -20,6 +20,7 @@ export type JokerType = {
     cost: number
     rarity: 'Common' | 'Uncommon' | 'Rare' | 'Legendary'
     activation: Activation[]
+    counter?: number
     copyable?: boolean
     perishable?: boolean
     eternal?: boolean
@@ -122,20 +123,163 @@ export const Jokers: JokerType[] = [
         cost: 5,
         rarity: 'Common',
         activation: [Activation.Independent]
+    }, {
+        name: 'Joker Stencil',
+        description: '{red-inver}X1/ Mult for each\n empty/ {orange}Joker slot.\n Joker Stencil included\n {grey} (Currently /{red}X_/ {grey} Mult)',
+        cost: 8,
+        rarity: 'Uncommon',
+        activation: [Activation.Independent]
+    }, {
+        name: 'Four Fingers',
+        description: 'All/ {orange}Flushes/ and\n {orange}Straights/ can be made\n with 4 cards',
+        cost: 7,
+        rarity: 'Uncommon',
+        activation: [Activation.Passive],
+        copyable: false
+    }, {
+        name: 'Mime',
+        description: 'Retrigger all card\n {orange}held in hand/ abilities',
+        cost: 5,
+        rarity: 'Uncommon',
+        activation: [Activation.OnHeld]
+    }, {
+        name: 'Credit Card',
+        description: 'Go up to /{red}-$20\n in debt',
+        cost: 1,
+        rarity: 'Common',
+        activation: [Activation.Passive],
+        copyable: false
+    }, // TODO: ceremonial dagger
+    {
+        name: 'Banner',
+        description: '{blue}+30/ Chips for each\n remaining/{orange} discard',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.Independent]
+    }, {
+        name: 'Mystic Summit',
+        description: '{red}+15/ Mult when/ {orange}0\n discards remaining',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.Independent]
+    }, {
+        name: 'Marble Joker',
+        description: 'Adds one /{orange}Stone/ card\n to the deck when\n{orange}Blind/ is selected',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.OnBlind]
+    }, {
+        name: 'Loyalty Card',
+        description: '{red-invert}X4/ Mult every/{orange}6\n hands played\n{grey}_ remaining',
+        cost: 5,
+        rarity: 'Uncommon',
+        activation: [Activation.OnPlayed, Activation.Independent],
+        counter: 6
+    }, {
+        name: '8 Ball',
+        description: '{green}1 in 4/ chance for each\n played/ {orange}8/ to create a\n{purple}Tarot/ card when scored\n {grey small}(Must have room)',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Misprint',
+        description: '{red}+?/ Mult',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.Independent]
+    }, {
+        name: 'Dusk',
+        description: 'Retrigger all played cards\n in /{orange}final hand/ of the round',
+        cost: 5,
+        rarity: 'Uncommon',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Raised Fist',
+        description: 'Adds /{orange}double/ the rank of\n {orange}lowest/ ranked card held\n in hand to Mult',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.OnHeld]
+    } // Chaos the clown
+    , {
+        name: 'Fibonacci',
+        description: 'Each played /{orange}Ace/{nospace},/{orange}2/{nospace},/{orange}3/{nospace},\n{orange}5/{nospace}, or/{orange}8/ gives\n{red}+8/ Mult when scored',
+        cost: 8,
+        rarity: 'Uncommon',
+        activation: [Activation.OnScored]
+    } // Steel Joker
+    , {
+        name: 'Scary Face',
+        description: 'Played /{orange}face/ cards give\n {blue}+30/ Chips when scored',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Abstract Joker',
+        description: '{red}+3/ Mult for each/ {orange}Joker/ card\n{grey}(Currently/ {red}+_/ {grey}Mult)',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.Independent]
+    } // Delayed Gratification
+    , {
+        name: 'Hack',
+        description: 'Retrigger each played\n {orange}2/{nospace},/{orange}3/{nospace},/{orange}4/{nospace}, or/{orange}5',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.OnScored]
+    } // Pareidolia, Gros Michel
+    , {
+        name: 'Even Steven',
+        description: 'Played cards with /{orange}even/ rank\n give /{red}+4/ Mult when scored\n{grey small}(10, 8, 6, 5, 2)',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Odd Todd',
+        description: 'Played cards with /{orange}odd/ rank\n give /{blue}+31/ Chips when scored\n{grey small}(A, 9, 7, 5, 3)',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Scholar',
+        description: 'Played /{orange}Aces/ give/ {blue}+20\nChips and /{red}+4/ mult when scored',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Business Card',
+        description: 'Played /{orange}face/ cards have a\n{green}1 in 2/ chance to\n give/ {yellow}$2/ when scored',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Supernova',
+        description: 'Adds the number of times\n{orange}poker hand/ has been played\n this run to Mult',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.Independent]
+    }, {
+        name: 'Ride the Bus',
+        description: 'This Joker gains/ {red}+1/ Mult per\n{orange} consecutive/ hand played without a\n scoring/ {orange} face/ card\n{grey} (Currently/ {red}+_/ {grey} Mult)',
+        cost: 6,
+        rarity: 'Common',
+        activation: [Activation.OnPlayed, Activation.Independent],
+        counter: 0
+    }, {
+        name: 'Space Joker',
+        description: '{green}1 in 4/ chance to\n upgrade level of played\n{orange} poker hand',
+        cost: 5,
+        rarity: 'Uncommon',
+        activation: [Activation.OnPlayed]
     }
     
-    
-    
-    
-    
-    ,{
-        name: 'Baseball Card',
-        description: '{green}Uncommon/Jokers each\ngive/{red-invert}X1.5/Mult',
-        cost: 8,
-        rarity: 'Rare',
-        activation: []
-    },
-    {
+    // ,{
+    //     name: 'Baseball Card',
+    //     description: '{green}Uncommon/Jokers each\ngive/{red-invert}X1.5/Mult',
+    //     cost: 8,
+    //     rarity: 'Rare',
+    //     activation: []
+    // }
+    , {
         name: 'Triboulet',
         description: 'Played Kings and\nQueens each give/{red-invert}X2/Mult\nwhen scored',
         cost: 20,
