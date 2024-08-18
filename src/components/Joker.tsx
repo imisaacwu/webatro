@@ -20,7 +20,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
     let description = joker.description
     switch(joker.name) {
         case 'Joker Stencil':
-            description = description.replace('_', (game.stats.jokerSize - game.jokers.length) + '')
+            description = description.replace('_', (game.stats.jokerSize - game.jokers.length + (game.jokers.filter(j => j.joker.name === 'Joker Stencil').length)) + '')
             break
         case 'Loyalty Card':
         case 'Ride the Bus':

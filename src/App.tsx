@@ -1,18 +1,19 @@
 import { useEffect, useReducer, useRef } from 'react'
 import './App.css'
+import shopIcon from './assets/shop.gif'
 import { Blind } from './components/Blind'
 import { Calculator } from './components/Calculator'
+import { Card } from './components/Card'
 import { Consumable } from './components/Consumable'
 import { Deck } from './components/Deck'
 import Hand from './components/Hand'
 import { InfoPanel } from './components/InfoPanel'
+import { Joker } from './components/Joker'
 import { Round } from './components/Round'
+import { Shop } from './components/Shop'
 import { Blinds, DeckType } from './Constants'
 import { gameReducer, GameStateContext, initialGameState } from './GameState'
-import { Card } from './components/Card'
 import { cardSnap } from './Utilities'
-import { Joker } from './components/Joker'
-import { Shop } from './components/Shop'
 
 export default function App() {
     const [ game, dispatch ] = useReducer(gameReducer, initialGameState)
@@ -55,9 +56,8 @@ export default function App() {
                 <div id='sidebar'>
                     <div id='top-sidebar'>
                         {game.state === 'blind-select' && <div>Choose your<br />next Blind</div>}
-                        {game.state === 'scoring' &&
-                            <Blind type='sidebar' blind={currBlindType} />
-                        }
+                        {game.state === 'scoring' && <Blind type='sidebar' blind={currBlindType} />}
+                        {game.state === 'shop' && <img id='shop-logo' src={shopIcon} />}
                     </div>
                     <Round />
                     <Calculator />
@@ -66,6 +66,7 @@ export default function App() {
                 <div id='main'>
                     <div id='top'>
                         <div id='jokers' className='card-container'>
+                            <div id='joker-bkg'>JOKERS</div>
                             <div id='joker-area' className='card-area'>
                                 {game.jokers.map(j => 
                                     <Joker key={j.id} {...j}/>
@@ -74,6 +75,7 @@ export default function App() {
                             <div id='joker-label' className='counter'>{`${game.jokers.length}/${game.stats.jokerSize}`}</div>
                         </div>
                         <div id='consumables' className='card-container'>
+                            <div id='consumable-bkg'>CONSUMABLES</div>
                             <div id='consumables-area' className='card-area'>
                                 {game.cards.consumables.map(c => (
                                     <Consumable key={c.id} {...c} />

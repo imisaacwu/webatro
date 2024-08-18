@@ -94,7 +94,7 @@ export const Blind = ({ type, blind }: BlindProps) => {
                                 </div>
                             </div>
                         </div>
-                        {!blind.name.match(/(Small|Big).*/) &&
+                        {!blind.name.match(/(Small|Big).*/) && type !== 'run-info' &&
                             <div id='boss-ante-label'>
                                 <div id='up-ante-label' className='orange'>Up the Ante</div>
                                 <div>Raise all Blinds</div>

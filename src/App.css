@@ -32,7 +32,11 @@ body {
     margin: 48px 0 0 0;
     height: 229px;
     font-size: 48px;
-    line-height: 48px;;
+    line-height: 48px;
+}
+
+img#shop-logo {
+    width: 339px;
 }
 
 #main {
@@ -184,6 +188,15 @@ body {
     height: 175px;
 }
 
+#joker-bkg {
+    position: fixed;
+    top: 5%;
+    left: 36%;
+    font-size: 128px;
+    letter-spacing: 32px;
+    color: rgba(0, 0, 0, 0.25);
+}
+
 #joker-label {
     margin: 0 0 0 8px;
 }
@@ -202,6 +215,14 @@ body {
     position: relative;
     align-items: center;
     height: 175px;
+}
+
+#consumable-bkg {
+    position: fixed;
+    top: 8.5%;
+    left: 74.5%;
+    font-size: 64px;
+    color: rgba(0, 0, 0, 0.25);
 }
 
 #consumables-label {

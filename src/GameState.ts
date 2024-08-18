@@ -790,7 +790,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                             break
                         case 'Joker Stencil':
-                            let jokerStencilMult = Math.max(1, state.stats.jokerSize - state.jokers.length)
+                            let jokerStencilMult = Math.max(1, state.stats.jokerSize - state.jokers.length + (state.jokers.filter(j => j.joker.name === 'Joker Stencil').length))
                             mult *= jokerStencilMult
                             next.scoreLog.push({name: 'Joker Stencil', mult: jokerStencilMult, mult_type: 'x'})
                             break
