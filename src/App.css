@@ -189,9 +189,10 @@ img#shop-logo {
 }
 
 #joker-bkg {
-    position: fixed;
-    top: 5%;
-    left: 36%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-48%, -50%);
     font-size: 128px;
     letter-spacing: 32px;
     color: rgba(0, 0, 0, 0.25);
@@ -218,9 +219,10 @@ img#shop-logo {
 }
 
 #consumable-bkg {
-    position: fixed;
-    top: 8.5%;
-    left: 74.5%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-48%, -50%);
     font-size: 64px;
     color: rgba(0, 0, 0, 0.25);
 }
