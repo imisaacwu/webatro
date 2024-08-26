@@ -11,7 +11,7 @@ export const ScoreLog = (props: ScoreLogProps) => {
 
     const chipFormat = (chips: number | undefined, mult: number | undefined, mult_type: string | undefined) => {
         if(chips !== undefined) {
-            if(mult !== undefined && mult_type === undefined) { return <td className='blue' style={{fontSize: '24px'}}>{chips}</td>}
+            if((mult !== undefined && mult_type === undefined) || chips < 0) { return <td className='blue' style={{fontSize: '24px'}}>{chips}</td>}
             return <td className='blue'>{`+${chips}`}</td>
         }
         return <td />

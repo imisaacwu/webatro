@@ -1,4 +1,4 @@
-import { Suit, Rank, Enhancement, DeckType, Seal, Edition, handLevels, Consumables, ConsumableType } from "../Constants"
+import { Suit, Rank, Enhancement, DeckType, Seal, Edition, handLevels, Consumables, ConsumableType, rankChips } from "../Constants"
 import { GameAction, GameState, levelHand, Random } from "../GameState"
 import { calcPrice, debuffCards } from "../Utilities"
 import { Jokers } from "./JokerInfo"
@@ -11,6 +11,8 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
     if(game.cards.submitted.length === 0) {
         if(consumable.type === 'Planet') {
             levelHand({hand: consumable.hand!})
+            let constellation = Jokers.find(j => j.name === 'Constellation')!
+            constellation.counter! = Math.round(constellation.counter! * 10 + 1) / 10
         } else if(consumable.type === 'Spectral') {
             switch(consumable.name) {
                 case 'Familiar':
@@ -18,9 +20,11 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Random.next() * game.cards.hand.length)]}})
 
                     for(let i = 0; i < 3; i++) {
+                        let rank = Rank[ranks[Math.floor(Random.next()*3)+9]]
                         dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
                             suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
-                            rank: Rank[ranks[Math.floor(Random.next()*3)+9]],
+                            rank: rank,
+                            chips: rankChips[rank],
                             enhancement: Enhancement[enhancements[Math.floor(Random.next()*(enhancements.length-1))+1]],
                             deck: DeckType.Red
                         }}})
@@ -34,6 +38,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                         dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
                             suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
                             rank: Rank.Ace,
+                            chips: rankChips[Rank.Ace],
                             enhancement: Enhancement[enhancements[Math.floor(Random.next()*(enhancements.length-1))+1]],
                             deck: DeckType.Red
                         }}})
@@ -44,9 +49,11 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                     dispatch({type: 'removeCard', payload: {cardLocation: 'hand', card: game.cards.hand[Math.floor(Random.next() * game.cards.hand.length)]}})
 
                     for(let i = 0; i < 4; i++) {
+                        let rank = Rank[ranks[Math.floor(Random.next()*9)]]
                         dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
                             suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
-                            rank: Rank[ranks[Math.floor(Random.next()*9)]],
+                            rank: rank,
+                            chips: rankChips[rank],
                             enhancement: Enhancement[enhancements[Math.floor(Random.next()*(enhancements.length-1))+1]],
                             deck: DeckType.Red
                         }}})
@@ -197,7 +204,7 @@ export const useConsumable = (game: GameState, dispatch: React.Dispatch<GameActi
                         tarot = validTarots[Math.floor(Random.next() * validTarots.length)]
                         dispatch({type: 'addCard', payload: {card: tarot}})
                         validTarots = validTarots.filter(c => c.name !== tarot.name)
-                        if(validTarots.length === 0) { validTarots.push(Consumables[40]) }
+                        if(validTarots.length === 0) { validTarots.push(Consumables[41]) }
                     }
                     break
                 case 'The Hierophant':

@@ -137,30 +137,33 @@ export const cardSnap = ({cards, idPrefix, r = 6000, log = false}: {cards: any[]
 }
 
 export const debuffCards = (blind: BlindType, cards: CardInfo[], past?: (keyof typeof HandType | CardInfo)[], sold?: boolean) => {
-    switch(blind.name) {
-        case 'The Goad':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Spades || c.enhancement === Enhancement?.Wild))
-            break
-        case 'The Head':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Hearts || c.enhancement === Enhancement?.Wild))
-            break
-        case 'The Club':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Clubs || c.enhancement === Enhancement?.Wild))
-            break
-        case 'The Window':
-            cards.forEach(c => c.debuffed = (c.suit === Suit.Diamonds || c.enhancement === Enhancement?.Wild))
-            break
-        case 'The Plant':
-            cards.forEach(c => c.debuffed = ([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)))
-            break
-        case 'The Pillar':
-            cards.forEach(c => c.debuffed = (past!.includes(c)))
-            break
-        case 'Verdant Leaf':
-            cards.forEach(c => c.debuffed = !sold)
-            break
-        default:
-    }
+    cards.forEach(c => {
+        switch(blind.name) {
+            case 'The Goad':
+                c.debuffed = (c.suit === Suit.Spades || c.enhancement === Enhancement?.Wild)
+                break
+            case 'The Head':
+                c.debuffed = (c.suit === Suit.Hearts || c.enhancement === Enhancement?.Wild)
+                break
+            case 'The Club':
+                c.debuffed = (c.suit === Suit.Clubs || c.enhancement === Enhancement?.Wild)
+                break
+            case 'The Window':
+                c.debuffed = (c.suit === Suit.Diamonds || c.enhancement === Enhancement?.Wild)
+                break
+            case 'The Plant':
+                c.debuffed = ([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank))
+                break
+            case 'The Pillar':
+                c.debuffed = (past!.includes(c))
+                break
+            case 'Verdant Leaf':
+                c.debuffed = !sold
+                break
+            
+        }
+        if(c.enhancement === Enhancement?.Stone) { c.debuffed = false }
+    })
 }
 
 export const getImage = (url: string, images: Record<string, { default: string }>) => {
@@ -182,7 +185,7 @@ export const newOffers = (slots: number, weights: {
         const roll = Random.next()
         if(roll < weights.Joker / total) {
             const rare_roll = Random.next()
-            const rarity = rare_roll < .7 ? 'Common' : rare_roll < .95 ? 'Uncommon' : 'Rare'
+            const rarity = rare_roll < .1 ? 'Common' : rare_roll < .95 ? 'Uncommon' : 'Rare'
             const validJokers = Jokers.filter(j => j.rarity === rarity && !game.jokers.find(joker => joker.joker.name === j.name))
             if(validJokers.length === 0) { validJokers.push(Jokers[0])}
             offers.push({

@@ -24,6 +24,7 @@ export default function Hand() {
             <div id='hand-buttons'>
                 <div id='ship' className={`button ${game.cards.selected.length > 0}`} onClick={() => {
                     if(gameRef.current.cards.selected.length > 0) {
+                        let selected = gameRef.current.cards.selected
                         let len = Math.max(gameRef.current.stats.handSize - (gameRef.current.cards.hand.length - gameRef.current.cards.selected.length), 0)
                         dispatch({type: 'submit'})
                         if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Hook') {
@@ -33,6 +34,15 @@ export default function Hand() {
                             dispatch({type: 'updateCards', payload: {cardLocation: 'hidden', update: [...game.cards.hidden, ...discard]}})
                             len += discard.length
                         }
+                        if(game.jokers.find(j => j.joker.name === 'DNA') !== undefined && gameRef.current.cards.hidden.length === 0 && selected.length === 1) {
+                            dispatch({type: 'addCard', payload: {cardLocation: 'hand', card: {
+                                ...selected[0],
+                                selected: false,
+                                submitted: false
+                            }}})
+                            len--
+                        }
+
                         setTimeout(() => {
                             const lastHand = game.active.name
                             dispatch({type: 'discard'})

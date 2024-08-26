@@ -126,7 +126,7 @@ div[id^='joker_']:hover #joker-description-outline { display: initial; }
     text-align: center;
     border-radius: 8px;
     margin: 2px 0;
-    padding: 0 4px;
+    padding: 0 16px;
     color: aliceblue;
 }
 

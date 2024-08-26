@@ -33,91 +33,93 @@ export const Jokers: JokerType[] = [
         cost: 2,
         rarity: 'Common',
         activation: [Activation.Independent]
-    }, {
-        name: 'Greedy Joker',
-        description: 'Played cards with \n{orange}Diamond/ suit give \n{red}+3/ Mult when scored',
-        cost: 5,
-        rarity: 'Common',
-        activation: [Activation.OnScored]
-    }, {
-        name: 'Lusty Joker',
-        description: 'Played cards with \n{red}Heart/ suit give \n{red}+3/ Mult when scored',
-        cost: 5,
-        rarity: 'Common',
-        activation: [Activation.OnScored]
-    }, {
-        name: 'Wrathful Joker',
-        description: 'Played cards with \n{dark-purple}Spade/ suit give \n{red}+3/ Mult when scored',
-        cost: 5,
-        rarity: 'Common',
-        activation: [Activation.OnScored]
-    }, {
-        name: 'Gluttonous Joker',
-        description: 'Played cards with \n{blue}Club/ suit give \n{red}+3/ Mult when scored',
-        cost: 5,
-        rarity: 'Common',
-        activation: [Activation.OnScored]
-    }, {
-        name: 'Jolly Joker',
-        description: '{red}+8/ Mult if played hand\n contains a /{orange}Pair',
-        cost: 3,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Zany Joker',
-        description: '{red}+12/ Mult if played\n hand contains a\n {orange}Three of a Kind',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Mad Joker',
-        description: '{red}+10/ Mult if played\nhand contains a\n {orange}Two Pair',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Crazy Joker',
-        description: '{red}+12/ Mult if played\nhand contains a\n {orange}Straight',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Droll Joker',
-        description: '{red}+10/ Mult if played\nhand contains a\n {orange}Flush',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Sly Joker',
-        description: '{blue}+50/ Chips if played\n hand contains a\n{orange}Pair',
-        cost: 3,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Wily Joker',
-        description: '{blue}+100/ Chips if played\n hand contains a\n{orange}Three of a Kind',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Clever Joker',
-        description: '{blue}+80/ Chips if played\n hand contains a\n{orange}Two Pair',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Devious Joker',
-        description: '{blue}+100/ Chips if played\n hand contains a\n{orange}Straight',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
-        name: 'Crafty Joker',
-        description: '{blue}+80/ Chips if played\n hand contains a\n{orange}Flush',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.Independent]
-    }, {
+    },
+    //  {
+    //     name: 'Greedy Joker',
+    //     description: 'Played cards with \n{orange}Diamond/ suit give \n{red}+3/ Mult when scored',
+    //     cost: 5,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnScored]
+    // }, {
+    //     name: 'Lusty Joker',
+    //     description: 'Played cards with \n{red}Heart/ suit give \n{red}+3/ Mult when scored',
+    //     cost: 5,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnScored]
+    // }, {
+    //     name: 'Wrathful Joker',
+    //     description: 'Played cards with \n{dark-purple}Spade/ suit give \n{red}+3/ Mult when scored',
+    //     cost: 5,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnScored]
+    // }, {
+    //     name: 'Gluttonous Joker',
+    //     description: 'Played cards with \n{blue}Club/ suit give \n{red}+3/ Mult when scored',
+    //     cost: 5,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnScored]
+    // }, {
+    //     name: 'Jolly Joker',
+    //     description: '{red}+8/ Mult if played hand\n contains a /{orange}Pair',
+    //     cost: 3,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Zany Joker',
+    //     description: '{red}+12/ Mult if played\n hand contains a\n {orange}Three of a Kind',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Mad Joker',
+    //     description: '{red}+10/ Mult if played\nhand contains a\n {orange}Two Pair',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Crazy Joker',
+    //     description: '{red}+12/ Mult if played\nhand contains a\n {orange}Straight',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Droll Joker',
+    //     description: '{red}+10/ Mult if played\nhand contains a\n {orange}Flush',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Sly Joker',
+    //     description: '{blue}+50/ Chips if played\n hand contains a\n{orange}Pair',
+    //     cost: 3,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Wily Joker',
+    //     description: '{blue}+100/ Chips if played\n hand contains a\n{orange}Three of a Kind',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Clever Joker',
+    //     description: '{blue}+80/ Chips if played\n hand contains a\n{orange}Two Pair',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Devious Joker',
+    //     description: '{blue}+100/ Chips if played\n hand contains a\n{orange}Straight',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, {
+    //     name: 'Crafty Joker',
+    //     description: '{blue}+80/ Chips if played\n hand contains a\n{orange}Flush',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent]
+    // }, 
+    {
         name: 'Half Joker',
         description: '{red}+20/ Mult if played\n hand contains /{orange}3\n or fewer cards',
         cost: 5,
@@ -125,7 +127,7 @@ export const Jokers: JokerType[] = [
         activation: [Activation.Independent]
     }, {
         name: 'Joker Stencil',
-        description: '{red-inver}X1/ Mult for each\n empty/ {orange}Joker slot.\n Joker Stencil included\n {grey} (Currently /{red}X_/ {grey} Mult)',
+        description: '{red}+/{red-invert}X1/ Mult for each\n empty/ {orange}Joker slot.\n Joker Stencil included\n {grey} (Currently /{red}X_/ {grey} Mult)',
         cost: 8,
         rarity: 'Uncommon',
         activation: [Activation.Independent]
@@ -270,6 +272,124 @@ export const Jokers: JokerType[] = [
         cost: 5,
         rarity: 'Uncommon',
         activation: [Activation.OnPlayed]
+    }, {
+        name: 'Egg',
+        description: 'Gains/ {yellow}$3/ of/ {orange}sell value\n at end of round',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.EndOfRound],
+        counter: 0
+    }, {
+        name: 'Burglar',
+        description: 'When/ {orange}Blind/ is selected,\n gain/ {blue}+3/ Hands and\n {orange}lose all discards',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.OnBlind]
+    }, {
+        name: 'Blackboard',
+        description: '{red-invert}X3/ Mult if all cards held\n in hand are/ {dark-purple}Spades/ or/ {blue} Clubs',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.Independent]
+    }, {
+        name: 'Runner',
+        description: 'Gains/ {blue}+15/ Chips if played hand\n contains a/ {orange}Straight\n{grey}(Currently/ {blue}+_/{grey} Chips)',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.OnPlayed, Activation.Independent],
+        counter: 0
+    }, {
+        name: 'Ice Cream',
+        description: '{blue}+_/ Chips\n{blue}-5/ Chips for every\nhand played',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.OnPlayed, Activation.Independent],
+        counter: 100
+    }, {
+        name: 'DNA',
+        description: 'If/ {orange}first hand/ of round\n has only/ {orange}1/ card, add a\n permanent copy to deck\n and draw it to/ {orange}hand',
+        cost: 8,
+        rarity: 'Rare',
+        activation: [] // Activated in hand on submit
+    }, {
+        name: 'Splash',
+        description: 'Every/ {orange}played card/ counts\n in scoring',
+        cost: 3,
+        rarity: 'Common',
+        activation: [Activation.Passive]
+    }, {
+        name: 'Blue Joker',
+        description: '{blue}+2/ Chips for each remaining\n card in/ {orange}deck\n{grey}(Currently/ {blue}+_/{grey} Chips)',
+        cost: 5,
+        rarity: 'Common',
+        activation: [Activation.Independent]
+    }, {
+        name: 'Sixth Sense',
+        description: 'If/ {orange}first hand/ of round\n is a single/ {orange}6/ destroy it\n and create a/ {blue}Spectral/ card\n{small grey}(Must have room)',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.OnPlayed]
+    }, {
+        name: 'Constellation',
+        description: 'This joker gains /{red-invert}X0.1/ Mult\n every time a/ {aqua}Planet/ card is used\n {grey}(Currently /{red-invert}X_/{grey} Mult)',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.Independent],
+        counter: 1
+    }, {
+        name: 'Hiker',
+        description: 'Every played/ {orange} card\n permanently gains/ {blue}+5/ Chips\n when scored',
+        cost: 5,
+        rarity: 'Uncommon',
+        activation: [Activation.OnScored]
+    }, {
+        name: 'Faceless Joker',
+        description: 'Earn/ {yellow}$5/ if/ {orange}3/ or\n more/ {orange}face cards\n are discarded at\nthe same time',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnDiscard]
+    }, {
+        name: 'Green Joker',
+        description: '{red}+1/ Mult per hand played\n{red}-1/ Mult per discard\n{grey}(Currently/ {red}+_/ {grey}Mult)',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnPlayed, Activation.OnDiscard, Activation.Independent],
+        counter: 0
+    }, {
+        name: 'Superposition',
+        description: 'Create a/ {purple}Tarot/ card\n if poker hand contains an/ {orange}Ace\n and a/ {orange}Straight\n{small grey}(Must have room)',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnPlayed]
+    }, { // To Do List
+        name: 'To Do List',
+        description: 'Earn/ {yellow}$4/ if/ {orange}poker\n {orange}hand is a\n{orange}_/,\npoker hand changes at end of round',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnPlayed]
+    }, 
+    // {
+    //     name: 'Cavendish',
+    //     description: '{red-invert}X3/ Mult\n{green}1 in 1000/ chance this card\n is destroyed at the\n end of round',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.Independent, Activation.EndOfRound]
+    // },
+    // Card Sharp, Red Card
+    {
+        name: 'Madness',
+        description: 'When/ {orange} Small Blind/ or\n {orange} Big Blind/ is selected,\n gain/ {red-invert}X0.5/ Mult and/ {orange} destroy\n a random Joker\n{grey}(Currently/ {red}X_/{grey}Mult)',
+        cost: 7,
+        rarity: 'Uncommon',
+        activation: [Activation.OnBlind, Activation.Independent],
+        counter: 1
+    }, {
+        name: 'Square Joker',
+        description: 'This Joker gains/ {blue}+4/ Chips if\n played hand has exactly/ {orange}4/ cards\n{grey}(Currently/ {blue}_/{grey}Chips)',
+        cost: 4,
+        rarity: 'Common',
+        activation: [Activation.OnPlayed, Activation.Independent],
+        counter: 0
     }
     
     // ,{

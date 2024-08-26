@@ -1,6 +1,6 @@
 import { useContext, useRef } from 'react'
 import debuff from '../assets/cards/modifiers/debuffed.webp'
-import { DeckType, Edition, editionInfo, Enhancement, enhancementInfo, Rank, rankChips, Seal, sealInfo, Suit } from '../Constants'
+import { DeckType, Edition, editionInfo, Enhancement, enhancementInfo, Rank, Seal, sealInfo, Suit } from '../Constants'
 import { cardSnap } from '../Utilities'
 import './Card.css'
 import { CardInfo } from './CardInfo'
@@ -18,7 +18,7 @@ const getImage = (url: string) => {
 }
 
 export const Card = ({
-        id, suit, rank, deck,
+        id, suit, rank, chips, deck,
         mode = 'standard',
         edition, enhancement = Enhancement.Base, seal,
         draggable = true,
@@ -43,7 +43,7 @@ export const Card = ({
             {(enhancement === undefined || enhancement !== Enhancement.Stone) &&
                 <div id='playing-card-chips'>
                     <div className='blue'>
-                        {`+${rankChips[Rank[rank] as keyof typeof rankChips]}`}
+                        {`+${chips}`}
                     </div>&nbsp;{'chips'}
                 </div>
             }

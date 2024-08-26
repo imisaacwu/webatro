@@ -15,7 +15,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
     const image = getImage(`../assets/jokers/${joker.rarity}/${joker.name.replace(/\s/g, '_')}.png`, images)
     const back = getImage(`../assets/decks/${DeckType[game.stats.deck]}.png`, import.meta.glob('../assets/decks/*.png', { eager: true }))
     const self: JokerInstance = {id, joker, edition, selected, ...props}
-    const { price, sell } = calcPrice(self)
+    let { price, sell } = calcPrice(self)
 
     let description = joker.description
     switch(joker.name) {
@@ -24,10 +24,22 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
             break
         case 'Loyalty Card':
         case 'Ride the Bus':
+        case 'Runner':
+        case 'Ice Cream':
+        case 'Constellation':
+        case 'Green Joker':
+        case 'Madness':
+        case 'Square Joker':
             description = description.replace('_', joker.counter! + '')
             break
         case 'Abstract Joker':
             description = description.replace('_',(3 * game.jokers.length) + '')
+            break
+        case 'Egg':
+            sell += joker.counter!
+            break
+        case 'Blue Joker':
+            description = description.replace('_', (2 * game.cards.deck.length) + '')
             break
     }
 
@@ -77,7 +89,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
         dragElem = (e.target as HTMLElement).parentElement!
         origX = dragElem.offsetLeft
         origY = dragElem.offsetTop
-        origI = [...dragElem.parentElement!.children].indexOf(dragElem)
+        origI = gameRef.current.cards.consumables.findIndex(c => c.id === dragElem!.id.replace(/joker /, '') as unknown as number)
         startX = e.clientX - origX
         startY = e.clientY - origY
         
@@ -100,7 +112,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
             if(now - lastReorder < renderDelay) { return }
 
             const container = dragElem.parentElement!
-            const w = container.clientWidth, l = container.childElementCount - 1
+            const w = container.clientWidth, l = container.childElementCount - 2
             const lStep = w / (l + 1), extra = (lStep - dragElem.clientWidth) / l
             let i = Math.min(l, Math.max(0, Math.round(dragElem.offsetLeft / (lStep + extra))))
             if(Math.abs(dragElem.offsetLeft - i * (lStep + extra)) < tolerance && origI !== i) {

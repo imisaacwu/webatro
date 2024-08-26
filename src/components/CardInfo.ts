@@ -4,6 +4,7 @@ export type CardInfo = {
     id: number
     suit: Suit
     rank: Rank
+    chips: number
     deck: DeckType
 
     mode?: 'standard' | 'deck-view'

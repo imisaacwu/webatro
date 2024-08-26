@@ -11,7 +11,7 @@ import { InfoPanel } from './components/InfoPanel'
 import { Joker } from './components/Joker'
 import { Round } from './components/Round'
 import { Shop } from './components/Shop'
-import { Blinds, DeckType } from './Constants'
+import { Blinds, Consumables, DeckType } from './Constants'
 import { gameReducer, GameStateContext, initialGameState } from './GameState'
 import { cardSnap } from './Utilities'
 
@@ -22,6 +22,7 @@ export default function App() {
     
     useEffect(() => {
         dispatch({type: 'init', payload: {deck: DeckType.Red }})
+        dispatch({type: 'addCard', payload: {cardLocation: 'consumables', card: Consumables[41]}})
     }, [])
     
     useEffect(() => {
