@@ -41,6 +41,7 @@
 
 .view-button:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 .arrow {
@@ -53,12 +54,12 @@
     border-top: 20px solid var(--red);
 }
 
-#deck-view {
+#deck-menu #deck-view {
     display: flex;
     flex-direction: row;
 }
 
-#deck-info {
+#deck-menu #deck-info {
     display: flex;
     flex-direction: row;
     margin: 0 8px 0 36px;
@@ -67,13 +68,13 @@
     width: fit-content;
 }
 
-#deck-info-left {
+#deck-menu #deck-info-left {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-#deck-name {
+#deck-menu #deck-name {
     background-color: var(--grey);
     text-align: center;
     border-radius: 8px;
@@ -82,7 +83,7 @@
     line-height: 32px;
 }
 
-#deck-bio {
+#deck-menu #deck-bio {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,4 +202,5 @@
 
 #back:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }

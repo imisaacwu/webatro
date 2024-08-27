@@ -28,6 +28,7 @@
 
 .button.true:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 #ship.true {
@@ -64,4 +65,5 @@
 
 .sort-button:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }

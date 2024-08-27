@@ -24,6 +24,7 @@
 
 .info-button:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 #run-info-button {

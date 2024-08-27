@@ -1,6 +1,5 @@
 #run-info {
     position: absolute;
-    z-index: 1;
     left: 350px;
     right: 370px;
     top: 100px;
@@ -20,6 +19,7 @@
 
 #run-info-views:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 .run-info-view {
@@ -152,4 +152,5 @@
 
 #run-info-back:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }

@@ -47,6 +47,7 @@
 
 .shop-button:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 #next-round { background-color: var(--red); }

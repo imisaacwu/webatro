@@ -243,6 +243,7 @@
 
 #blind-select.true:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 #blind-select.false {

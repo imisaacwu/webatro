@@ -25,6 +25,7 @@
 
 #face-down:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 #deck-label {

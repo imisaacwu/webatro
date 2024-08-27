@@ -37,6 +37,7 @@
 
 #score-display:hover {
     cursor: pointer;
+    filter: brightness(.75);
 }
 
 #stake-icon {

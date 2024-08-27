@@ -68,7 +68,10 @@
 }
 
 .card:hover { scale: 1.1; }
-.card.standard:hover { cursor: pointer; }
+.card.standard:hover {
+    cursor: pointer;
+    filter: brightness(.75);
+}
 
 .card:active { z-index: 1; }
 

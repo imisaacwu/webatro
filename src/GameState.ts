@@ -5,8 +5,7 @@ import { CardInfo } from "./components/CardInfo"
 import { Activation, JokerInstance, JokerType } from "./components/JokerInfo"
 import Rand from "rand-seed"
 
-export const seed = (Math.random() + 1).toString(36).toUpperCase().slice(2)
-export const Random = new Rand(seed)
+export let Random: Rand = new Rand()
 
 export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: number}) => {
     handLevels[hand].level += n
@@ -14,10 +13,12 @@ export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: n
     handLevels[hand].mult += handUpgrade[hand].mult * n
 }
 
-type GameStates = 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
+type GameStates = 'main-menu' | 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
 export type GameState = {
     state: GameStates
+    seed: string
+    seeded: boolean
     
     stats: {
         handSize: number
@@ -96,7 +97,8 @@ export type GameAction = {
         'setLastUsedConsumable' | 'updateJokers' | 'addJoker' | 'removeJoker' |
         'shop-select' | 'shop-remove' | 'reroll'
     payload?: {
-        deck?: DeckType,
+        deck?: DeckType
+        seed?: string
 
         state?: GameStates
 
@@ -113,7 +115,9 @@ export type GameAction = {
 }
 
 export const initialGameState: GameState = {
-    state: 'shop' as GameStates,
+    state: 'main-menu' as GameStates,
+    seed: '',
+    seeded: false,
 
     stats: {
         handSize: 8,
@@ -134,8 +138,8 @@ export const initialGameState: GameState = {
         offers: [],
         weights: {
             Joker: 20,
-            Tarot: 0,
-            Planet: 1,
+            Tarot: 4,
+            Planet: 4,
             Card: 0,
             Spectral: 0
         }
@@ -192,16 +196,13 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 case DeckType.Erratic:
                     next.stats.deck = DeckType.Erratic
                     for(let i = 1; i <= 52; i++) {
-                        let rank = Rank[ranks[Math.floor(Random.next()*ranks.length)*0+4]]
+                        let rank = Rank[ranks[Math.floor(Random.next()*ranks.length)]]
                         arr.push(
                             {
                                 id: i,
                                 suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
                                 rank: rank,
                                 chips: rankChips[rank],
-                                edition: Edition.Polychrome,
-                                enhancement: (Random.next() < .9 ? Enhancement.Steel : Enhancement.Glass),
-                                seal: Seal.Red,
                                 deck: DeckType.Erratic
                             }
                         )
@@ -220,7 +221,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         )
                     })})
             }
+            next = initialGameState
             next = {...next,
+                seed: action.payload?.seed ?? (Math.random() + 1).toString(36).toUpperCase().slice(2),
+                seeded: action.payload?.seed !== undefined,
                 blind: {...state.blind,
                     boss: boss_roll(state.stats.ante),
                     base: ante_base(state.stats.ante)
@@ -230,6 +234,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     deck: arr
                 }
             }
+            Random = new Rand(next.seed)
             break 
         case 'state':
             next = {...next,

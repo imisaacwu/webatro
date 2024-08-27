@@ -1,5 +1,24 @@
 export enum DeckType { Abandoned, Anaglyph, Black, Blue, Challenge, Checkered, Erratic, Ghost, Green, Magic, Nebula, Painted, Plasma, Red, Yellow, Zodiac }
 
+export const deckInfo: {[D in keyof typeof DeckType]: string} = {
+    Abandoned: 'Start run with\n no/ {orange}Face Cards\n in your deck',
+    Anaglyph: '',
+    Black: '{orange}+1/ Joker slot\n {blue}-1/ hand\n every round',
+    Blue: '{blue}+1/ hand\n every round',
+    Challenge: '',
+    Checkered: 'Start run with\n {orange}26/ {dark-purple}Spades/ and\n {orange}26/ {red}Hearts/ in deck',
+    Erratic: 'All Ranks and\n Suits in deck\n are randomized',
+    Ghost: '{indigo}Spectral/ cards may\n appear in the shop,\n start with a/ {indigo}Hex/ card',
+    Green: 'At end of each Round:\n {yellow}$2/ {small black}per remaining/ {blue}Hand\n {yellow}$1/ {small black}per remaining/ {red}Discard\n Earn no/ {orange}Interest',
+    Magic: 'Start run with the\n {purple}Crystal Ball/ voucher\n and/ {orange}2/ copies\n of/ {purple}The Fool',
+    Nebula: 'Start run with the\n {aqua}Telescope/ voucher\n {red}-1/ consumable slot',
+    Painted: '{orange}+2/ Hand Size,\n {orange}-1/ Joker Slot',
+    Plasma: '',
+    Red: '{red}+1/ discard\n every round',
+    Yellow: 'Start with\n extra/ {yellow}$10',
+    Zodiac: 'Start run with\n {purple}Tarot Merchant/,\n {aqua}Planet Merchant/,\n and {orange}Overstock'
+}
+
 export enum Suit { Spades, Hearts, Clubs, Diamonds }
 export enum Rank { Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace }
 export enum Edition { Foil, Holographic, Negative, Polychrome }
@@ -15,22 +34,22 @@ export const editionInfo: {[E in keyof typeof Edition]: string} = {
 }
 
 export const enhancementInfo: {[E in keyof typeof Enhancement]: string} = {
-    Base: "",
-    Bonus: "{blue}+30/ extra chips",
-    Glass: "{red-invert}X2/ Mult\n{green}1 in 4/ chance\nto destroy card",
-    Gold: "{yellow}+$3/ if this\ncard is held in hand\nat end of round",
-    Lucky: "{green}1 in 5/ chance\nfor /{red}+20/ Mult\n{green}1 in 15/ chance\nto win /{yellow}$20",
-    Mult: "{red}+4/ Mult",
-    Steel: "{red-invert}X1.5/ Mult\nwhile this card\nstays in hand",
-    Stone: "{blue}+50/ Chips\nno rank or suit",
-    Wild: "Can be used\nas any suit"
+    Base: '',
+    Bonus: '{blue}+30/ extra chips',
+    Glass: '{red-invert}X2/ Mult\n{green}1 in 4/ chance\nto destroy card',
+    Gold: '{yellow}+$3/ if this\ncard is held in hand\nat end of round',
+    Lucky: '{green}1 in 5/ chance\nfor /{red}+20/ Mult\n{green}1 in 15/ chance\nto win /{yellow}$20',
+    Mult: '{red}+4/ Mult',
+    Steel: '{red-invert}X1.5/ Mult\nwhile this card\nstays in hand',
+    Stone: '{blue}+50/ Chips\nno rank or suit',
+    Wild: 'Can be used\nas any suit'
 }
 
 export const sealInfo: {[S in keyof typeof Seal]: string} = {
-    Blue: "Creates the/{aqua}Planet/card\nfor final played/{orange}poker hand\nof round if/{orange}held/in hand\n{grey}(Must have room)",
-    Gold: "Earn/{yellow}$3/when this\ncard is played\nand scores",
-    Purple: "Creates a/{purple}Tarot/card\nwhen/{orange}discarded\n{grey}(Must have room)",
-    Red: "Retrigger this\ncard/{orange}1/time"
+    Blue: 'Creates the/{aqua}Planet/card\nfor final played/{orange}poker hand\nof round if/{orange}held/in hand\n{grey}(Must have room)',
+    Gold: 'Earn/{yellow}$3/when this\ncard is played\nand scores',
+    Purple: 'Creates a/{purple}Tarot/card\nwhen/{orange}discarded\n{grey}(Must have room)',
+    Red: 'Retrigger this\ncard/{orange}1/time'
 }
 
 export const rankChips: {[R in keyof typeof Rank]: number} = {

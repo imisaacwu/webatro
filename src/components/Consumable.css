@@ -17,6 +17,7 @@ div[id^='consumable_'].shopping {
 
 div[id^='consumable_']:hover {
     cursor: pointer;
+    filter: brightness(.75);
     scale: 1.1;
 }
 
