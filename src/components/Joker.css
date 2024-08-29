@@ -161,7 +161,6 @@ div[id^='joker_']:hover #joker-description-outline { display: initial; }
 }
 
 #joker-buy-button:hover {
-    filter: brightness(.75);
     cursor: pointer;
 }
 

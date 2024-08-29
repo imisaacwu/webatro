@@ -125,6 +125,10 @@ img#shop-logo {
     line-height: 80px;
     margin: 16px 0;
 }
+#cash-out {
+    cursor: pointer;
+    filter: brightness(.75);
+}
 
 #post-dots {
     font-size: 32px;

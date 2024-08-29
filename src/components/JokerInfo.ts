@@ -127,7 +127,7 @@ export const Jokers: JokerType[] = [
         activation: [Activation.Independent]
     }, {
         name: 'Joker Stencil',
-        description: '{red}+/{red-invert}X1/ Mult for each\n empty/ {orange}Joker slot.\n Joker Stencil included\n {grey} (Currently /{red}X_/ {grey} Mult)',
+        description: '{red}+/{nospace red-invert}X1/ Mult for each\n empty/ {orange}Joker slot.\n Joker Stencil included\n {grey} (Currently /{red}X_/ {grey} Mult)',
         cost: 8,
         rarity: 'Uncommon',
         activation: [Activation.Independent]
