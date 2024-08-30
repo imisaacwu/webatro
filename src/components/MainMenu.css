@@ -8,6 +8,27 @@
     width: 666px;
 }
 
+#main-menu-ace {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -98%);
+    width: 142px;
+    height: 190px;
+}
+
+#ace-bkg {
+    position: absolute;
+    width: 142px;
+    height: 190px;
+}
+
+#ace {
+    position: absolute;
+    width: 142px;
+    height: 190px;
+}
+
 #main-menu-buttons {
     display: flex;
     width: fit-content;

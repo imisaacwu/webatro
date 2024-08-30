@@ -18,11 +18,6 @@
     margin-top: 24px;
 }
 
-#run-info-views:hover {
-    cursor: pointer;
-    filter: brightness(.75);
-}
-
 .run-info-view {
     position: relative;
     margin: 8px;
@@ -34,6 +29,11 @@
     text-align: center;
     width: 140px;
     padding: 8px;
+}
+
+.run-info-view:hover {
+    cursor: pointer;
+    filter: brightness(.75);
 }
 
 #run-info-arrow {

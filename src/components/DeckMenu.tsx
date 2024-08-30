@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { aceIcon, clubs, diamonds, faceIcon, hearts, numIcon, spades } from '../assets/ui'
-import { Rank, Suit, rankChips } from '../Constants'
+import { DeckType, Rank, Suit, deckInfo, rankChips } from '../Constants'
 import { cardSnap } from '../Utilities'
 import './DeckMenu.css'
 import { GameStateContext } from '../GameState'
@@ -48,6 +48,16 @@ export default function DeckMenu(props: DeckMenuProps) {
     }
 
     const ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).sort((a, b) => Rank[b as keyof typeof Rank] - Rank[a as keyof typeof Rank]).map(r => <div key={Rank[r as keyof typeof Rank]}>{rankChips[r as keyof typeof rankChips] < 10 ? rankChips[r as keyof typeof rankChips] : r.charAt(0)}</div>)
+
+    const deckDescription = deckInfo[DeckType[game.stats.deck] as keyof typeof deckInfo].split('\n').map((line, i) =>
+        <div key={i}>
+            {line.split('/').map((str, i) =>
+                <div key={i} className={str.match(/{.+}/)?.[0].slice(1, -1) ?? 'black'} style={{display: 'inline'}}>
+                    {str.replace(/{.+}/g, '')}
+                </div>
+            )}
+        </div>
+    )
     
     return (
         <div id='deck-menu' className={`${props.menu}`}>
@@ -67,9 +77,9 @@ export default function DeckMenu(props: DeckMenuProps) {
                 <div id='deck-info'>
                     <div id='deck-info-left'>
                         <div id='deck-name'>
-                            Red Deck
+                            {`${DeckType[game.stats.deck]} Deck`}
                             <div id='deck-bio'>
-                                +1 discard<br />every round
+                                {deckDescription}
                             </div>
                         </div>
                         <div id='suit-info-container'>

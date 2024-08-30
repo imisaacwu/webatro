@@ -123,7 +123,7 @@ export const initialGameState: GameState = {
         handSize: 8,
         hands: 4,
         discards: 4,
-        money: 10000000000,
+        money: 9999999,
         ante: 1,
         round: 0,
         score: 0,
@@ -194,7 +194,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             let arr: CardInfo[] = []
             switch(action.payload?.deck!) {
                 case DeckType.Erratic:
-                    next.stats.deck = DeckType.Erratic
                     for(let i = 1; i <= 52; i++) {
                         let rank = Rank[ranks[Math.floor(Random.next()*ranks.length)]]
                         arr.push(
@@ -225,6 +224,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             next = {...next,
                 seed: action.payload?.seed ?? (Math.random() + 1).toString(36).toUpperCase().slice(2),
                 seeded: action.payload?.seed !== undefined,
+                stats: {...state.stats,
+                    deck: action.payload?.deck!
+                },
                 blind: {...state.blind,
                     boss: boss_roll(state.stats.ante),
                     base: ante_base(state.stats.ante)
