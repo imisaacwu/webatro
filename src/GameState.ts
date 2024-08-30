@@ -2,7 +2,7 @@ import { createContext, Dispatch } from "react"
 import { BlindType, ConsumableInstance, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, rankChips, Seal, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, debuffCards, getNextBlind, newOffers, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
-import { Activation, JokerInstance, JokerType } from "./components/JokerInfo"
+import { Activation, JokerInstance, Jokers, JokerType } from "./components/JokerInfo"
 import Rand from "rand-seed"
 
 export let Random: Rand = new Rand()
@@ -298,6 +298,24 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                     }
                                 }
                                 break
+                            case 'Riff-Raff':
+                                if(state.jokers.length < state.stats.jokerSize) {
+                                    let validJokers = Jokers.filter(j => state.jokers.every(joker => joker.joker.name === j.name))
+                                    let joker: JokerType
+                                    let nToAdd = Math.min(2, state.stats.jokerSize - state.jokers.length)
+                                    for(let i = 0; i < nToAdd; i++) {
+                                        if(validJokers.length === 0) { validJokers.push(Jokers[0]) }
+                                        joker = validJokers[Math.floor(Random.next() * validJokers.length)]
+                                        next = {...next,
+                                            jokers: [...next.jokers, {
+                                                id: next.cards.nextId + i,
+                                                joker: joker
+                                            }]
+                                        }
+                                        validJokers.filter(j => j.name !== joker.name)
+                                    }
+                                    next.cards.nextId + nToAdd
+                                }
                         }
                     })
                     break
@@ -312,6 +330,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         switch(j.joker.name) {
                             case 'Egg':
                                 j.joker.counter! += 3
+                                break
+                            case 'Cloud 9':
+                                // TODO: add to post log
+                                next.stats.money += deck.reduce((nines, c) => nines += (c.rank === Rank.Nine ? 1 : 0), 0)
                                 break
                         }
                     })
@@ -536,6 +558,34 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             if(selected.length === 4) {
                                 j.joker.counter! += 4
                             }
+                            break
+                        case 'Seance':
+                            if(hand === 'STRAIGHT_FLUSH' && state.cards.consumables.length < state.stats.consumableSize) {
+                                let validSpectrals = Consumables.slice(12, 28)
+                                validSpectrals.filter(c => state.cards.consumables.every(con => con.consumable.name !== c.name))
+                                if(validSpectrals.length === 0) { validSpectrals.push(Consumables[29]) }
+                                next = {...next, cards: {...next.cards,
+                                    consumables: [...next.cards.consumables, {
+                                        id: next.cards.nextId,
+                                        consumable: validSpectrals[Math.floor(Random.next() * validSpectrals.length)]
+                                    }],
+                                    nextId: next.cards.nextId + 1
+                                }}
+                            }
+                            break
+                        case 'Vagabond':
+                            if(state.stats.money <= 4 && state.cards.consumables.length < state.stats.consumableSize) {
+                                let validTarots = Consumables.slice(30, 52)
+                                validTarots.filter(c => state.cards.consumables.every(con => con.consumable.name !== c.name))
+                                if(validTarots.length === 0) { validTarots.push(Consumables[41]) }
+                                next = {...next, cards: {...next.cards,
+                                    consumables: [...next.cards.consumables, {
+                                        id: next.cards.nextId,
+                                        consumable: validTarots[Math.floor(Random.next() * validTarots.length)]
+                                    }],
+                                    nextId: next.cards.nextId + 1
+                                }}
+                            }
                     }
                     if(baseball && j.joker.rarity === 'Uncommon') {
                         mult *= 1.5
@@ -699,6 +749,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                     case 'Hiker':
                                         c.chips += 5
                                         break
+                                    case 'Vampire':
+                                        if(c.enhancement) {
+                                            j.joker.counter! += 0.1
+                                            c.enhancement = undefined
+                                        }
+                                        break
                                     case 'Triboulet':
                                         if([Rank.King, Rank.Queen].includes(c.rank)) {
                                             mult *= 2
@@ -734,10 +790,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
                 state.cards.hand.filter(c => !c.selected && !c.submitted).forEach(c => {
                     if(!c.debuffed) {
-                        let will_trigger = c.enhancement === Enhancement?.Steel || c.enhancement === Enhancement?.Gold
+                        let will_trigger = c.enhancement === Enhancement?.Steel
                         state.jokers.filter(j => j.joker.activation.includes(Activation.OnHeld) && !j.debuffed).forEach(j => {
                             switch(j.joker.name) {
-                                
+                                case 'Baron':
+                                    will_trigger ||= c.rank === Rank.King
+                                    break
                             }
                         })
 
@@ -751,11 +809,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                 if(c.enhancement === Enhancement?.Steel) {
                                     mult *= 1.5
                                     next.scoreLog.push({name: 'Steel Card', mult: 1.5, mult_type: 'x'})
-                                } else if(c.enhancement === Enhancement?.Gold) {
-                                    next.stats.money += 3
-                                    next.scoreLog.push({name: 'Gold Card', notes: '+$3'})
-                                    next.moneyTotalLog += 3
                                 }
+
+                                state.jokers.filter(j => j.joker.activation.includes(Activation.OnHeld) && !j.debuffed).forEach(j => {
+                                    switch(j.joker.name) {
+                                        case 'Baron':
+                                            mult *= 1.5
+                                            next.scoreLog.push({name: 'Baron', mult: 1.5, mult_type: 'x'})
+                                            break
+                                    }
+                                })
                             }
 
                             heldInHand()
@@ -962,6 +1025,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         case 'Square Joker':
                             chips += j.joker.counter!
                             next.scoreLog.push({name: 'Square Joker', chips: j.joker.counter!})
+                            break
+                        case 'Vampire':
+                            if(j.joker.counter! > 1) {
+                                mult *= j.joker.counter!
+                                next.scoreLog.push({name: 'Vampire', mult: j.joker.counter!, mult_type: 'x'})
+                            }
                             break
                     }
                     if(baseball && j.joker.rarity === 'Uncommon') {

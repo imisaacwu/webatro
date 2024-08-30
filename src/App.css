@@ -125,7 +125,7 @@ img#shop-logo {
     line-height: 80px;
     margin: 16px 0;
 }
-#cash-out {
+#cash-out:hover {
     cursor: pointer;
     filter: brightness(.75);
 }

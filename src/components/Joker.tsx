@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react"
-import { DeckType, Edition, editionInfo } from "../Constants"
+import { DeckType, Edition, editionInfo, Rank } from "../Constants"
 import { calcPrice, cardSnap, debuffCards, getImage } from "../Utilities"
 import debuff from '../assets/cards/modifiers/debuffed.webp'
 import { GameStateContext } from "../GameState"
@@ -16,6 +16,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
     const back = getImage(`../assets/decks/${DeckType[game.stats.deck]}.png`, import.meta.glob('../assets/decks/*.png', { eager: true }))
     const self: JokerInstance = {id, joker, edition, selected, ...props}
     let { price, sell } = calcPrice(self)
+    let displayName = joker.name
 
     let description = joker.description
     switch(joker.name) {
@@ -30,16 +31,25 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
         case 'Green Joker':
         case 'Madness':
         case 'Square Joker':
+        case 'Vampire':
             description = description.replace('_', joker.counter! + '')
             break
         case 'Abstract Joker':
-            description = description.replace('_',(3 * game.jokers.length) + '')
+            description = description.replace('_', (3 * game.jokers.length) + '')
             break
         case 'Egg':
             sell += joker.counter!
             break
         case 'Blue Joker':
             description = description.replace('_', (2 * game.cards.deck.length) + '')
+            break
+        case 'Seance':
+            displayName = 'Séance'
+            break
+        case 'Cloud 9':
+            let fullDeck = [...game.cards.deck, ...game.cards.hand, ...game.cards.submitted, ...game.cards.hidden]
+            let nines = fullDeck.reduce((nines, c) => nines += (c.rank === Rank.Nine ? 1 : 0), 0)
+            description = description.replace('_', nines + '')
             break
     }
 
@@ -154,7 +164,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
             {!props.flipped && <div id='joker-description-outline'>
                 <div id='joker-description'>
                     <div id='joker-name'>
-                        {joker.name}
+                        {displayName}
                     </div>
                     <div id='joker-info'>
                         {props.debuffed ?
