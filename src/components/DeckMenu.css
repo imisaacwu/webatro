@@ -4,6 +4,7 @@
     justify-content: space-between;
 
     position: absolute;
+    z-index: 5;
     top: 48px;
     bottom: 48px;
     left: 100px;
@@ -202,5 +203,4 @@
 
 #back:hover {
     cursor: pointer;
-    filter: brightness(.75);
 }

@@ -1,5 +1,6 @@
 #run-info {
     position: absolute;
+    z-index: 5;
     left: 350px;
     right: 370px;
     top: 100px;

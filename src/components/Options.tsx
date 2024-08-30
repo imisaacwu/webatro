@@ -19,11 +19,11 @@ export const Options = (props: OptionsProps) => {
                         navigator.clipboard.writeText(game.seed)
                     }}>Copy</div>
                 </div>
-                <div id='main-menu' className='options-button' onClick={() => {
+                <div id='new-run' className='options-button' onClick={() => {
                     dispatch({type: 'init', payload: {deck: game.stats.deck}})
                     dispatch({type: 'state', payload: {state: 'blind-select'}})
                     props.setMenu(false)
-                }}>Main Menu</div>
+                }}>New Run</div>
                 <div id='main-menu' className='options-button' onClick={() => {
                     dispatch({type: 'state', payload: {state: 'main-menu'}})
                 }}>Main Menu</div>

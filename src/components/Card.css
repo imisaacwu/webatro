@@ -53,28 +53,32 @@
     position: absolute;
     background-color: rgb(56, 66, 68, 0.3);
     border-radius: 7px;
-    z-index: 5;
+    z-index: 4;
 }
 
 #card-edition {
     position: absolute;
     opacity: .3;
-    z-index: 3;
+    z-index: 2;
 }
 
 #seal-icon {
     position: absolute;
-    z-index: 4;
+    z-index: 3;
 }
 
 .card:hover { scale: 1.1; }
 .card.standard:hover {
     cursor: pointer;
+    z-index: 1;
 }
 
-.card:active { z-index: 1; }
+.card:active { z-index: 2; }
 
-.card.selected { transform: translateY(-3vh); }
+.card.selected {
+    transform: translateY(-3vh);
+    z-index: 1;
+}
 
 .card.drawn { opacity: .3; }
 
@@ -97,7 +101,6 @@
     background-color: aliceblue;
     border-radius: 8px;
     font-size: 24px;
-    z-index: 3000;
     width: max-content;
 }
 
