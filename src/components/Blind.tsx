@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useRef } from 'react'
 import stake_icon from '../assets/white_stake.webp'
 import { Blinds, BlindType, handLevels, HandType } from '../Constants'
 import './Blind.css'
@@ -12,6 +12,8 @@ type BlindProps = {
 
 export const Blind = ({ type, blind }: BlindProps) => {
     const { state: game, dispatch } = useContext(GameStateContext)
+    const gameRef = useRef(game);
+    gameRef.current = game
     const req = game.blind.base * blind.mult
     let req_display = req.toLocaleString()
     if(req_display.length > 11) { req_display = req.toExponential()}
@@ -27,6 +29,16 @@ export const Blind = ({ type, blind }: BlindProps) => {
     const mostPlayed = Object.entries(handLevels).reduce((most, hand) => (
         most = (most[1].played < hand[1].played || most[1].chips * most[1].mult < hand[1].chips * hand[1].mult) ? hand : most
     ), Object.entries(handLevels)[12])
+
+    const onBlindSelect = () => {
+        if(isCurrent && type === 'select'){
+            console.log(game.stats, gameRef.current.stats)
+            dispatch({type: 'state', payload: {state: 'scoring'}})
+            console.log(game.stats, gameRef.current.stats)
+            dispatch({type: 'draw', payload: {amount: gameRef.current.stats.handSize - gameRef.current.cards.hand.length}})
+            console.log(game.stats, gameRef.current.stats)
+        }
+    }
 
     return (
         <>
@@ -61,17 +73,7 @@ export const Blind = ({ type, blind }: BlindProps) => {
                     <div id='blind-container'>
                         <div id='blind-outline'>
                             <div id='blind-info' className={`select ${type}`}>
-                                <div id='blind-select' className={`${isCurrent} ${type}`} onClick={() => {
-                                    if(isCurrent && type === 'select'){
-                                        dispatch({type: 'state', payload: {state: 'scoring'}})
-                                        let draw = game.stats.handSize
-                                        if(game.blind.curr === 'boss' && game.blind.boss.name === 'The Manacle') {
-                                            dispatch({type: 'stat', payload: {stat: 'handSize'}})
-                                            draw--
-                                        }
-                                        dispatch({type: 'draw', payload: {amount: draw}})
-                                    }
-                                }}>{
+                                <div id='blind-select' className={`${isCurrent} ${type}`} onClick={onBlindSelect}>{
                                     isCurrent ? (type === 'select' ? 'Select' : 'Current') : ((game.blind.curr === 'boss' && Blinds.indexOf(blind) < 2) || (game.blind.curr === 'big' && Blinds.indexOf(blind) < 1)) ? 'Defeated' : 'Upcoming'
                                 }</div>
                                 <div id='blind-name' className='select'>

@@ -8,7 +8,7 @@ const images: Record<string, { default: string }> = import.meta.glob('../assets/
 export const PlayMenu = ({ setMenu }: {setMenu: React.Dispatch<React.SetStateAction<boolean>>}) => {
     const { dispatch } = useContext(GameStateContext)
     const [ view, setView ] = useState<'new-run'>('new-run')
-    const decks = [DeckType.Red, DeckType.Blue, DeckType.Yellow, DeckType.Green, DeckType.Black, DeckType.Magic, DeckType.Nebula, DeckType.Ghost, DeckType.Abandoned, DeckType.Checkered, DeckType.Zodiac, DeckType.Painted, DeckType.Anaglyph, DeckType.Plasma, DeckType.Erratic]
+    const decks = [DeckType.Red, DeckType.Blue, DeckType.Yellow, DeckType.Green, DeckType.Black, DeckType.Ghost, DeckType.Abandoned, DeckType.Checkered, DeckType.Painted, DeckType.Erratic]
     const [ deckIndex, setDeckIndex ] = useState(0)
     const [ seeded, setSeeded ] = useState(false)
     const [ seed, setSeed ] = useState<string>()

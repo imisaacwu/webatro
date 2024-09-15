@@ -198,9 +198,11 @@ export const newOffers = (slots: number, weights: {
             const validJokers = Jokers.filter(j => j.rarity === rarity && !game.jokers.find(joker => joker.joker.name === j.name) && !offers.filter(o => (o as JokerInstance).joker).find(o => (o as JokerInstance).joker.name === j.name))
 
             if(validJokers.length === 0) { validJokers.push(Jokers[0])}
+            let joker = validJokers[Math.floor(Random.next() * validJokers.length)]
             offers.push({
                 id: -i,
-                joker: validJokers[Math.floor(Random.next() * validJokers.length)],
+                joker: joker,
+                counter: joker.counter,
                 shopMode: true
             })
         } else if(roll < (weights.Joker + weights.Tarot) / total) {

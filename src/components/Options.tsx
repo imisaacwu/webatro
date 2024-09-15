@@ -14,9 +14,9 @@ export const Options = (props: OptionsProps) => {
             <div id='options-menu'>
                 <div id='seed-menu'>
                     <div>Seed:</div>
-                    <div id='seed'>{game.seed}</div>
+                    <div id='seed'>{game.stats.seed}</div>
                     <div id='copy-seed' onClick={() => {
-                        navigator.clipboard.writeText(game.seed)
+                        navigator.clipboard.writeText(game.stats.seed)
                     }}>Copy</div>
                 </div>
                 <div id='new-run' className='options-button' onClick={() => {

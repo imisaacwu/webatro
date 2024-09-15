@@ -4,6 +4,11 @@
     align-items: center;
 }
 
+h1 {
+    font-size: 256px;
+    line-height: 32px;
+}
+
 #logo {
     width: 666px;
 }

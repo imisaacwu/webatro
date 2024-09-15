@@ -1,9 +1,11 @@
-import { Edition, Sticker } from "../Constants"
+import { DeckType, Edition, Enhancement, Rank, Sticker, Suit } from "../Constants"
+import { addCard, GameState, initialGameState, Random } from "../GameState"
 
 export type JokerInstance = {
     id: number
     joker: JokerType
 
+    counter?: number
     edition?: Edition
     sticker?: Sticker
     selected?: boolean
@@ -12,7 +14,7 @@ export type JokerInstance = {
     shopMode?: boolean
 }
 
-export enum Activation { OnPlayed, OnScored, OnHeld, Independent, OnOther, OnDiscard, EndOfRound, Passive, OnBlind }
+export enum Activation { OnPlayed, OnScored, OnHeld, Independent, OnOther, OnDiscard, EndOfRound, Passive, OnBlind, AfterScoring }
 
 export type JokerType = {
     name: string
@@ -20,6 +22,7 @@ export type JokerType = {
     cost: number
     rarity: 'Common' | 'Uncommon' | 'Rare' | 'Legendary'
     activation: Activation[]
+    activate: (game: GameState, joker: JokerInstance, act: Activation, mult?: number, chips?: number, ) => GameState
     counter?: number
     copyable?: boolean
     perishable?: boolean
@@ -32,7 +35,12 @@ export const Jokers: JokerType[] = [
         description: '{red}+4/Mult',
         cost: 2,
         rarity: 'Common',
-        activation: [Activation.Independent]
+        activation: [Activation.Independent],
+        activate: (game, _, __, mult) => {
+            mult! += 4
+            game.scoreLog.push({name: 'Joker', mult: 4, mult_type: '+'})
+            return game
+        }
     },
     //  {
     //     name: 'Greedy Joker',
@@ -164,13 +172,27 @@ export const Jokers: JokerType[] = [
     //     cost: 5,
     //     rarity: 'Common',
     //     activation: [Activation.Independent]
-    // }, {
-    //     name: 'Marble Joker',
-    //     description: 'Adds one /{orange}Stone/ card\n to the deck when\n{orange}Blind/ is selected',
-    //     cost: 6,
-    //     rarity: 'Uncommon',
-    //     activation: [Activation.OnBlind]
-    // }, {
+    // },
+    {
+        name: 'Marble Joker',
+        description: 'Adds one /{orange}Stone/ card\n to the deck when\n{orange}Blind/ is selected',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.OnBlind],
+        activate: (game, _, __) => {
+            addCard({game, card: {
+                id: game.cards.nextId,
+                suit: Math.floor(Random.next() * Object.keys(Suit).length),
+                rank: Math.floor(Random.next() * Object.keys(Rank).length),
+                chips: 50,
+                enhancement: Enhancement.Stone,
+                deck: DeckType.Red
+            }, loc: 'deck'})
+            console.log(game)
+            return game
+        }
+    },
+    // {
     //     name: 'Loyalty Card',
     //     description: '{red-invert}X4/ Mult every/{orange}6\n hands played\n{grey}_ remaining',
     //     cost: 5,
@@ -279,13 +301,20 @@ export const Jokers: JokerType[] = [
     //     rarity: 'Common',
     //     activation: [Activation.EndOfRound],
     //     counter: 0
-    // }, {
-    //     name: 'Burglar',
-    //     description: 'When/ {orange}Blind/ is selected,\n gain/ {blue}+3/ Hands and\n {orange}lose all discards',
-    //     cost: 6,
-    //     rarity: 'Uncommon',
-    //     activation: [Activation.OnBlind]
-    // }, {
+    // },
+    {
+        name: 'Burglar',
+        description: 'When/ {orange}Blind/ is selected,\n gain/ {blue}+3/ Hands and\n {orange}lose all discards',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.OnBlind],
+        activate: (game, _, __) => {
+            game.stats.hands += 3
+            game.stats.discards = 0
+            return game
+        }
+    },
+    // {
     //     name: 'Blackboard',
     //     description: '{red-invert}X3/ Mult if all cards held\n in hand are/ {dark-purple}Spades/ or/ {blue} Clubs',
     //     cost: 6,
@@ -311,8 +340,18 @@ export const Jokers: JokerType[] = [
         description: 'If/ {orange}first hand/ of round\n has only/ {orange}1/ card, add a\n permanent copy to deck\n and draw it to/ {orange}hand',
         cost: 8,
         rarity: 'Rare',
-        activation: [] // Activated in hand on submit
-    }, 
+        activation: [Activation.OnPlayed, Activation.EndOfRound],
+        activate: (game, joker, act) => {
+            if(act === Activation.OnPlayed && joker.counter! > 0 && game.cards.selected.length === 1) {
+                addCard({game, card: game.cards.selected[0], loc: 'hand'})
+                joker.counter!--
+            } else if(act === Activation.EndOfRound) {
+                joker.counter = 1
+            }
+            return game
+        },
+        counter: 1
+    },
     // {
     //     name: 'Splash',
     //     description: 'Every/ {orange}played card/ counts\n in scoring',
@@ -384,71 +423,170 @@ export const Jokers: JokerType[] = [
         cost: 7,
         rarity: 'Uncommon',
         activation: [Activation.OnBlind, Activation.Independent],
+        activate: (game, j, _) => {
+            if(game.blind.curr !== 'boss') {
+                j.counter! += 0.5
+                let validJokers = game.jokers.filter(joker => joker !== j)
+                if(validJokers.length > 0) {
+                    let target = validJokers[Math.floor(Random.next() * validJokers.length)].id
+                    game.jokers = game.jokers.filter(j => j.id !== target)
+                }
+            }
+            return game
+        },
         counter: 1
-    }, {
-        name: 'Square Joker',
-        description: 'This Joker gains/ {blue}+4/ Chips if\n played hand has exactly/ {orange}4/ cards\n{grey}(Currently/ {blue}_/{grey}Chips)',
-        cost: 4,
-        rarity: 'Common',
-        activation: [Activation.OnPlayed, Activation.Independent],
-        counter: 0
-    }, {
-        name: 'Seance',
-        description: 'If/ {orange}poker hand/ is a\n {orange}Straight Flush/{nospace}, create a\n random/ {blue}Spectral/ card\n {grey small}(Must have room)',
-        cost: 6,
-        rarity: 'Uncommon',
-        activation: [Activation.OnPlayed]
-    }, {
+    },
+    // {
+    //     name: 'Square Joker',
+    //     description: 'This Joker gains/ {blue}+4/ Chips if\n played hand has exactly/ {orange}4/ cards\n{grey}(Currently/ {blue}_/{grey}Chips)',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnPlayed, Activation.Independent],
+    //     counter: 0
+    // }, {
+    //     name: 'Seance',
+    //     description: 'If/ {orange}poker hand/ is a\n {orange}Straight Flush/{nospace}, create a\n random/ {blue}Spectral/ card\n {grey small}(Must have room)',
+    //     cost: 6,
+    //     rarity: 'Uncommon',
+    //     activation: [Activation.OnPlayed]
+    // },
+    {
         name: 'Riff-Raff',
         description: 'When/ {orange}Blind/ is selected,\n create/ {orange}2/ {blue}Common/ {orange}Jokers\n {small grey}(Must have room)',
         cost: 5,
         rarity: 'Common',
-        activation: [Activation.OnBlind]
-    }, {
-        name: 'Vampire',
-        description: 'This Joker gains/ {red}+/ {red-invert nospace}X0.1\n per scoring/ {orange}Enhanced\n {orange}card/ played, removes\n card/ {orange}Enhancement\n {grey}(Currently/ {red-invert}X_/ {grey}Mult)',
-        cost: 7,
-        rarity: 'Uncommon',
-        activation: [Activation.OnScored, Activation.Independent],
-        counter: 1
-    }, {
-        name: 'Shortcut',
-        description: 'Allows/ {orange}Straights/ to be\n made with gaps of/ {orange}1 rank\n {grey}(ex:/ {orange}10 8 6 5 3/{grey nospace})',
-        cost: 7,
-        rarity: 'Uncommon',
-        activation: [Activation.Passive]
-    } // Hologram
-    , {
-        name: 'Vagabond',
-        description: 'Create a/ {purple}Tarot/ card\n if hand is played with\n {yellow}$4/ or less\n {small grey}(Must have room)',
-        cost: 8,
-        rarity: 'Rare',
-        activation: [Activation.OnPlayed]
-    }, {
-        name: 'Baron',
-        description: 'Each/ {orange}King/ held in hand\n gives/ {red-invert}X1.5/ Mult',
-        cost: 8,
-        rarity: 'Rare',
-        activation: [Activation.OnHeld]
-    }, {
-        name: 'Cloud 9',
-        description: 'Earn/ {yellow}$1/ for each/ {orange}9\n in your/ {orange}full deck/ at\n end of round\n {grey}(Currently/ {yellow}$_/ {grey nospace})',
-        cost: 7,
-        rarity: 'Uncommon',
-        activation: [Activation.EndOfRound]
-    }
-    // ,{
-    //     name: 'Baseball Card',
-    //     description: '{green}Uncommon/Jokers each\ngive/{red-invert}X1.5/Mult',
+        activation: [Activation.OnBlind],
+        activate: (game, _, __) => {
+            if(game.jokers.length < game.stats.jokerSize) {
+                let validJokers = Jokers.filter(j => game.jokers.every(joker => joker.joker.name === j.name))
+                let joker: JokerType
+                let nToAdd = Math.min(2, game.stats.jokerSize - game.jokers.length)
+                for(let i = 0; i < nToAdd; i++) {
+                    if(validJokers.length === 0) { validJokers.push(Jokers[0]) }
+                    joker = validJokers[Math.floor(Random.next() * validJokers.length)]
+                    game = {...game,
+                        jokers: [...game.jokers, {
+                            id: game.cards.nextId + i,
+                            joker: joker
+                        }]
+                    }
+                    validJokers.filter(j => j.name !== joker.name)
+                }
+                game.cards.nextId + nToAdd
+            }
+            return game
+        }
+    },
+    // {
+    //     name: 'Vampire',
+    //     description: 'This Joker gains/ {red}+/ {red-invert nospace}X0.1\n per scoring/ {orange}Enhanced\n {orange}card/ played, removes\n card/ {orange}Enhancement\n {grey}(Currently/ {red-invert}X_/ {grey}Mult)',
+    //     cost: 7,
+    //     rarity: 'Uncommon',
+    //     activation: [Activation.OnScored, Activation.Independent],
+    //     counter: 1
+    // }, {
+    //     name: 'Shortcut',
+    //     description: 'Allows/ {orange}Straights/ to be\n made with gaps of/ {orange}1 rank\n {grey}(ex:/ {orange}10 8 6 5 3/{grey nospace})',
+    //     cost: 7,
+    //     rarity: 'Uncommon',
+    //     activation: [Activation.Passive]
+    // } // Hologram
+    // , {
+    //     name: 'Vagabond',
+    //     description: 'Create a/ {purple}Tarot/ card\n if hand is played with\n {yellow}$4/ or less\n {small grey}(Must have room)',
     //     cost: 8,
     //     rarity: 'Rare',
-    //     activation: []
+    //     activation: [Activation.OnPlayed]
+    // }, {
+    //     name: 'Baron',
+    //     description: 'Each/ {orange}King/ held in hand\n gives/ {red-invert}X1.5/ Mult',
+    //     cost: 8,
+    //     rarity: 'Rare',
+    //     activation: [Activation.OnHeld]
+    // }, {
+    //     name: 'Cloud 9',
+    //     description: 'Earn/ {yellow}$1/ for each/ {orange}9\n in your/ {orange}full deck/ at\n end of round\n {grey}(Currently/ {yellow}$_/ {grey nospace})',
+    //     cost: 7,
+    //     rarity: 'Uncommon',
+    //     activation: [Activation.EndOfRound]
+    // }, {
+    //     name: 'Rocket',
+    //     description: 'Earn/ {yellow}$1/ at end of round.\n Payout increases by/ {yellow}$2/ when\n {orange}Boss Blind/ is defeated',
+    //     cost: 6,
+    //     rarity: 'Uncommon',
+    //     activation: [Activation.EndOfRound],
+    //     counter: 1
+    // }, {
+    //     name: 'Obelisk',
+    //     description: 'This joker gains/ {red}+/{red-invert nospace}X0.2/ Mult\n per/ {orange}consecutive/ hand played without\n playing your most played\n {orange}poker hand/ {grey}(Currently/ {red-invert}X_/ {grey}Mult)',
+    //     cost: 8,
+    //     rarity: 'Rare',
+    //     activation: [Activation.OnPlayed, Activation.Independent],
+    //     counter: 1
+    // }, {
+    //     name: 'Midas Mask',
+    //     description: 'All played/ {orange}face\n cards become/ {orange}Gold\n cards when scored',
+    //     cost: 7,
+    //     rarity: 'Uncommon',
+    //     activation: [Activation.OnScored]
+    // } // Luchador
+    // , {
+    //     name: 'Photograph',
+    //     description: 'First played/ {orange}face card\n gives/ {red-invert}X2/ Mult when scored',
+    //     cost: 5,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnScored, Activation.AfterScoring],
+    //     counter: 1
+    // }, {
+    //     name: 'Gift Card',
+    //     description: 'Add/ {yellow}$1/ of/ {orange} sell value\n to every/ {orange}Joker/ and\n {orange}Consumable/ card at end of round',
+    //     cost: 6,
+    //     rarity: 'Uncommon',
+    //     activation: [Activation.EndOfRound]
+    // },
+    {
+        name: 'Turtle Bean',
+        description: '{orange}+5/ hand size, reduces\n by/ {red}1/ each round',
+        cost: 6,
+        rarity: 'Uncommon',
+        activation: [Activation.OnBlind, Activation.EndOfRound],
+        activate: (game, j, act) => {
+            if(act === Activation.OnBlind && j.counter! > 0) {
+                game.stats.handSize += j.counter!
+            } else if (act === Activation.EndOfRound) {
+                game.stats.handSize = initialGameState.stats.handSize
+                j.counter!--
+            }
+            return game
+        },
+        counter: 5
+    }, // Erosion
+    // {
+    //     name: 'Reserved Parking',
+    //     description: 'Each/ {orange}face/ card held in\n hand has a/ {green} 1 in 2\n chance to give/ {yellow}$1',
+    //     cost: 6,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnHeld]
+    // }, {
+    //     name: 'Mail-In Rebate',
+    //     description: 'Earn/ {yellow}$5/ for each\n discarded/ {orange}_/{nospace},\n rank changes every round',
+    //     cost: 4,
+    //     rarity: 'Common',
+    //     activation: [Activation.OnDiscard, Activation.EndOfRound],
+    //     counter: 0
     // }
-    , {
-        name: 'Triboulet',
-        description: 'Played Kings and\nQueens each give/{red-invert}X2/Mult\nwhen scored',
-        cost: 20,
-        rarity: 'Legendary',
-        activation: [Activation.OnScored]
-    }
+    // // ,{
+    // //     name: 'Baseball Card',
+    // //     description: '{green}Uncommon/Jokers each\ngive/{red-invert}X1.5/Mult',
+    // //     cost: 8,
+    // //     rarity: 'Rare',
+    // //     activation: []
+    // // }
+    // , {
+    //     name: 'Triboulet',
+    //     description: 'Played Kings and\nQueens each give/{red-invert}X2/Mult\nwhen scored',
+    //     cost: 20,
+    //     rarity: 'Legendary',
+    //     activation: [Activation.OnScored]
+    // }
 ]

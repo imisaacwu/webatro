@@ -23,7 +23,7 @@ export const Shop = () => {
                 <div id='shop-content'>
                     <div id='shop-top'>
                         <div id='shop-buttons'>
-                            <div id='next-round' className='shop-button' onClick={() => { dispatch({type: 'state', payload: {state: 'blind-select'}}) }}>
+                            <div id='next-round' className='shop-button' onClick={() => dispatch({type: 'state', payload: {state: 'blind-select'}})}>
                                 <div>Next</div>
                                 <div>Round</div>
                             </div>

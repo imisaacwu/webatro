@@ -1,22 +1,39 @@
-export enum DeckType { Abandoned, Anaglyph, Black, Blue, Challenge, Checkered, Erratic, Ghost, Green, Magic, Nebula, Painted, Plasma, Red, Yellow, Zodiac }
+export enum DeckType {
+    Abandoned,
+    // Anaglyph,
+    Black,
+    Blue,
+    // Challenge,
+    Checkered,
+    Erratic,
+    Ghost,
+    Green,
+    // Magic,
+    // Nebula,
+    Painted,
+    // Plasma,
+    Red,
+    Yellow,
+    // Zodiac
+}
 
 export const deckInfo: {[D in keyof typeof DeckType]: string} = {
     Abandoned: 'Start run with\n no/ {orange}Face Cards\n in your deck',
-    Anaglyph: '',
+    // Anaglyph: '',
     Black: '{orange}+1/ Joker slot\n {blue}-1/ hand\n every round',
     Blue: '{blue}+1/ hand\n every round',
-    Challenge: '',
+    // Challenge: '',
     Checkered: 'Start run with\n {orange}26/ {dark-purple}Spades/ and\n {orange}26/ {red}Hearts/ in deck',
     Erratic: 'All Ranks and\n Suits in deck\n are randomized',
     Ghost: '{indigo}Spectral/ cards may\n appear in the shop,\n start with a/ {indigo}Hex/ card',
     Green: 'At end of each Round:\n {yellow}$2/ {small black}per remaining/ {blue}Hand\n {yellow}$1/ {small black}per remaining/ {red}Discard\n Earn no/ {orange}Interest',
-    Magic: 'Start run with the\n {purple}Crystal Ball/ voucher\n and/ {orange}2/ copies\n of/ {purple}The Fool',
-    Nebula: 'Start run with the\n {aqua}Telescope/ voucher\n {red}-1/ consumable slot',
+    // Magic: 'Start run with the\n {purple}Crystal Ball/ voucher\n and/ {orange}2/ copies\n of/ {purple}The Fool',
+    // Nebula: 'Start run with the\n {aqua}Telescope/ voucher\n {red}-1/ consumable slot',
     Painted: '{orange}+2/ Hand Size,\n {orange}-1/ Joker Slot',
-    Plasma: '',
+    // Plasma: '',
     Red: '{red}+1/ discard\n every round',
     Yellow: 'Start with\n extra/ {yellow}$10',
-    Zodiac: 'Start run with\n {purple}Tarot Merchant/,\n {aqua}Planet Merchant/,\n and {orange}Overstock'
+    // Zodiac: 'Start run with\n {purple}Tarot Merchant/,\n {aqua}Planet Merchant/,\n and {orange}Overstock'
 }
 
 export enum Suit { Spades, Hearts, Clubs, Diamonds }

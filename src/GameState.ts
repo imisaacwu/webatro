@@ -2,7 +2,7 @@ import { createContext, Dispatch } from "react"
 import { BlindType, ConsumableInstance, Consumables, ConsumableType, DeckType, Edition, Enhancement, handLevels, HandType, handUpgrade, Rank, rankChips, Seal, Suit } from "./Constants"
 import { ante_base, AnteBlinds, bestHand, boss_roll, cardSnap, debuffCards, getNextBlind, newOffers, shuffle } from "./Utilities"
 import { CardInfo } from "./components/CardInfo"
-import { Activation, JokerInstance, Jokers, JokerType } from "./components/JokerInfo"
+import { Activation, JokerInstance, JokerType } from "./components/JokerInfo"
 import Rand from "rand-seed"
 
 export let Random: Rand = new Rand()
@@ -13,12 +13,20 @@ export const levelHand = ({ hand, n = 1 }: {hand: keyof typeof handLevels, n?: n
     handLevels[hand].mult += handUpgrade[hand].mult * n
 }
 
+export const addCard = ({ game, card, loc }: {game: GameState, card: CardInfo, loc: 'hand' | 'deck'}) => {
+    game.cards[loc].push({...card,
+        id: game.cards.nextId,
+        selected: false,
+        submitted: false,
+        scored: false
+    })
+    game.cards.nextId++
+}
+
 type GameStates = 'main-menu' | 'blind-select' | 'scoring' | 'post-scoring' | 'shop'
 
 export type GameState = {
     state: GameStates
-    seed: string
-    seeded: boolean
     
     stats: {
         handSize: number
@@ -31,6 +39,8 @@ export type GameState = {
         consumableSize: number
         jokerSize: number
         deck: DeckType
+        seed: string
+        seeded: boolean
     }
 
     shop: {
@@ -102,7 +112,8 @@ export type GameAction = {
 
         state?: GameStates
 
-        stat?: keyof typeof initialGameState['stats']
+        stat?: 'handSize' | 'hands' | 'discards' | 'money' | 'ante' | 'round' | 'score' | 'consumableSize' | 'jokerSize'
+
         previous?: 'played' | 'discarded'   // To know during a draw which came previously
         amount?: number
 
@@ -116,20 +127,20 @@ export type GameAction = {
 
 export const initialGameState: GameState = {
     state: 'main-menu' as GameStates,
-    seed: '',
-    seeded: false,
-
+    
     stats: {
         handSize: 8,
         hands: 4,
-        discards: 4,
-        money: 9999999,
+        discards: 3,
+        money: 0,
         ante: 1,
         round: 0,
         score: 0,
         consumableSize: 2,
         jokerSize: 5,
-        deck: DeckType.Red
+        deck: DeckType.Red,
+        seed: '',
+        seeded: false
     },
 
     shop: {
@@ -187,56 +198,109 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         (a.suit !== b.suit ? a.suit - b.suit : b.rank - a.rank)
     )
     let suits = Object.keys(Suit).filter(k => isNaN(Number(k))).map(s => s as keyof typeof Suit)
-        let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
+    let ranks = Object.keys(Rank).filter(r => isNaN(Number(r))).map(r => r as keyof typeof Rank)
     let next = state, name = state.blind.boss.name
     switch(action.type) {
         case 'init':
+            switch(action.payload?.deck!) {
+                case DeckType.Red:
+                    initialGameState.stats.discards++
+                    break
+                case DeckType.Blue:
+                    initialGameState.stats.hands++
+                    break
+                case DeckType.Yellow:
+                    initialGameState.stats.money += 10
+                    break
+                case DeckType.Black:
+                    initialGameState.stats.jokerSize++
+                    initialGameState.stats.hands--
+                    break
+                case DeckType.Ghost:
+                    next.shop.weights.Spectral = 4
+                    next.cards.consumables = [{
+                        id: 0,
+                        consumable: Consumables[24]
+                    }]
+                    break
+                case DeckType.Painted:
+                    initialGameState.stats.handSize += 2
+                    initialGameState.stats.jokerSize--
+                    break
+            }
+            next = initialGameState
             let arr: CardInfo[] = []
             switch(action.payload?.deck!) {
                 case DeckType.Erratic:
                     for(let i = 1; i <= 52; i++) {
                         let rank = Rank[ranks[Math.floor(Random.next()*ranks.length)]]
-                        arr.push(
-                            {
-                                id: i,
-                                suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
-                                rank: rank,
-                                chips: rankChips[rank],
-                                deck: DeckType.Erratic
-                            }
-                        )
+                        arr.push({
+                            id: i,
+                            suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
+                            rank: rank,
+                            chips: rankChips[Rank[rank] as keyof typeof rankChips],
+                            deck: DeckType.Erratic
+                        })
                     }
-                    break 
-                default:
-                    suits.forEach(s => { ranks.forEach(r => {
-                        arr.push(
-                            {
+                    next.cards.nextId = 53
+                    break
+                case DeckType.Abandoned:
+                    suits.forEach(s => {ranks.forEach(r => {
+                        if(!["Jack", "Queen", "King"].includes(r)) {
+                            arr.push({
                                 id: arr.length + 1,
                                 suit: Suit[s],
                                 rank: Rank[r],
                                 chips: rankChips[r],
                                 deck: action.payload?.deck!
-                            }
-                        )
+                            })
+                        }
                     })})
+                    next.cards.nextId = 41
+                    break
+                case DeckType.Checkered:
+                    suits.filter(s => ["Spades", "Hearts"].includes(s)).forEach(s => {
+                        for(let i = 0; i < 2; i++) {
+                            ranks.forEach(r => {
+                                arr.push({
+                                    id: arr.length + 1,
+                                    suit: Suit[s],
+                                    rank: Rank[r],
+                                    chips: rankChips[r],
+                                    deck: action.payload?.deck!
+                                })
+                            })
+                        }
+                    })
+                    next.cards.nextId = 53
+                    break
+                default:
+                    suits.forEach(s => {ranks.forEach(r => {
+                        arr.push({
+                            id: arr.length + 1,
+                            suit: Suit[s],
+                            rank: Rank[r],
+                            chips: rankChips[r],
+                            deck: action.payload?.deck!
+                        })
+                    })})
+                    next.cards.nextId = 53
             }
-            next = initialGameState
             next = {...next,
-                seed: action.payload?.seed ?? (Math.random() + 1).toString(36).toUpperCase().slice(2),
-                seeded: action.payload?.seed !== undefined,
                 stats: {...state.stats,
-                    deck: action.payload?.deck!
+                    deck: action.payload?.deck!,
+                    seed: action.payload?.seed ?? (Math.random() + 1).toString(36).toUpperCase().slice(2),
+                    seeded: action.payload?.seed !== undefined
                 },
                 blind: {...state.blind,
                     boss: boss_roll(state.stats.ante),
                     base: ante_base(state.stats.ante)
                 },
                 cards: {...state.cards,
-                    nextId: 53,
                     deck: arr
                 }
             }
-            Random = new Rand(next.seed)
+            Random = new Rand(next.stats.seed)
             break 
         case 'state':
             next = {...next,
@@ -244,81 +308,27 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }
             switch(action.payload?.state) {
                 case 'scoring':
-                    next = {...next,
-                        stats: {...state.stats,
-                            round: state.stats.round + 1
-                        },
-                        cards: {...state.cards,
-                            deck: shuffle(state.cards.deck)
-                        }
-                    }
+                    next.stats.round++
+                    next.cards.deck = shuffle(state.cards.deck)
+
                     if(state.blind.curr === 'boss') {
                         debuffCards(state.blind.boss, next.cards.deck, state.cards.played)
-                        if(name === 'The Needle') {
-                            next.stats.hands = 1
-                        } else if(name === 'The Water') {
-                            next.stats.discards = 0
-                        } else if(name === 'Crimson Heart') {
-                            next.jokers[Math.floor(Random.next() * next.jokers.length)].debuffed = true
-                        } else if(name === 'Amber Acorn') {
-                            next.jokers.forEach(j => j.flipped = true)
-                            next = {...next,
-                                jokers: shuffle(next.jokers)
-                            }
+                        switch(name) {
+                            case 'The Needle': next.stats.hands = 1; break
+                            case 'The Water': next.stats.discards; break
+                            case 'The Manacle': next.stats.handSize--; break
+                            case 'Crimson Heart':
+                                next.jokers[Math.floor(Random.next() * next.jokers.length)].debuffed = true
+                                break
+                            case 'Amber Acorn':
+                                next.jokers.forEach(j => j.flipped = true)
+                                next.jokers = shuffle(next.jokers)
+                                break
                         }
                     }
-                    state.jokers.filter(j => j.joker.activation.includes(Activation.OnBlind)).forEach(j => {
-                        switch(j.joker.name) {
-                            case 'Marble Joker':
-                                next = {...next,
-                                    cards: {...next.cards,
-                                        nextId: next.cards.nextId + 1,
-                                        deck: [...next.cards.deck, {
-                                            id: next.cards.nextId,
-                                            suit: Suit[suits[Math.floor(Random.next()*suits.length)]],
-                                            rank: Rank[ranks[Math.floor(Random.next()*ranks.length)]],
-                                            chips: 50,
-                                            enhancement: Enhancement.Stone,
-                                            deck: DeckType.Red
-                                        }]
-                                    }
-                                }
-                                break
-                            case 'Burglar':
-                                next.stats.hands += 3
-                                next.stats.discards = 0
-                                break
-                            case 'Madness':
-                                if(state.blind.curr !== 'boss') {
-                                    j.joker.counter! += 0.5
-                                    let validJokers = state.jokers.filter(joker => joker !== j)
-                                    if(validJokers.length > 0) {
-                                        let target = validJokers[Math.floor(Random.next() * validJokers.length)].id
-                                        next = {...next,
-                                            jokers: next.jokers.filter(j => j.id !== target)
-                                        }
-                                    }
-                                }
-                                break
-                            case 'Riff-Raff':
-                                if(state.jokers.length < state.stats.jokerSize) {
-                                    let validJokers = Jokers.filter(j => state.jokers.every(joker => joker.joker.name === j.name))
-                                    let joker: JokerType
-                                    let nToAdd = Math.min(2, state.stats.jokerSize - state.jokers.length)
-                                    for(let i = 0; i < nToAdd; i++) {
-                                        if(validJokers.length === 0) { validJokers.push(Jokers[0]) }
-                                        joker = validJokers[Math.floor(Random.next() * validJokers.length)]
-                                        next = {...next,
-                                            jokers: [...next.jokers, {
-                                                id: next.cards.nextId + i,
-                                                joker: joker
-                                            }]
-                                        }
-                                        validJokers.filter(j => j.name !== joker.name)
-                                    }
-                                    next.cards.nextId + nToAdd
-                                }
-                        }
+
+                    state.jokers.filter(j => j.joker.activation.includes(Activation.OnBlind) && !j.debuffed).forEach(j => {
+                        next = j.joker.activate(next, j, Activation.OnBlind)
                     })
                     break
                 case 'post-scoring':
@@ -328,7 +338,46 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             c.debuffed = false
                         }
                     )
+
+                    state.cards.hand.filter(c => !c.selected && !c.submitted).forEach(c => {
+                        if(!c.debuffed) {
+                            let will_trigger = c.enhancement === Enhancement?.Gold
+                            state.jokers.filter(j => j.joker.activation.includes(Activation.OnHeld) && !j.debuffed).forEach(j => {
+                                switch(j.joker.name) {
+                                }
+                            })
+    
+                            if(will_trigger) {
+                                const cardName = `(Held in hand) ${c.edition ? Edition[c.edition] + ' ' : ''}${c.enhancement ? Enhancement[c.enhancement] + ' ' : ''}${c.seal ? Seal[c.seal] + ' Seal ': ''}${c.enhancement === Enhancement?.Stone ? 'Card' : Rank[c.rank]} of ${Suit[c.suit]}`
+                                next.scoreLog.push({name: cardName})
+    
+                                const mime = state.jokers.find(j => j.joker.name === 'Mime') !== undefined
+    
+                                const heldInHand = () => {
+                                    if(c.enhancement === Enhancement?.Gold) {
+                                        next.stats.money += 3
+                                        next.scoreLog.push({name: 'Gold Card', notes: '+$3'})
+                                        next.moneyTotalLog += 3
+                                    }
+                                }
+    
+                                heldInHand()
+                                if(c.seal === Seal?.Red) {
+                                    next.scoreLog.push({name: 'Red Seal', notes: 'Retrigger'})
+                                    heldInHand()
+                                }
+                                if(mime) {
+                                    state.jokers.filter(j => j.joker.name === 'Mime').forEach(() => {
+                                        next.scoreLog.push({name: 'Mime', notes: 'Retrigger'})
+                                        heldInHand()
+                                    })
+                                }
+                            }
+                        }
+                    })
+                    
                     state.jokers.filter(j => j.joker.activation.includes(Activation.EndOfRound)).forEach(j => {
+                        next = j.joker.activate(next, j, Activation.EndOfRound)
                         switch(j.joker.name) {
                             case 'Egg':
                                 j.joker.counter! += 3
@@ -336,6 +385,15 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             case 'Cloud 9':
                                 // TODO: add to post log
                                 next.stats.money += deck.reduce((nines, c) => nines += (c.rank === Rank.Nine ? 1 : 0), 0)
+                                break
+                            case 'Rocket':
+                                if(state.blind.curr === 'boss') {
+                                    j.joker.counter! += 2
+                                }
+                                next.stats.money += j.joker.counter!
+                                break
+                            case 'Mail-In Rebate':
+                                j.joker.counter = Math.floor(Random.next() * 13)
                                 break
                         }
                     })
@@ -523,7 +581,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             break
                         case 'Ice Cream':
                             j.joker.counter! = Math.max(0, j.joker.counter! - 5)
-                            break             
+                            break
+                        case 'DNA':
+                            next = j.joker.activate(next, j, Activation.OnPlayed, chips, mult)
+                            break
                         case 'Sixth Sense':
                             if(state.cards.firstPlay && selected.length === 1 && selected[0].rank === Rank.Six && state.cards.consumables.length < state.stats.consumableSize) {
                                 toRemove.push(selected[0])
@@ -588,6 +649,17 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                     nextId: next.cards.nextId + 1
                                 }}
                             }
+                            break
+                        case 'Obelisk':
+                            const mostPlayed = Object.entries(handLevels).reduce((most, hand) => (
+                                most = (most[1].played < hand[1].played || most[1].chips * most[1].mult < hand[1].chips * hand[1].mult) ? hand : most
+                            ), Object.entries(handLevels)[12])
+                            if(hand === mostPlayed[0]) {
+                                j.joker.counter! = 1
+                            } else {
+                                j.joker.counter! += 0.2
+                            }
+                            break
                     }
                     if(baseball && j.joker.rarity === 'Uncommon') {
                         mult *= 1.5
@@ -753,8 +825,20 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                         break
                                     case 'Vampire':
                                         if(c.enhancement) {
-                                            j.joker.counter! += 0.1
+                                            j.joker.counter! = (((j.joker.counter! * 10) + 1) / 10)
                                             c.enhancement = undefined
+                                        }
+                                        break
+                                    case 'Midas Mask':
+                                        if([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank)) {
+                                            c.enhancement = Enhancement.Gold
+                                        }
+                                        break
+                                    case 'Photograph':
+                                        if([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank) && j.joker.counter! > 0) {
+                                            mult *= 2
+                                            next.scoreLog.push({name: 'Photograph', mult: 2, mult_type: 'x'})
+                                            j.joker.counter!--
                                         }
                                         break
                                     case 'Triboulet':
@@ -1034,6 +1118,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                                 next.scoreLog.push({name: 'Vampire', mult: j.joker.counter!, mult_type: 'x'})
                             }
                             break
+                        case 'Obelisk':
+                            if(j.joker.counter! > 1) {
+                                mult *= j.joker.counter!
+                                next.scoreLog.push({name: 'Obelisk', mult: j.joker.counter!, mult_type: 'x'})
+                            }
+                            break
                     }
                     if(baseball && j.joker.rarity === 'Uncommon') {
                         mult *= 1.5
@@ -1052,7 +1142,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 next.scoreLog.push({name: 'Final Score', chips: chips, mult: mult, notes: `+$${state.moneyTotalLog}`})
                 next.stats.score += (chips * mult)
                 next.active.score = {chips: chips, mult: mult}
+
+                state.jokers.filter(j => j.joker.activation.includes(Activation.AfterScoring) && !j.debuffed).forEach(j => {
+                    switch(j.joker.name) {
+                        case 'Photograph':
+                            j.joker.counter = 1
+                            break
+                    }
+                })
             }
+            
             next = {...next,
                 stats: {...next.stats,
                     hands: state.stats.hands - 1
@@ -1088,12 +1187,19 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     state.jokers.filter(j => j.joker.activation.includes(Activation.OnDiscard) && !j.debuffed).forEach(j => {
                         switch(j.joker.name) {
                             case 'Faceless Joker':
-                                if(state.cards.selected.reduce((face, c) => face += ([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank) ? 1 : 0), 0)) {
+                                if(state.cards.selected.reduce((face, c) => face += ([Rank.King, Rank.Queen, Rank.Jack].includes(c.rank) ? 1 : 0), 0) >= 3) {
                                     next.stats.money += 5
                                 }
                                 break
                             case 'Green Joker':
                                 j.joker.counter = Math.max(0, j.joker.counter! - 1);
+                                break
+                            case 'Mail-In Rebate':
+                                state.cards.selected.forEach(c => {
+                                    if(c.rank === j.joker.counter! + 2) {
+                                        next.stats.money += 5
+                                    }
+                                })
                                 break
                         }
                     })

@@ -32,6 +32,7 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
         case 'Madness':
         case 'Square Joker':
         case 'Vampire':
+        case 'Obelisk':
             description = description.replace('_', joker.counter! + '')
             break
         case 'Abstract Joker':
@@ -51,6 +52,8 @@ export const Joker = ({id, joker, edition, selected = false, ...props}: JokerIns
             let nines = fullDeck.reduce((nines, c) => nines += (c.rank === Rank.Nine ? 1 : 0), 0)
             description = description.replace('_', nines + '')
             break
+        case 'Mail-In Rebate':
+            description = description.replace('_', Rank[joker.counter!])
     }
 
     const descriptionElement = description.split('\n').map((line, i) =>

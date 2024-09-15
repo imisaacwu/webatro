@@ -11,7 +11,7 @@ import { InfoPanel } from './components/InfoPanel'
 import { Joker } from './components/Joker'
 import { Round } from './components/Round'
 import { Shop } from './components/Shop'
-import { Blinds } from './Constants'
+import { Blinds, DeckType } from './Constants'
 import { gameReducer, GameStateContext, initialGameState } from './GameState'
 import { cardSnap } from './Utilities'
 import { MainMenu } from './components/MainMenu'
@@ -45,7 +45,13 @@ export default function App() {
 
     const currBlindType = game.blind.curr === 'small' ? Blinds[0] : game.blind.curr === 'big' ? Blinds[1] : game.blind.boss
 
-    const reward = currBlindType.reward + game.stats.hands + Math.min(Math.floor(game.stats.money / 5), 5)
+    let reward = currBlindType.reward
+    if(game.stats.deck === DeckType.Green) {
+        reward += 2 * game.stats.hands + game.stats.discards
+    } else {
+        reward += game.stats.hands + Math.min(Math.floor(game.stats.money / 5), 5)
+    }
+    
 
     return (
         <GameStateContext.Provider value={{ state: game, dispatch }}>
@@ -111,14 +117,28 @@ export default function App() {
                                                 }}>{`Cash Out: $${reward}`}</div>
                                                 <Blind type='post' blind={currBlindType} />
                                                 <div id='post-dots'>{'. '.repeat(49)}</div>
-                                                {game.stats.hands > 0 &&
+                                                {game.stats.deck !== DeckType.Green && game.stats.hands > 0 &&
                                                     <div id='remaining-hands' className='extra-reward'>
                                                         <div className='num-extra'>{game.stats.hands}</div>
                                                         <div className='extra-reward-text'>{'Remaining Hands \[$1 each\]'}</div>
                                                         <div className='reward'>{'$'.repeat(game.stats.hands)}</div>
                                                     </div>
                                                 }
-                                                {game.stats.money > 4 &&
+                                                {game.stats.deck === DeckType.Green && game.stats.hands > 0 &&
+                                                    <div id='remaining-hands' className='extra-reward'>
+                                                        <div className='num-extra'>{game.stats.hands}</div>
+                                                        <div className='extra-reward-text'>{'Remaining Hands \[$2 each\]'}</div>
+                                                        <div className='reward'>{'$'.repeat(2 * game.stats.hands)}</div>
+                                                    </div>
+                                                }
+                                                {game.stats.deck === DeckType.Green && game.stats.discards > 0 &&
+                                                    <div id='remaining-hands' className='extra-reward'>
+                                                        <div className='num-extra'>{game.stats.discards}</div>
+                                                        <div className='extra-reward-text'>{'Remaining Discards \[$1 each\]'}</div>
+                                                        <div className='reward'>{'$'.repeat(game.stats.discards)}</div>
+                                                    </div>
+                                                }
+                                                {game.stats.deck !== DeckType.Green && game.stats.money > 4 &&
                                                     <div id='interest' className='extra-reward'>
                                                         <div className='num-extra'>{Math.min(Math.floor(game.stats.money / 5), 5)}</div>
                                                         <div className='extra-reward-text'>{'1 interest per $5 \[5 max\]'}</div>
